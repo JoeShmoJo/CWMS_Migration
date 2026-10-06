@@ -1,0 +1,12 @@
+
+/CWMS_RTS/
+/NWP_Willamette_Master_2026_10_05_DamagesPrevented/
+
+HEC-FIA/
+HEC_FIA/
+HEC-HMS/
+HEC-MetVue/
+HEC-RAS/
+
+# Uncomment to exclude CWMS-Vue
+# CWMS-Vue/
