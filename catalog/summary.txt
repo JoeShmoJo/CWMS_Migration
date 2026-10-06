@@ -1,0 +1,7 @@
+﻿Catalog created UTC: 2026-10-06T23:45:28.8207787Z
+Sources: CWMS_RTS, NWP_Willamette_Master_2026_10_05_DamagesPrevented
+Files: 13481
+Directories: 1363
+File bytes: 4960147122
+Scan issues or skipped links: 0
+File contents were not read. Links and junctions were not followed.
