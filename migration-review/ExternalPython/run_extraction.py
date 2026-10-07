@@ -19,10 +19,9 @@ def main():
     with open(args.context, encoding='utf-8-sig') as handle:
         data = json.load(handle)
     context = Context(data)
-    if not context.dss_path.is_file():
-        raise FileNotFoundError(context.dss_path)
     print('Forecast:', data['forecast_name'], 'Run:', data['run_name'], flush=True)
     print('Live DSS (unchanged):', context.dss_path, flush=True)
+    print('Existing DSS:', context.dss_path.is_file(), flush=True)
     print('Local window:', context.lookback, context.start, context.end, data['timezone'], flush=True)
     print('UTC window:', context.utc(context.lookback), context.utc(context.start), context.utc(context.end), flush=True)
     print('RFC uses the currently published ensemble; requested dates cannot extend its coverage.', flush=True)
@@ -32,9 +31,14 @@ def main():
         return
 
     # Close RTS/CWMSVue DSS views and ensure no compute is running before execution.
+    if not context.dss_path.parent.is_dir():
+        raise FileNotFoundError('Forecast directory does not exist: {}'.format(context.dss_path.parent))
     stage = Path(tempfile.mkdtemp(prefix='extraction-test-', dir=str(context.dss_path.parent)))
     target = stage / 'forecast.dss'
-    shutil.copy2(context.dss_path, target)
+    if context.dss_path.is_file():
+        shutil.copy2(context.dss_path, target)
+    else:
+        print('No existing forecast DSS. Downloaders will create a new DSS in the test directory.', flush=True)
     data['dss_path'] = str(target)
     context_file = stage / 'context.json'
     context_file.write_text(json.dumps(data, indent=2), encoding='utf-8')

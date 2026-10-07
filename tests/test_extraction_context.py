@@ -83,6 +83,16 @@ class ContextTests(unittest.TestCase):
     def test_plan_does_not_execute_or_copy(self):
         self.run_runner()
 
+    def test_plan_accepts_missing_forecast_dss(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            context = root / 'context.json'
+            context.write_text(json.dumps(data(root / 'forecast.dss')))
+            with patch.object(sys, 'argv', ['runner', '--context', str(context)]):
+                run_extraction.main()
+            self.assertFalse((root / 'forecast.dss').exists())
+            self.assertEqual(list(root.glob('extraction-test-*')), [])
+
     def test_execution_is_ordered_and_live_unchanged(self):
         self.run_runner(execute=True)
 

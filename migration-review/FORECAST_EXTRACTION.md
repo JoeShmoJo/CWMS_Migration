@@ -26,6 +26,8 @@ After the plan is correct, close DSS views and ensure no compute or other writer
 is running. Set EXECUTE_TEST_COPY=True in the launcher. The runner copies the
 forecast DSS into a unique extraction-test-* directory beside the original and
 runs the four steps synchronously, stopping on the first nonzero exit code.
+If the forecast directory exists but its DSS has not been created, the downloaders
+create a fresh DSS in the test directory instead. Plan mode needs neither file nor directory.
 Partial test copies and extraction.log remain for diagnosis. It never promotes
 the test copy or changes the original forecast DSS.
 
