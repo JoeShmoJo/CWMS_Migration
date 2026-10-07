@@ -59,6 +59,11 @@ DSS_PATH = (
     / "simulation.dss"
 ).resolve()
 
+from extraction_context import load_context
+CONTEXT = load_context()
+if CONTEXT is not None:
+    DSS_PATH = CONTEXT.dss_path
+
 DSS_FILE_OUT = str(DSS_PATH)
 
 print("DSS_FILE_OUT:", DSS_FILE_OUT)
@@ -124,24 +129,7 @@ RC_ELEV_DICT = {
 }
 
 # =====================================================================
-# SSL WORKAROUND (optional)
-# =====================================================================
-
-_ssl_patched = False
-
-def enable_insecure_ssl():
-    global _ssl_patched
-    if _ssl_patched:
-        return
-    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-    real_request = requests.Session.request
-
-    def patched_request(self, method, url, **kwargs):
-        kwargs.setdefault("verify", False)
-        return real_request(self, method, url, **kwargs)
-
-    requests.Session.request = patched_request
-    _ssl_patched = True
+# TLS verification is required; use an approved REQUESTS_CA_BUNDLE if needed.
 
 # =====================================================================
 # HELPERS
@@ -169,7 +157,7 @@ def _df_to_series(df: pd.DataFrame) -> pd.Series:
     d = d.dropna(subset=["date-time"]).set_index("date-time").sort_index()
 
     # DSS wants tz-naive
-    d.index = d.index.tz_convert(None)
+    d.index = d.index.tz_convert(CONTEXT.timezone).tz_localize(None) if CONTEXT else d.index.tz_convert(None)
 
     s = pd.to_numeric(d["value"], errors="coerce").astype("float64")
     s = s.replace([np.inf, -np.inf], np.nan).dropna()
@@ -254,7 +242,7 @@ def cwms_download_and_write(
     if out_dir:
         os.makedirs(out_dir, exist_ok=True)
 
-    fid = HecDss.Open(DSS_FILE_OUT, version=6)
+    fid = HecDss.Open(DSS_FILE_OUT, version=7 if CONTEXT else 6)
     try:
         for i, (tsid, dss_path) in enumerate(tsid_to_dss.items(), start=1):
             print(f"[CWMS] ({i}/{len(tsid_to_dss)}) START  tsid={tsid} -> dss={dss_path}")
@@ -278,6 +266,10 @@ def cwms_download_and_write(
                     s = _shift_series_index(s, time_shift)
 
                 interval_min, dss_type = _infer_dss_meta_from_path(dss_path)
+                if CONTEXT and tsid_to_dss is LOOKBACK_ELEV_DICT:
+                    CONTEXT.validate_series(s, interval_min, end=CONTEXT.start)
+                elif CONTEXT:
+                    CONTEXT.validate_series(s, interval_min, begin=s.index[0], end=s.index[-1])
                 if force_dss_type is not None:
                     dss_type = force_dss_type
 
@@ -316,6 +308,8 @@ def cwms_download_and_write(
         for tsid, msg in failed:
             print(f"  - {tsid} -> {msg}")
 
+    if CONTEXT and (failed or empty):
+        raise RuntimeError("CWMS missing or failed series: %r; empty=%d" % (failed, empty))
     return written
 
 # =====================================================================
@@ -323,11 +317,14 @@ def cwms_download_and_write(
 # =====================================================================
 
 if __name__ == "__main__":
-    enable_insecure_ssl()
+    # TLS verification stays enabled. Use REQUESTS_CA_BUNDLE for an approved CA bundle.
 
     now_utc = pd.Timestamp.now(tz="UTC")
     first_of_year_utc = now_utc.normalize().replace(month=1, day=1)
     ten_days_future_utc = now_utc + pd.Timedelta(days=10)
+
+    if CONTEXT:
+        first_of_year_utc = min(first_of_year_utc, pd.Timestamp(CONTEXT.utc(CONTEXT.lookback)))
 
     # OBS: first of year -> now
     n1 = cwms_download_and_write(
@@ -349,8 +346,8 @@ if __name__ == "__main__":
     # LOOKBACK/FORECAST: now -> +10 days
     n3 = cwms_download_and_write(
         LOOKBACK_ELEV_DICT,
-        now_utc,
-        ten_days_future_utc,
+        CONTEXT.utc(CONTEXT.lookback) if CONTEXT else now_utc,
+        CONTEXT.utc(CONTEXT.start) if CONTEXT else ten_days_future_utc,
         units="FT",
         decimals=2,
     )

@@ -48,6 +48,11 @@ DSS_PATH = (
     / "simulation.dss"
 ).resolve()   # <-- forces full absolute path
 
+from extraction_context import load_context
+CONTEXT = load_context()
+if CONTEXT is not None:
+    DSS_PATH = CONTEXT.dss_path
+
 DSS_FILE_OUT = str(DSS_PATH)
 
 print("DSS_FILE_OUT:", DSS_FILE_OUT)
@@ -85,6 +90,10 @@ def write_dummy_records():
     today = pd.Timestamp.utcnow().normalize()
     start = (today - pd.Timedelta(days=365)).tz_localize(None)
     end   = (today + pd.Timedelta(days=365)).tz_localize(None)
+
+    if CONTEXT:
+        start = pd.Timestamp(CONTEXT.lookback).normalize() - pd.Timedelta(days=1)
+        end = pd.Timestamp(CONTEXT.end).normalize() + pd.Timedelta(days=1)
 
     # -----------------------------------------------------------------
     # 1) Daily WY_TYPE record (all values = 4)

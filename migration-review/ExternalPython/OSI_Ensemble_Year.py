@@ -31,6 +31,11 @@ DSS_PATH = (
     / "simulation.dss"
 ).resolve()
 
+from extraction_context import load_context
+CONTEXT = load_context()
+if CONTEXT is not None:
+    DSS_PATH = CONTEXT.dss_path
+
 DSS_FILE = str(DSS_PATH)
 
 print("DSS_FILE:", DSS_FILE)
@@ -147,7 +152,7 @@ def copy_ensemble_year_to_1980(
     source_fpart = _member_to_fpart(source_year)
     target_fpart = _member_to_fpart(target_year)
 
-    fid = HecDss.Open(dss_file, version=6)
+    fid = HecDss.Open(dss_file, version=7 if CONTEXT else 6)
     try:
         for group, sites in GROUP_TO_SITES.items():
             bpart = GROUP_TO_BPART[group]
@@ -211,3 +216,5 @@ if __name__ == "__main__":
         print("\nMisses (group, site, reason):")
         for g, s, reason in misses:
             print(f"  {g} {s}: {reason}")
+    if CONTEXT and (misses or copied == 0):
+        raise RuntimeError("OSI ensemble copy incomplete: %r" % (misses,))

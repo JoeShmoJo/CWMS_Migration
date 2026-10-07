@@ -55,6 +55,11 @@ DSS_PATH = (
     / "simulation.dss"
 ).resolve()
 
+from extraction_context import load_context
+CONTEXT = load_context()
+if CONTEXT is not None:
+    DSS_PATH = CONTEXT.dss_path
+
 DSS_FILE_OUT = str(DSS_PATH)
 print("DSS_FILE_OUT:", DSS_FILE_OUT)
 
@@ -191,7 +196,7 @@ def _normalize_index_naive(df: pd.DataFrame) -> pd.DataFrame:
     idx = pd.to_datetime(df.index, errors="coerce")
 
     if isinstance(idx, pd.DatetimeIndex) and idx.tz is not None:
-        idx = idx.tz_localize(None)
+        idx = idx.tz_convert(CONTEXT.timezone).tz_localize(None) if CONTEXT else idx.tz_localize(None)
 
     df.index = idx
     df = df[~df.index.isna()].sort_index()
@@ -219,6 +224,9 @@ def _write_series_daily_v6(fid, pathname: str, series: pd.Series, decimals: int 
 
     if not series.index.is_monotonic_increasing:
         series = series.sort_index()
+
+    if CONTEXT:
+        CONTEXT.validate_series(series, 1440)
 
     start_dt = series.index[0].strftime("%d%b%Y %H%M")
 
@@ -250,7 +258,7 @@ def write_rfc_to_dss(
     written = 0
     write_misses: List[Tuple[str, str, str]] = []
 
-    fid = HecDss.Open(dss_file_out, version=6)
+    fid = HecDss.Open(dss_file_out, version=7 if CONTEXT else 6)
     try:
         for group, site_dict in rfc_data.items():
             bpart = GROUP_TO_BPART.get(group)
@@ -314,6 +322,9 @@ if __name__ == "__main__":
 
     rfc_data, dl_misses = load_espf10(SPECS, debug=True)
 
+    if CONTEXT and dl_misses:
+        raise RuntimeError("RFC downloads missing: %r" % (dl_misses,))
+
     written, wr_misses = write_rfc_to_dss(
         rfc_data=rfc_data,
         dss_file_out=DSS_FILE_OUT,
@@ -337,3 +348,5 @@ if __name__ == "__main__":
         print("\nWrite misses (group, site, reason):")
         for g, s, reason in wr_misses[:25]:
             print(f"  {g} {s}: {reason}")
+    if CONTEXT and (wr_misses or written == 0):
+        raise RuntimeError("RFC write/coverage failures: %r" % (wr_misses,))
