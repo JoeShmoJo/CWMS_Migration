@@ -55,6 +55,12 @@ members found in downloaded FLOW-LOC/FLOW-UNREG collection records. The generic
 dummy records remain available. A separate write_ensemble_dummies.py --dss PATH
 command can repair an already prepared forecast without downloading again; its
 CLI creates a backup first. Stop computes and close DSS views before repair.
+The final write_ensemble_shared_inputs.py step also makes member-qualified
+copies of all 11 required lookback elevation records and 11 mapped rule curves,
+retaining their native intervals and timestamps. The generic originals remain.
+Its --dss PATH repair command backs up and updates an existing prepared DSS
+without network downloads. These member-qualified paths match RTS's observed
+C:<member>|RFC-FCST lookup and cover the equivalent rule-curve lookup convention.
 
 TLS verification stays enabled, including standalone CWMS downloads. The legacy
 certificate-verification bypass is removed. By default on Windows, the runner

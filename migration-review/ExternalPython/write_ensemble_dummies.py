@@ -14,7 +14,7 @@ def member_prefixes(paths):
     return sorted(prefixes)
 
 
-def copy_dummies(filename):
+def copy_records(filename, specifications):
     import numpy as np
     import pandas as pd
     from pydsstools.heclib.dss import HecDss
@@ -27,20 +27,19 @@ def copy_dummies(filename):
             raise ValueError('No downloaded ensemble FLOW-LOC/FLOW-UNREG members found')
         # Validate both source records before writing any copies.
         sources = []
-        for path, units in [('/ZERO/ZERO/FLOW//1DAY/DUMMY/', 'CFS'),
-                            ('/ALL_ABUNDANT//STOR//1DAY/WY_TYPE/', 'UNSPEC')]:
+        for path, units, interval, data_type in specifications:
             series = dss.read_ts(path, trim_missing=True)
             dates = pd.DatetimeIndex(pd.to_datetime(series.pytimes))
             values = np.asarray(series.values, dtype=float)
             if len(dates) != len(values) or not len(values) or not np.isfinite(values).all():
                 raise ValueError('Invalid source dummy record: ' + path)
-            if not (dates.to_series().diff().iloc[1:] == pd.Timedelta(days=1)).all():
-                raise ValueError('Source dummy has irregular daily timestamps: ' + path)
+            if not (dates.to_series().diff().iloc[1:] == pd.Timedelta(minutes=interval)).all():
+                raise ValueError('Source input has irregular timestamps: ' + path)
             if path.startswith('/ZERO/') and not (values == 0).all():
                 raise ValueError('ZERO source contains nonzero values')
-            sources.append((path, units, dates, values))
+            sources.append((path, units, interval, data_type, dates, values))
         written = 0
-        for path, units, dates, values in sources:
+        for path, units, interval, data_type, dates, values in sources:
             for prefix in members:
                 parts = path.split('/')
                 parts[6] = prefix + parts[6]
@@ -48,14 +47,19 @@ def copy_dummies(filename):
                 record.pathname = '/'.join(parts)
                 record.startDateTime = dates[0].strftime('%d%b%Y %H%M')
                 record.numberValues = len(values)
-                record.interval = 1440
+                record.interval = interval
                 record.units = units
-                record.type = 'INST-VAL'
+                record.type = data_type
                 record.values = values
                 dss.put_ts(record)
                 written += 1
         print('Ensemble members:', ', '.join(members))
-        print('Member-specific dummy/WY records written:', written)
+        print('Member-specific shared input records written:', written)
+
+
+def copy_dummies(filename):
+    copy_records(filename, [('/ZERO/ZERO/FLOW//1DAY/DUMMY/', 'CFS', 1440, 'INST-VAL'),
+                            ('/ALL_ABUNDANT//STOR//1DAY/WY_TYPE/', 'UNSPEC', 1440, 'INST-VAL')])
 
 
 if __name__ == '__main__':
