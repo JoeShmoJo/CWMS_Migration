@@ -51,7 +51,7 @@ def main():
     env['PYTHONUNBUFFERED'] = '1'
     directory = Path(__file__).resolve().parent
     scripts = ['RFC_Downloader_Module.py', 'CWMS_Downloader_Module.py',
-               'Dummy_0_and_WY_Abundant_Module.py', 'OSI_Ensemble_Year.py']
+               'Dummy_0_and_WY_Abundant_Module.py', 'OSI_Ensemble_Year.py', 'write_rule_curves.py']
     log = stage / 'extraction.log'
     with log.open('w', encoding='utf-8') as handle:
         for script in scripts:

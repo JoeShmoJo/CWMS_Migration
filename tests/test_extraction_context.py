@@ -79,7 +79,7 @@ class ContextTests(unittest.TestCase):
             context = root / 'context.json'
             context.write_text(json.dumps(data(live)))
             names = ['RFC_Downloader_Module.py', 'CWMS_Downloader_Module.py',
-                     'Dummy_0_and_WY_Abundant_Module.py', 'OSI_Ensemble_Year.py']
+                     'Dummy_0_and_WY_Abundant_Module.py', 'OSI_Ensemble_Year.py', 'write_rule_curves.py']
             for i, name in enumerate(names):
                 script = "import json,os\nfrom pathlib import Path\np=Path(json.load(open(os.environ['RESSIM_EXTRACTION_CONTEXT']))['dss_path'])\np.write_bytes(p.read_bytes()+b'%d')\n" % i
                 if fail and i == 1:
@@ -96,7 +96,7 @@ class ContextTests(unittest.TestCase):
             stages = list(root.glob('extraction-test-*'))
             if execute:
                 self.assertEqual(len(stages), 1)
-                self.assertEqual((stages[0] / 'forecast.dss').read_bytes(), b'original01' if fail else b'original0123')
+                self.assertEqual((stages[0] / 'forecast.dss').read_bytes(), b'original01' if fail else b'original01234')
             else:
                 self.assertEqual(stages, [])
 

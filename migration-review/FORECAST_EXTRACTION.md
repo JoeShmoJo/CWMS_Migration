@@ -67,10 +67,16 @@ checks, runner ordering, failure propagation, and isolation of the live DSS usin
 stub processes. Local testing remains required.
 
 Successful extraction does not yet prove Con_Season compute readiness. Check the
-alternative's exact record mappings and ensemble membership, and supply its
-shared/Willamette_Rule_Curves.dss records if RTS redirects those to forecast.dss.
-The downloaded CENWP-CALC rule curves use different pathnames and are not a
-replacement for that file. Validate the copied DSS before any live forecast use.
+alternative's exact record mappings and ensemble membership. The final loader
+now writes the 11 mapped ELEV/1DAY/RULE CURVE records from the user's annual
+CON_SEASON_RULE_CURVES.csv table. The CSV preserves all 13 reservoir columns and
+366 original generic-year rows; the matching Dec 31 boundary is deduplicated when
+building the annual lookup. Dates are expanded through the forecast window with
+one daily point of padding at each end. Elevations are treated as feet, consistent
+with this model. No interpolation is applied; a forecast spanning Feb 29 fails
+until an explicit value/policy is provided. Standalone rule-curve files remain
+unchanged. The downloaded CENWP-CALC plotting curves are separate records.
+Validate the copied DSS before any live forecast use.
 Plotting and augmentation scripts are not yet adapted.
 
 Once local tests pass, install these same Python files into the maintained
