@@ -10,7 +10,7 @@ if (-not (Test-Path -LiteralPath (Join-Path $target 'CONFIG.py'))) {
 $names = @('RFC_Downloader_Module.py', 'CWMS_Downloader_Module.py',
     'Dummy_0_and_WY_Abundant_Module.py', 'OSI_Ensemble_Year.py',
     'extraction_context.py', 'run_extraction.py', 'windows_ca.py', 'diagnose_cwms.py', 'cwms_time.py',
-    'write_rule_curves.py', 'CON_SEASON_RULE_CURVES.csv')
+    'write_rule_curves.py', 'CON_SEASON_RULE_CURVES.csv', 'write_ensemble_dummies.py')
 foreach ($name in $names) {
     if (-not (Test-Path -LiteralPath (Join-Path $PSScriptRoot "ExternalPython\$name"))) {
         throw "Missing installation source: $name"

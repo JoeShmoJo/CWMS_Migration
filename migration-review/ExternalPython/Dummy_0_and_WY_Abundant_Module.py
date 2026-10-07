@@ -144,3 +144,6 @@ def write_dummy_records():
 
 if __name__ == "__main__":
     write_dummy_records()
+    if CONTEXT:
+        from write_ensemble_dummies import copy_dummies
+        copy_dummies(DSS_FILE_OUT)

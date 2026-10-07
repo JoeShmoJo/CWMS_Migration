@@ -50,6 +50,11 @@ slots rather than interpolating or shifting later values. Required lookback and
 RFC inputs still reject missing values and insufficient coverage. Missing/failed
 plotting groups produce warnings and do not prevent the required workflow from
 continuing. OSI copying retains CONFIG.ENSEMBLE_YEAR_TO_COPY and 2029.
+The dummy step also creates C:<member>|DUMMY and C:<member>|WY_TYPE copies for
+members found in downloaded FLOW-LOC/FLOW-UNREG collection records. The generic
+dummy records remain available. A separate write_ensemble_dummies.py --dss PATH
+command can repair an already prepared forecast without downloading again; its
+CLI creates a backup first. Stop computes and close DSS views before repair.
 
 TLS verification stays enabled, including standalone CWMS downloads. The legacy
 certificate-verification bypass is removed. By default on Windows, the runner
