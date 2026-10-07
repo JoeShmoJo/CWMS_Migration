@@ -1,5 +1,6 @@
 """Read two CWMS series and print timestamp diagnostics; never open or write DSS."""
 from datetime import datetime, timedelta, timezone
+import argparse
 import pandas as pd
 from windows_ca import configure_ca_bundle
 
@@ -19,6 +20,9 @@ def summarize(label, frame):
     print('First UTC timestamps:', [str(t) for t in times.head(5)], flush=True)
     print('Last UTC timestamps:', [str(t) for t in times.tail(5)], flush=True)
     print('Raw interval counts:', {str(k): int(v) for k, v in times.diff().dropna().value_counts().items()}, flush=True)
+    if 'RFC-FCST' not in label:
+        civil = pd.DatetimeIndex(times).tz_convert('America/Los_Angeles').tz_localize(None)
+        print('Pacific civil interval counts:', {str(k): int(v) for k, v in civil.to_series().diff().dropna().value_counts().items()}, flush=True)
     clean = pd.DataFrame({'time': pd.to_datetime(frame['date-time'], errors='coerce', utc=True), 'value': values})
     clean = clean.dropna().sort_values('time')
     diffs = clean['time'].diff()
@@ -30,6 +34,9 @@ def summarize(label, frame):
 
 
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--tsid', help='Inspect one daily CWMS series, from January 1 through now')
+    args = parser.parse_args()
     configure_ca_bundle()
     import cwms
     cwms.api.init_session(api_root='https://wm.nws.ds.usace.army.mil:8243/nwdp-data/')
@@ -38,6 +45,8 @@ def main():
         ('DET.Elev-Forebay.Ave.~1Day.1Day.CBT-REV', now.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0), now),
         ('DET.Elev-Forebay.Inst.~6Hours.0.RFC-FCST', now, now + timedelta(days=3))
     ]
+    if args.tsid:
+        cases = [(args.tsid, now.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0), now)]
     for name, begin, end in cases:
         result = cwms.get_timeseries(name, office_id='NWDP', begin=begin, end=end)
         summarize(name, getattr(result, 'df', None))
