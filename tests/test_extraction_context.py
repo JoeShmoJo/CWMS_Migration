@@ -51,6 +51,15 @@ class ContextTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             c.validate_series(s.drop(s.index[3]), 1440)
 
+    def test_missing_slots_allowed_only_when_explicit(self):
+        import pandas as pd
+        c = Context(data('forecast.dss'))
+        s = pd.Series(1.0, index=pd.date_range(c.lookback, c.end, freq='D'))
+        s.iloc[3] = float('nan')
+        with self.assertRaises(ValueError):
+            c.validate_series(s, 1440)
+        c.validate_series(s, 1440, allow_missing=True)
+
     def run_runner(self, execute=False, fail=False):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)

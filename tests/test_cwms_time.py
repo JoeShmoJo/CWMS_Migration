@@ -5,10 +5,21 @@ import unittest
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'migration-review' / 'ExternalPython'))
-from cwms_time import dss_index
+from cwms_time import dss_index, preserve_gaps
 
 
 class CalendarTests(unittest.TestCase):
+    def test_historical_gap_keeps_later_value_on_correct_day(self):
+        s = pd.Series([100.0, 102.0], index=pd.to_datetime(['2026-07-20', '2026-07-22']))
+        result = preserve_gaps(s, 1440)
+        self.assertEqual(len(result), 3)
+        self.assertTrue(pd.isna(result.loc['2026-07-21']))
+        self.assertEqual(result.loc['2026-07-22'], 102.0)
+
+    def test_off_grid_observation_rejected(self):
+        s = pd.Series([1.0, 2.0], index=pd.to_datetime(['2026-07-20', '2026-07-21 01:00'], format='mixed'))
+        with self.assertRaises(ValueError):
+            preserve_gaps(s, 1440)
     def test_spring_daily_labels(self):
         utc = pd.to_datetime(['2026-03-08T08:00Z', '2026-03-09T07:00Z', '2026-03-10T07:00Z'])
         result = dss_index(utc, timezone(timedelta(hours=-8)), True)

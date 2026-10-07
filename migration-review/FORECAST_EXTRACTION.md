@@ -42,6 +42,9 @@ whereas six-hour elevations use the fixed forecast timezone. No observations are
 interpolated or filled. The daily source zone defaults to America/Los_Angeles and
 can be overridden with CONFIG.CWMS_DAILY_TIMEZONE for another source convention.
 observed and rule-curve download groups retain their older windows. All requested
+historical observed elevation/outflow records preserve missing days as DSS UNDEFINED
+slots rather than interpolating or shifting later values. Required lookback and
+RFC inputs still reject missing values and insufficient coverage. All requested
 CWMS series must return data, so an ancillary missing series may stop this first
 test; the error names it. OSI copying retains CONFIG.ENSEMBLE_YEAR_TO_COPY and 2029.
 

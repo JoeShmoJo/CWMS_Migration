@@ -36,14 +36,16 @@ class Context:
     def utc(self, value):
         return value.replace(tzinfo=self.timezone).astimezone(timezone.utc)
 
-    def validate_series(self, series, interval_minutes, begin=None, end=None):
+    def validate_series(self, series, interval_minutes, begin=None, end=None, allow_missing=False):
         """Reject gaps before packing regular DSS values (which would shift times)."""
         import numpy as np
         import pandas as pd
         begin = pd.Timestamp(self.lookback if begin is None else begin)
         end = pd.Timestamp(self.end if end is None else end)
         series = series.sort_index()
-        if series.empty or series.index.has_duplicates or not np.isfinite(series.to_numpy(dtype=float)).all():
+        values = series.to_numpy(dtype=float)
+        invalid = np.isinf(values).any() or (not allow_missing and np.isnan(values).any())
+        if series.empty or series.index.has_duplicates or invalid:
             raise ValueError('Empty, duplicate, or nonfinite time-series values')
         delta = pd.Timedelta(minutes=interval_minutes)
         if not (series.index.to_series().diff().iloc[1:] == delta).all():

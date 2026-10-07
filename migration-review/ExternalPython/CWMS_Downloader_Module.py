@@ -208,7 +208,11 @@ def _write_series_v6(fid, pathname: str, series: pd.Series, units: str, interval
     tsc.units = units
     tsc.type = dss_type
     tsc.interval = interval_min
-    tsc.values = np.round(series.to_numpy(dtype="float64"), decimals)
+    values = np.round(series.to_numpy(dtype="float64"), decimals)
+    if CONTEXT:
+        from pydsstools.core import UNDEFINED
+        values = np.where(np.isnan(values), UNDEFINED, values)
+    tsc.values = values
 
     fid.put_ts(tsc)
     return True
@@ -271,10 +275,18 @@ def cwms_download_and_write(
                 if time_shift is not None:
                     s = _shift_series_index(s, time_shift)
 
+                historical_observations = tsid_to_dss is OBS_ELEV_DICT or tsid_to_dss is OBS_OUTFLOW_DICT
+                if CONTEXT and historical_observations:
+                    from cwms_time import preserve_gaps
+                    s = preserve_gaps(s, interval_min)
+                    if s.isna().any():
+                        print('[CWMS] {}: preserving {} missing observation slots; no interpolation'.format(tsid, int(s.isna().sum())))
+
                 if CONTEXT and tsid_to_dss is LOOKBACK_ELEV_DICT:
                     CONTEXT.validate_series(s, interval_min, end=CONTEXT.start)
                 elif CONTEXT:
-                    CONTEXT.validate_series(s, interval_min, begin=s.index[0], end=s.index[-1])
+                    CONTEXT.validate_series(s, interval_min, begin=s.index[0], end=s.index[-1],
+                                            allow_missing=historical_observations)
                 if force_dss_type is not None:
                     dss_type = force_dss_type
 
