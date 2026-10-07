@@ -318,6 +318,8 @@ def cwms_download_and_write(
 
 if __name__ == "__main__":
     # TLS verification stays enabled. Use REQUESTS_CA_BUNDLE for an approved CA bundle.
+    from windows_ca import configure_ca_bundle
+    configure_ca_bundle()
 
     now_utc = pd.Timestamp.now(tz="UTC")
     first_of_year_utc = now_utc.normalize().replace(month=1, day=1)

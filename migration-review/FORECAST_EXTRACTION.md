@@ -42,8 +42,12 @@ CWMS series must return data, so an ancillary missing series may stop this first
 test; the error names it. OSI copying retains CONFIG.ENSEMBLE_YEAR_TO_COPY and 2029.
 
 TLS verification stays enabled, including standalone CWMS downloads. The legacy
-certificate-verification bypass is removed. If needed, configure REQUESTS_CA_BUNDLE
-with an approved certificate bundle; do not disable verification.
+certificate-verification bypass is removed. By default on Windows, the runner
+combines certifi's public roots with Windows ROOT certificates trusted for TLS
+server authentication. It validates the PEM, passes REQUESTS_CA_BUNDLE to child
+processes, and removes its unique temporary bundle at exit. Explicit user bundles
+in REQUESTS_CA_BUNDLE or CURL_CA_BUNDLE are preserved. If verification still fails,
+inspect the exact error and the installed organization roots; do not disable it.
 
 ## What this test does not establish
 

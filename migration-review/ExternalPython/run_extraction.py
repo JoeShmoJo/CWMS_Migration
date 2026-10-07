@@ -30,6 +30,9 @@ def main():
         print('PLAN ONLY: no downloads or DSS opens. Use --execute for a separate test copy.', flush=True)
         return
 
+    from windows_ca import configure_ca_bundle
+    configure_ca_bundle()
+
     # Close RTS/CWMSVue DSS views and ensure no compute is running before execution.
     if not context.dss_path.parent.is_dir():
         raise FileNotFoundError('Forecast directory does not exist: {}'.format(context.dss_path.parent))
