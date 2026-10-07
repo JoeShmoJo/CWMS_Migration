@@ -140,7 +140,7 @@ def _to_py_datetime_utc(x) -> object:
     ts = pd.to_datetime(x, utc=True)
     return ts.to_pydatetime()
 
-def _df_to_series(df: pd.DataFrame) -> pd.Series:
+def _df_to_series(df: pd.DataFrame, calendar_daily=False) -> pd.Series:
     """
     CWMS df shape you showed:
       columns: ['date-time','value','quality-code'], RangeIndex
@@ -157,7 +157,12 @@ def _df_to_series(df: pd.DataFrame) -> pd.Series:
     d = d.dropna(subset=["date-time"]).set_index("date-time").sort_index()
 
     # DSS wants tz-naive
-    d.index = d.index.tz_convert(CONTEXT.timezone).tz_localize(None) if CONTEXT else d.index.tz_convert(None)
+    if CONTEXT:
+        from cwms_time import dss_index
+        d.index = dss_index(d.index, CONTEXT.timezone, calendar_daily,
+                           getattr(cfg, 'CWMS_DAILY_TIMEZONE', 'America/Los_Angeles'))
+    else:
+        d.index = d.index.tz_convert(None)
 
     s = pd.to_numeric(d["value"], errors="coerce").astype("float64")
     s = s.replace([np.inf, -np.inf], np.nan).dropna()
@@ -256,7 +261,8 @@ def cwms_download_and_write(
                     print(f"[CWMS] ({i}/{len(tsid_to_dss)}) EMPTY  tsid={tsid}")
                     continue
 
-                s = _df_to_series(df)
+                interval_min, dss_type = _infer_dss_meta_from_path(dss_path)
+                s = _df_to_series(df, calendar_daily=(interval_min == 1440))
                 if s.empty:
                     empty += 1
                     print(f"[CWMS] ({i}/{len(tsid_to_dss)}) EMPTY(clean)  tsid={tsid}")
@@ -265,7 +271,6 @@ def cwms_download_and_write(
                 if time_shift is not None:
                     s = _shift_series_index(s, time_shift)
 
-                interval_min, dss_type = _infer_dss_meta_from_path(dss_path)
                 if CONTEXT and tsid_to_dss is LOOKBACK_ELEV_DICT:
                     CONTEXT.validate_series(s, interval_min, end=CONTEXT.start)
                 elif CONTEXT:

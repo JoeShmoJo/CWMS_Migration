@@ -37,6 +37,10 @@ six-hour daily aggregation shift and synthetic members 2026/2027/2028 are retain
 forecast mode converts incoming timestamps to the fixed forecast timezone first.
 That alignment still needs validation against the working standalone dataset.
 CWMS forecast elevations are requested from lookback through forecast time;
+daily CWMS records retain their Pacific civil clock labels across DST transitions,
+whereas six-hour elevations use the fixed forecast timezone. No observations are
+interpolated or filled. The daily source zone defaults to America/Los_Angeles and
+can be overridden with CONFIG.CWMS_DAILY_TIMEZONE for another source convention.
 observed and rule-curve download groups retain their older windows. All requested
 CWMS series must return data, so an ancillary missing series may stop this first
 test; the error names it. OSI copying retains CONFIG.ENSEMBLE_YEAR_TO_COPY and 2029.
