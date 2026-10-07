@@ -333,59 +333,44 @@ def cwms_download_and_write(
 # RUN AS SCRIPT
 # =====================================================================
 
+def prepare_cwms_groups(required_job, optional_jobs, download):
+    """Required inputs fail fast; plotting failures are reported separately."""
+    name, mapping, begin, end, options = required_job
+    required_count = download(mapping, begin, end, **options)
+    print("Required lookback elevations written:", required_count)
+    warnings = []
+    for name, mapping, begin, end, options in optional_jobs:
+        try:
+            count = download(mapping, begin, end, **options)
+            print("Plotting group %s: %d series written" % (name, count))
+        except Exception as exc:
+            warnings.append((name, str(exc)))
+            print("[PLOTTING WARNING] %s: %s" % (name, exc))
+    print("Optional plotting groups with failures:", len(warnings))
+    return required_count, warnings
+
+
 if __name__ == "__main__":
-    # TLS verification stays enabled. Use REQUESTS_CA_BUNDLE for an approved CA bundle.
     from windows_ca import configure_ca_bundle
     configure_ca_bundle()
-
     now_utc = pd.Timestamp.now(tz="UTC")
     first_of_year_utc = now_utc.normalize().replace(month=1, day=1)
-    ten_days_future_utc = now_utc + pd.Timedelta(days=10)
-
     if CONTEXT:
         first_of_year_utc = min(first_of_year_utc, pd.Timestamp(CONTEXT.utc(CONTEXT.lookback)))
+        begin, end = CONTEXT.lookback_request_bounds()
+    else:
+        begin, end = now_utc, now_utc + pd.Timedelta(days=10)
 
-    # OBS: first of year -> now
-    n1 = cwms_download_and_write(
-        OBS_ELEV_DICT,
-        first_of_year_utc,
-        now_utc,
-        units="FT",
-        decimals=2,
-    )
-
-    n2 = cwms_download_and_write(
-        OBS_OUTFLOW_DICT,
-        first_of_year_utc,
-        now_utc,
-        units="CFS",
-        decimals=1,
-    )
-
-    # LOOKBACK/FORECAST: now -> +10 days
-    n3 = cwms_download_and_write(
-        LOOKBACK_ELEV_DICT,
-        CONTEXT.utc(CONTEXT.lookback) if CONTEXT else now_utc,
-        CONTEXT.utc(CONTEXT.start) if CONTEXT else ten_days_future_utc,
-        units="FT",
-        decimals=2,
-    )
-
-    # RULE CURVE: first of year -> now
-    # Source timestamps are daily at 08:00; shift +16 hours to represent end-of-day.
-    n4 = cwms_download_and_write(
-        RC_ELEV_DICT,
-        first_of_year_utc,
-        now_utc,
-        units="FT",
-        decimals=2,
-        time_shift=pd.Timedelta(hours=-8),
-        force_dss_type="INST-VAL",
-    )
-
-    print("\n--- Summary ---")
-    print(f"DSS out: {DSS_FILE_OUT}")
-    print(f"OBS elev written: {n1}")
-    print(f"OBS outflow written: {n2}")
-    print(f"LOOKBACK elev written: {n3}")
-    print(f"RC elev written: {n4}")
+    required = ("lookback elevations", LOOKBACK_ELEV_DICT, begin, end,
+                dict(units="FT", decimals=2))
+    optional = [
+        ("observed elevations", OBS_ELEV_DICT, first_of_year_utc, now_utc,
+         dict(units="FT", decimals=2)),
+        ("observed outflows", OBS_OUTFLOW_DICT, first_of_year_utc, now_utc,
+         dict(units="CFS", decimals=1)),
+        ("plotting rule curves", RC_ELEV_DICT, first_of_year_utc, now_utc,
+         dict(units="FT", decimals=2, time_shift=pd.Timedelta(hours=-8),
+              force_dss_type="INST-VAL"))
+    ]
+    n3, plotting_warnings = prepare_cwms_groups(required, optional, cwms_download_and_write)
+    print("DSS out:", DSS_FILE_OUT)

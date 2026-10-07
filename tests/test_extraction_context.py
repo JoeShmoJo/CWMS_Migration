@@ -27,6 +27,17 @@ class ContextTests(unittest.TestCase):
         self.assertEqual(c.end, datetime(2026, 12, 8))
         self.assertEqual(c.utc(c.start), datetime(2026, 10, 9, 8, tzinfo=timezone.utc))
 
+    def test_lookback_request_brackets_native_six_hour_grid(self):
+        import pandas as pd
+        c = Context(data('forecast.dss'))
+        begin, end = c.lookback_request_bounds()
+        self.assertEqual(begin, datetime(2026, 10, 8, 2, tzinfo=timezone.utc))
+        self.assertEqual(end, datetime(2026, 10, 9, 14, tzinfo=timezone.utc))
+        # Native UTC samples at 06/12/18/00 become 22/04/10/16 at GMT-08.
+        native = pd.date_range('2026-10-08 06:00', '2026-10-09 12:00', freq='6h', tz='UTC')
+        local = native.tz_convert(c.timezone).tz_localize(None)
+        c.validate_series(pd.Series(1.0, index=local), 360, end=c.start)
+
     def test_bad_clock(self):
         with self.assertRaises(ValueError):
             parse_hec('07Oct2026', '2401')

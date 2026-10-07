@@ -36,6 +36,11 @@ class Context:
     def utc(self, value):
         return value.replace(tzinfo=self.timezone).astimezone(timezone.utc)
 
+    def lookback_request_bounds(self, interval_minutes=360):
+        """Include native-grid samples bracketing the forecast boundaries."""
+        padding = timedelta(minutes=interval_minutes)
+        return self.utc(self.lookback) - padding, self.utc(self.start) + padding
+
     def validate_series(self, series, interval_minutes, begin=None, end=None, allow_missing=False):
         """Reject gaps before packing regular DSS values (which would shift times)."""
         import numpy as np

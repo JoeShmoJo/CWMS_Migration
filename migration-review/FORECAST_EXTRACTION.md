@@ -36,17 +36,20 @@ Coverage checks reject missing intervals and insufficient endpoints. The legacy
 six-hour daily aggregation shift and synthetic members 2026/2027/2028 are retained;
 forecast mode converts incoming timestamps to the fixed forecast timezone first.
 That alignment still needs validation against the working standalone dataset.
-CWMS forecast elevations are requested from lookback through forecast time;
+CWMS forecast elevations are requested from six hours before lookback through
+six hours after forecast time, to include native UTC-grid samples bracketing
+midnight in the forecast timezone. Their timestamps are not shifted to midnight.
+Required lookback downloads run first and must cover the actual lookback window.
 daily CWMS records retain their Pacific civil clock labels across DST transitions,
 whereas six-hour elevations use the fixed forecast timezone. No observations are
 interpolated or filled. The daily source zone defaults to America/Los_Angeles and
 can be overridden with CONFIG.CWMS_DAILY_TIMEZONE for another source convention.
-observed and rule-curve download groups retain their older windows. All requested
-historical observed elevation/outflow records preserve missing days as DSS UNDEFINED
+Observed and plotting rule-curve download groups retain their older windows.
+Historical observed elevation/outflow records preserve missing days as DSS UNDEFINED
 slots rather than interpolating or shifting later values. Required lookback and
-RFC inputs still reject missing values and insufficient coverage. All requested
-CWMS series must return data, so an ancillary missing series may stop this first
-test; the error names it. OSI copying retains CONFIG.ENSEMBLE_YEAR_TO_COPY and 2029.
+RFC inputs still reject missing values and insufficient coverage. Missing/failed
+plotting groups produce warnings and do not prevent the required workflow from
+continuing. OSI copying retains CONFIG.ENSEMBLE_YEAR_TO_COPY and 2029.
 
 TLS verification stays enabled, including standalone CWMS downloads. The legacy
 certificate-verification bypass is removed. By default on Windows, the runner
