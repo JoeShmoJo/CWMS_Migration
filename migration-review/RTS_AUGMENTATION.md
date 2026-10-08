@@ -10,8 +10,9 @@ Finish the baseline compute and close the forecast and DSSVue before taking a
 snapshot. Run `prepare_rts_augmentation.py` with `--forecast-root`, a unique
 `--scheme` name, `--members`, `--run-code`, `--season-year`, and an explicit
 `--season-end` ISO date. The first preparation preserves a whole DSS baseline
-under `augmentation-archives/baseline`; later schemes reuse that baseline, never
-the latest live augmented outputs. Do not edit the archived baseline.
+under `augmentation-archives/baseline`; later schemes use the current saved
+baseline version, never the latest live augmented outputs. Explicit baseline
+edits create new immutable versions; each scheme keeps its original pairing. Do not edit the archived baseline.
 
 Each scheme contains configuration snapshots, a source calculation snapshot,
 CSV calculation data for every member, targets and releases in
@@ -63,12 +64,13 @@ module so the old loaded module/cache does not remain in use. The existing
 rule/state-variable pass-through scripts need no edits.
 
 Use `--reset` instead of `--scheme` on the loader to disable augmentation for
-the next compute. It does not erase any DSS records or archives. Avoid
-re-extracting or editing the model, dates, downloaded inputs, ensemble range,
-or operation set between comparison schemes. If those change, create a new
-forecast/baseline; do not reuse the old baseline merely because the directory
-name still matches. Hashes verify archived files, not equivalence of an edited
-RTS model.
+the next compute. It does not erase any DSS records or archives. Use a new forecast for different dates or downloaded inputs. For operation-set
+edits, use the menu sequence Load baseline, edit/compute unaugmented in RTS,
+then Save as baseline. Logical time-series comparison keeps the version if
+results match, or creates a new version and labels older augmented results
+Previous baseline. Older schemes remain plottable with their original baseline;
+prepare a new named scheme before computing against a changed baseline.
+Hashes verify archived files; the explicit save is what accepts model changes.
 
 After the augmented compute finishes, close the forecast and DSSVue and run
 `plot_rts_augmentation.py --forecast-root ... --scheme ... --members 1981-1991`.
@@ -76,7 +78,11 @@ Synthetic members default to 3000-3002 and are excluded from historical bands.
 The command checks that the selected scheme is active, preserves a whole live
 DSS snapshot under a unique `results-*` directory inside the scheme archive,
 then creates offline comparison plots, CSV differences, and a read report.
-Each invocation captures a new snapshot; it does not overwrite prior results.
+Each normal invocation captures a new snapshot. With `--result-dir` pointing
+to an existing scheme `results-*` directory, it plots that archived pairing
+instead, without requiring an active scheme or reading live outputs. New plots
+folders preserve earlier plots. See RTS_WORKFLOW_MENU.md for catalog/deletion
+actions and the retained action trail.
 
 Historical baseline/augmented bands compare paired valid member values. Click
 a historical member in the legend to show both individual traces. Mainstem

@@ -11,6 +11,7 @@ import shutil
 import uuid
 
 from prepare_rts_augmentation import sha256
+from baseline_versions import baseline_directory, baseline_identity, registry, event
 
 
 def validate_manifest(root, scheme, manifest):
@@ -20,7 +21,7 @@ def validate_manifest(root, scheme, manifest):
         raise ValueError('Scheme belongs to a different forecast')
     if sha256(scheme / 'augmentation.dss') != manifest['augmentation_sha256']:
         raise ValueError('Scheme DSS checksum mismatch')
-    baseline = root / 'augmentation-archives/baseline/forecast.dss'
+    baseline = baseline_directory(root, manifest) / 'forecast.dss'
     if sha256(baseline) != manifest['baseline_sha256']:
         raise ValueError('Baseline checksum mismatch')
     for name, digest in manifest['configuration_sha256'].items():
@@ -40,6 +41,7 @@ def main():
     if args.reset:
         if marker.exists():
             marker.rename(root / ('rts-augmentation-disabled-' + uuid.uuid4().hex + '.json'))
+        event(root, 'augmentation-disabled')
         print('Augmentation disabled. No DSS records changed. The RTS rule returns zero for augmentation on the next compute.')
         return
     if any(c not in 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-' for c in args.scheme) or not args.scheme:
@@ -47,6 +49,9 @@ def main():
     scheme = root / 'augmentation-archives' / args.scheme
     manifest = json.loads((scheme / 'manifest.json').read_text())
     validate_manifest(root, scheme, manifest)
+    identity = baseline_identity(root, manifest)
+    if identity != registry(root)['current']:
+        raise ValueError('Scheme belongs to a Previous baseline. Its results remain plottable; prepare a new named scheme against the current baseline before computing.')
     live = root / 'forecast.dss'
     token = uuid.uuid4().hex
     backup = root / ('forecast.before-augmentation-' + token + '.dss')
@@ -84,6 +89,10 @@ def main():
         marker.rename(root / ('rts-augmentation-disabled-' + token + '.json'))
     os.replace(candidate, live)
     os.replace(marker_candidate, marker)
+    session = root / 'augmentation-archives/baseline-edit-session.json'
+    if session.exists():
+        session.unlink()
+    event(root, 'scheme-loaded', scheme=args.scheme, baseline_id=identity, backup=str(backup))
     print('Loaded scheme:', args.scheme)
     print('Backup:', backup)
     print('Reopen the forecast and compute manually. Scheme covers members:', manifest['members'])

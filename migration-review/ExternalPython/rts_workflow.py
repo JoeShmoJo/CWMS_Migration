@@ -11,6 +11,8 @@ import uuid
 
 from extraction_context import Context
 from prepare_rts_augmentation import sha256
+from baseline_versions import (baseline_directory, registry, load_baseline, save_baseline,
+                               write_archive_index, delete_result, result_directory, event)
 
 
 def same_forecast(left, right):
@@ -86,8 +88,9 @@ def script_arguments(action, root, settings):
     if action == 'plots':
         return 'plot_rts_forecast.py', base + ['--run-code', settings['run_code'].strip(),
             '--members', settings['members'].strip(), '--synthetic-members', settings['synthetic_members'].strip()]
-    if action == 'compare':
-        return 'plot_rts_augmentation.py', base + ['--scheme', scheme,
+    if action in ('compare', 'plot-archive'):
+        extra = ['--result-dir', settings['result_dir']] if action == 'plot-archive' else []
+        return 'plot_rts_augmentation.py', base + extra + ['--scheme', scheme,
             '--members', settings['members'].strip(), '--synthetic-members', settings['synthetic_members'].strip()]
     raise ValueError('Unknown action: ' + action)
 
@@ -97,9 +100,27 @@ def execute(args, context):
     settings = context['menu_settings']
     scripts = Path(__file__).resolve().parent
     print('Forecast:', context['forecast_name'], 'Run:', context['run_name'], flush=True)
+    clean_context = {key: value for key, value in context.items() if key != 'menu_settings'}
+    if args.action == 'load-baseline':
+        load_baseline(root, clean_context, settings['run_code'].strip())
+        return
+    if args.action == 'save-baseline':
+        save_baseline(root, clean_context, settings['run_code'].strip())
+        return
+    if args.action == 'list-results':
+        rows = write_archive_index(root)
+        print('Current baseline:', registry(root)['current'], flush=True)
+        for row in rows:
+            print(row['baseline_status'], row['baseline_id'], row['scheme'], row['captured_utc'], row['directory'], flush=True)
+        if not rows:
+            print('No archived augmented results yet.', flush=True)
+        return
+    if args.action == 'delete-result':
+        delete_result(root, settings['result_dir'])
+        return
     if args.action == 'link-baseline':
         archive = root / 'augmentation-archives'
-        baseline = archive / 'baseline'
+        baseline = baseline_directory(root)
         manifest = json.loads((baseline / 'manifest.json').read_text())
         if manifest['run_code'] != settings['run_code'].strip() or Path(manifest['forecast_root']).resolve() != root.resolve():
             raise ValueError('Existing baseline belongs to a different forecast/run code')
@@ -108,7 +129,12 @@ def execute(args, context):
         destination = archive / 'baseline-context.json'
         if destination.exists():
             raise ValueError('Baseline context is already linked; do not overwrite it')
-        destination.write_text(json.dumps(context, indent=2))
+        destination.write_text(json.dumps(clean_context, indent=2))
+        data = registry(root)
+        data['versions'][data['current']]['context'] = clean_context
+        from baseline_versions import atomic_json
+        atomic_json(archive / 'baseline-versions.json', data)
+        event(root, 'baseline-context-linked', baseline_id=data['current'])
         print('Existing baseline linked to selected context. Baseline DSS unchanged.', flush=True)
         return
     if args.action == 'load-extract':
@@ -118,26 +144,32 @@ def execute(args, context):
         subprocess.run([sys.executable, '-u', str(scripts / 'run_extraction.py'), '--context', args.context, '--execute'], check=True)
         return
     script, arguments = script_arguments(args.action, root, settings)
-    if args.action in ('prepare', 'load-scheme', 'compare'):
+    if args.action in ('prepare', 'load-scheme'):
         archive = root / 'augmentation-archives'
         baseline_context = archive / 'baseline-context.json'
-        if (archive / 'baseline').exists():
-            if not baseline_context.exists():
-                raise ValueError('Use Link existing baseline once after checking the forecast dates match the original baseline.')
-            if not same_forecast(json.loads(baseline_context.read_text()), context):
-                raise ValueError('Forecast time window differs from its archived baseline. Create a new forecast.')
+        if registry(root)['current']:
+            saved = registry(root)['versions'][registry(root)['current']].get('context')
+            if saved is not None:
+                if not same_forecast(saved, context):
+                    raise ValueError('Forecast window differs from the current baseline. Use a new forecast for changed dates or extracted inputs.')
+            elif not baseline_context.exists():
+                raise ValueError('Use Link existing baseline once after checking the original forecast dates.')
+            else:
+                saved = json.loads(baseline_context.read_text())
+                if not same_forecast(saved, context):
+                    raise ValueError('Forecast time window differs from its archived baseline. Create a new forecast.')
     if args.action == 'prepare':
         baseline_context = root / 'augmentation-archives/baseline-context.json'
         if not (baseline_context.parent / 'baseline').exists():
             baseline_context.parent.mkdir(exist_ok=True)
-            baseline_context.write_text(json.dumps(context, indent=2))
+            baseline_context.write_text(json.dumps(clean_context, indent=2))
     subprocess.run([sys.executable, '-u', str(scripts / script)] + arguments, check=True)
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--context', required=True)
-    parser.add_argument('--action', required=True, choices=('extract', 'load-extract', 'prepare', 'load-scheme', 'reset', 'plots', 'compare', 'link-baseline'))
+    parser.add_argument('--action', required=True, choices=('extract', 'load-extract', 'prepare', 'load-scheme', 'reset', 'plots', 'compare', 'link-baseline', 'load-baseline', 'save-baseline', 'list-results', 'plot-archive', 'delete-result'))
     args = parser.parse_args()
     context = json.loads(Path(args.context).read_text(encoding='utf-8-sig'))
     root = Context(context).dss_path.parent

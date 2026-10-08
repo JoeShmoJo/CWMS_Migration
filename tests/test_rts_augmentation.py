@@ -160,6 +160,8 @@ class PreparationTests(unittest.TestCase):
             scheme.mkdir(parents=True)
             baseline.mkdir()
             (baseline / 'forecast.dss').write_bytes(b'baseline')
+            (baseline / 'manifest.json').write_text(json.dumps({'sha256': sha256(baseline / 'forecast.dss'),
+                'run_code': 'C0', 'forecast_root': str(root)}))
             (scheme / 'augmentation.dss').write_bytes(b'scheme')
             manifest = {'status': 'prepared-not-computed', 'forecast_root': str(root),
                         'augmentation_sha256': sha256(scheme / 'augmentation.dss'),

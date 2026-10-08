@@ -18,6 +18,8 @@ from plot_rts_forecast import (parse_members, output_groups, clean_series, quant
                                unit_key, index_page, load_rule_curve, SYNTHETIC_LABELS)
 from load_rts_augmentation import validate_manifest
 from prepare_rts_augmentation import sha256, read_config
+from baseline_versions import (baseline_directory, baseline_identity, registry, event,
+                               result_directory, write_archive_index)
 
 
 def capture(root, scheme, manifest):
@@ -36,7 +38,11 @@ def capture(root, scheme, manifest):
         'status': 'captured-compute-status-unverified', 'scheme': manifest['scheme'],
         'captured_utc': datetime.now(timezone.utc).isoformat(), 'sha256': digest,
         'baseline_sha256': manifest['baseline_sha256'],
+        'baseline_id': baseline_identity(root, manifest),
         'note': 'Check RTS compute status/logs. Existing records can survive an unsuccessful recompute.'}, indent=2))
+    event(root, 'result-archived', scheme=manifest['scheme'], directory=str(directory),
+          baseline_id=baseline_identity(root, manifest))
+    write_archive_index(root)
     return directory
 
 
@@ -102,6 +108,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--forecast-root', required=True)
     parser.add_argument('--scheme', required=True)
+    parser.add_argument('--result-dir', help='Plot an existing capture without reading or changing the live forecast')
     parser.add_argument('--members', default='1981-1991')
     parser.add_argument('--synthetic-members', default='3000-3002')
     args = parser.parse_args()
@@ -116,9 +123,19 @@ def main():
     validate_manifest(root, scheme, manifest)
     if not (historical | synthetic) <= set(manifest['members']):
         raise ValueError('Requested comparison members not covered by scheme')
-    results = capture(root, scheme, manifest)
-    destination = results / 'plots'
-    destination.mkdir()
+    if args.result_dir:
+        results = result_directory(root, args.result_dir)
+        if results.parent != scheme:
+            raise ValueError('Selected result belongs to a different scheme')
+        captured = json.loads((results / 'capture.json').read_text())
+        if sha256(results / 'forecast.dss') != captured['sha256']:
+            raise ValueError('Archived result checksum mismatch')
+    else:
+        results = capture(root, scheme, manifest)
+    identity = baseline_identity(root, manifest)
+    baseline_status = 'Current baseline' if identity == registry(root)['current'] else 'Previous baseline'
+    # Preserve earlier plots when regenerating an archived comparison.
+    destination = Path(tempfile.mkdtemp(prefix='plots-', dir=str(results)))
     from plotly.offline import get_plotlyjs
     (destination / 'plotly.min.js').write_text(get_plotlyjs(), encoding='utf-8')
     from pydsstools.heclib.dss import HecDss
@@ -128,7 +145,7 @@ def main():
     aliases, *_ = read_config(scheme / 'MinFlowSalemAlbanyConfig.csv')
     for member in sorted(historical | synthetic):
         requirements[member] = pd.read_csv(scheme / ('member-{}.csv'.format(member)), index_col=0, parse_dates=True)
-    baseline_file = root / 'augmentation-archives/baseline/forecast.dss'
+    baseline_file = baseline_directory(root, manifest) / 'forecast.dss'
     with HecDss.Open(str(baseline_file)) as baseline_dss, HecDss.Open(str(results / 'forecast.dss')) as augmented_dss:
         bg = output_groups(baseline_dss.getPathnameList('/*/*/*/*/*/*/'), manifest['run_code'], historical | synthetic)
         ag = output_groups(augmented_dss.getPathnameList('/*/*/*/*/*/*/'), manifest['run_code'], historical | synthetic)
@@ -201,7 +218,7 @@ def main():
         writer.writerow(['location', 'parameter', 'member', 'source', 'status', 'valid_samples', 'error'])
         writer.writerows(rows)
     page = index_page(links, root.parent.name, manifest['run_code'])
-    notice = '<p><strong>Baseline vs ' + html.escape(args.scheme) + '.</strong> Grey baseline; blue augmented. Historical bands use paired valid values; synthetic traces are separate. Click a member in the legend to show its paired traces. Targets and prepared releases are overlays. Check RTS status: captured records do not certify compute success.</p>'
+    notice = '<p><strong>' + html.escape(baseline_status + ' (' + identity + ')') + '</strong></p><p><strong>Baseline vs ' + html.escape(args.scheme) + '.</strong> Grey baseline; blue augmented. Historical bands use paired valid values; synthetic traces are separate. Click a member in the legend to show its paired traces. Targets and prepared releases are overlays. Check RTS status: captured records do not certify compute success.</p>'
     page = page.replace('<body>', '<body>' + notice, 1)
     (destination / 'index.html').write_text(page, encoding='utf-8')
     print('Augmented results archived:', results)

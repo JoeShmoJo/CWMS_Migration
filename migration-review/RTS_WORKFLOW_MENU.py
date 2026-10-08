@@ -120,6 +120,10 @@ class BackgroundTask(SwingWorker):
             self.owner.append('Completed: ' + self.action)
             if self.action == 'load-extract':
                 self.owner.append('NEXT: compute the baseline using RTS, then Prepare augmentation.')
+            elif self.action == 'load-baseline':
+                self.owner.append('NEXT: edit the model and compute unaugmented in RTS, then Save as baseline.')
+            elif self.action == 'save-baseline':
+                self.owner.append('Prepare a new named scheme against the current baseline. Older results retain their original pairing.')
             elif self.action == 'load-scheme':
                 self.owner.append('NEXT: compute in RTS, then Compare plots. Do not re-extract.')
         except (Exception, JavaException) as exc:
@@ -177,6 +181,11 @@ class WorkflowMenu(JFrame):
         fields.add(JLabel('Completed extraction folder'))
         fields.add(self.extraction)
         self.controls.append(self.extraction)
+        self.result = JTextField('')
+        self.result.setEditable(False)
+        fields.add(JLabel('Selected archived result (for plotting or deletion)'))
+        fields.add(self.result)
+        self.controls.append(self.result)
         center = JPanel(BorderLayout(6, 6))
         center.add(fields, BorderLayout.NORTH)
         self.text = JTextArea(16, 95)
@@ -188,13 +197,17 @@ class WorkflowMenu(JFrame):
         actions = [('1. Extract to archive', 'extract'), ('2. Load extract / baseline', 'load-extract'),
                    ('3. Prepare augmentation', 'prepare'), ('4. Load selected scheme', 'load-scheme'),
                    ('5. Current forecast plots', 'plots'), ('6. Archive + compare plots', 'compare'),
+                   ('Load baseline (augmentation off)', 'load-baseline'), ('Save as baseline after compute', 'save-baseline'),
+                   ('List archived results', 'list-results'), ('Plot selected archived pair', 'plot-archive'),
+                   ('Delete selected archived result', 'delete-result'),
                    ('Reset augmentation', 'reset'), ('Link existing baseline', 'link-baseline')]
         for title, action in actions:
             button = JButton(title, actionPerformed=lambda event, selected=action: self.start(selected))
             buttons.add(button)
             self.controls.append(button)
         for title, handler in [('Refresh selected forecast', self.refresh), ('Choose extraction folder', self.choose_extract),
-                               ('Choose saved scheme', self.choose_scheme), ('Open last plots', self.open_plots)]:
+                               ('Choose saved scheme', self.choose_scheme), ('Choose archived result', self.choose_result),
+                               ('Open last plots', self.open_plots)]:
             button = JButton(title, actionPerformed=handler)
             buttons.add(button)
             self.controls.append(button)
@@ -206,6 +219,7 @@ class WorkflowMenu(JFrame):
         pane.add(bottom, BorderLayout.SOUTH)
         self.setContentPane(pane)
         self.update_labels()
+        self.append('Baseline edits: Load baseline, edit and compute in RTS, then Save as baseline. No automatic model compute.')
         self.append('Use the steps in order. Prepare creates a scheme; Load activates it; compute manually in RTS.')
         self.append('For this existing forecast, use Link existing baseline once, then Choose saved scheme to select scheme_02.')
         self.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE)
@@ -226,11 +240,20 @@ class WorkflowMenu(JFrame):
         try:
             with open(marker, 'r') as handle:
                 scheme = json.load(handle)['scheme']
-            self.active_label.setText('Active augmentation: ' + scheme)
+            self.active_label.setText('Active augmentation: ' + scheme + self.baseline_label())
         except IOError:
-            self.active_label.setText('Active augmentation: baseline / disabled')
+            self.active_label.setText('Active augmentation: baseline / disabled' + self.baseline_label())
         except (Exception, JavaException):
             self.active_label.setText('Active augmentation: unreadable marker (inspect before computing)')
+    def baseline_label(self):
+        path = os.path.join(os.path.dirname(self.context['dss_path']), 'augmentation-archives', 'baseline-versions.json')
+        try:
+            with open(path) as handle:
+                return '   Current baseline: ' + str(json.load(handle)['current'])
+        except IOError:
+            return '   Baseline not versioned yet'
+        except (Exception, JavaException):
+            return '   Baseline registry unreadable'
     def set_busy(self, busy):
         self.busy = busy
         for control in self.controls:
@@ -244,6 +267,7 @@ class WorkflowMenu(JFrame):
             if context != self.context:
                 self.use_closed.setSelected(False)
                 self.extraction.setText('')
+                self.result.setText('')
                 self.last_html = None
                 self.fields['season_year'].setText(context['end'][0][-4:])
                 self.fields['season_end'].setText(context['end'][0][-4:] + '-09-30')
@@ -266,6 +290,26 @@ class WorkflowMenu(JFrame):
                 JOptionPane.showMessageDialog(self, 'Choose a scheme directory inside this forecast augmentation-archives folder.')
                 return
             self.fields['scheme'].setText(os.path.basename(path))
+    def choose_result(self, event):
+        root = os.path.join(os.path.dirname(self.context['dss_path']), 'augmentation-archives')
+        try:
+            with open(os.path.join(root, 'archive-index.json')) as handle:
+                index = json.load(handle)
+            rows = index['results']
+            if not rows:
+                raise RuntimeError('No archived results. Archive + compare after computing a loaded scheme first.')
+            labels = ['%s | %s | %s | %s' %
+                      (row['baseline_status'], row['scheme'], row.get('captured_utc', ''),
+                       os.path.basename(row['directory'])) for row in rows]
+            selected = JOptionPane.showInputDialog(self, 'Choose a result paired with its original baseline:',
+                'Archived results', JOptionPane.QUESTION_MESSAGE, None, labels, labels[0])
+            if selected is not None:
+                row = rows[labels.index(str(selected))]
+                self.result.setText(row['directory'])
+                self.fields['scheme'].setText(row['scheme'])
+                self.append('Selected: ' + row['baseline_status'] + ' ' + row['baseline_id'])
+        except (Exception, JavaException) as exc:
+            JOptionPane.showMessageDialog(self, str(exc) + '\nUse List archived results to refresh the catalog.')
     def open_plots(self, event):
         if self.last_html and os.path.isfile(self.last_html):
             Desktop.getDesktop().browse(File(self.last_html).toURI())
@@ -284,6 +328,17 @@ class WorkflowMenu(JFrame):
                 self.append('Forecast closed: using the displayed forecast ' + current['forecast_name'])
             if current != self.context:
                 raise RuntimeError('Selected forecast/run/time window changed. Click Refresh selected forecast before running a task.')
+            if action == 'save-baseline':
+                message = 'Have you finished an unaugmented compute in RTS?\nSave the displayed forecast as baseline. If its time series changed, older augmented results will be labelled Previous baseline.\nThe script cannot verify RTS compute success. Check its status first.'
+                if JOptionPane.showConfirmDialog(self, message, 'Save computed baseline', JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION:
+                    return
+            if action == 'delete-result':
+                selected = str(self.result.getText()).strip()
+                if not selected:
+                    raise RuntimeError('Choose an archived result first.')
+                message = 'Permanently delete this archived augmented result and its plots?\n' + selected + '\nBaseline and scheme inputs will remain. This action is recorded in the history.'
+                if JOptionPane.showConfirmDialog(self, message, 'Delete archived result', JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION:
+                    return
             if action == 'link-baseline':
                 message = 'Link the existing baseline to the displayed forecast dates?\nDo this only if the model, dates, and downloaded inputs are unchanged since that baseline was computed.\nThe baseline DSS will remain unchanged.'
                 if JOptionPane.showConfirmDialog(self, message, 'Link existing baseline', JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION:
@@ -291,6 +346,7 @@ class WorkflowMenu(JFrame):
             settings = dict((name, str(field.getText())) for name, field in self.fields.items())
             settings['wy_type_mode'] = str(self.wy_mode.getSelectedItem())
             settings['extraction_dir'] = str(self.extraction.getText()).strip()
+            settings['result_dir'] = str(self.result.getText()).strip()
             context = dict(self.context)
             context['menu_settings'] = settings
             self.append('\nStarting: ' + action)

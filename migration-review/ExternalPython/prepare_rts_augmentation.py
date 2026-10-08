@@ -19,6 +19,7 @@ import numpy as np
 import pandas as pd
 
 from augmentation_mapping import minimum_path
+from baseline_versions import baseline_directory, baseline_identity, event
 
 
 def sha256(path):
@@ -210,7 +211,7 @@ def main():
         raise ValueError('Season must be April 1 through an end date no later than October 31 in the same year')
     scripts = Path(__file__).resolve().parent
     archives = root / 'augmentation-archives'
-    baseline = archives / 'baseline'
+    baseline = baseline_directory(root)
     scheme = archives / args.scheme
     if scheme.exists():
         raise FileExistsError('Scheme already exists; use a new name: ' + str(scheme))
@@ -236,6 +237,7 @@ def main():
         (temporary / 'manifest.json').write_text(json.dumps({'sha256': sha256(live),
             'forecast_root': str(root), 'run_code': args.run_code}, indent=2))
         temporary.rename(baseline)
+    baseline_id = baseline_identity(root)
     base_manifest = json.loads((baseline / 'manifest.json').read_text())
     source = baseline / 'forecast.dss'
     if base_manifest['run_code'] != args.run_code or sha256(source) != base_manifest['sha256']:
@@ -305,7 +307,8 @@ def main():
         manifest = {'status': 'prepared-not-computed', 'scheme': args.scheme,
                     'forecast_root': str(root), 'run_code': args.run_code,
                     'members': sorted(members), 'season_start': str(start), 'season_end': str(end),
-                    'baseline_sha256': base_manifest['sha256'], 'supporting_reservoirs': selected,
+                    'baseline_sha256': base_manifest['sha256'], 'baseline_id': baseline_id,
+                    'supporting_reservoirs': selected,
                     'paths': paths_written, 'augmentation_sha256': sha256(output),
                     'configuration_sha256': {p.name: sha256(scheme / p.name) for p in config_paths},
                     'forecast_days': args.forecast_days, 'summary': stats,
@@ -316,6 +319,7 @@ def main():
     except Exception:
         (scheme / 'FAILED.txt').write_text('Preparation failed. Do not load this partial scheme. Use a new scheme name after correcting inputs.')
         raise
+    event(root, 'scheme-prepared', scheme=args.scheme, baseline_id=baseline_id)
     print('PREPARED ONLY:', scheme)
     print('Live forecast DSS and RTS rule settings unchanged. Do not recompute for augmentation until the RTS switch and scheme loading are installed.')
 

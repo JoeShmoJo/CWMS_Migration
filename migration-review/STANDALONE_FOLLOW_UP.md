@@ -33,8 +33,8 @@ augmentation schemes.
   inflow, clamped at zero. The RTS calculator mapping uses that saved Green
   Peter release, not an assumed Foster `Combined Min Trib` record. Validate the
   appropriate replacement for the legacy standalone GPR input.
-- **Baseline and scheme archives:** preserve one unaugmented baseline; calculate
-  every scheme from it. Save configuration, calculated minimum releases,
+- **Baseline and scheme archives:** preserve immutable unaugmented baseline
+  versions; calculate every scheme from its named baseline. Save configuration, calculated minimum releases,
   Salem/Albany targets, and resulting simulation outputs with each scheme.
   Do not mistake prepared releases for successfully computed model results.
 - **Input validation:** reject missing values, wrong units, incomplete seasonal
@@ -87,3 +87,13 @@ pattern. It runs extraction, archive loading, preparation, scheme loading/reset,
 and plotting as background hydro39 jobs; compute remains manual in RTS. It is
 an RTS-only launcher, not a replacement for the standalone Simulation module
 menus. Existing forecast baselines need a one-time explicit context link.
+
+
+RTS now records explicit baseline loads and saves. Unchanged logical elevation,
+flow, storage, rule, and input series keep the baseline version even after an
+operation-set edit. Changed series create a new version; older augmented results
+are labelled Previous baseline and retain their original data pairing. Consider
+this action-driven result comparison for standalone trials later. It is not a
+snapshot/restore mechanism for operation sets. Result deletion preserves all
+baselines, scheme inputs, and the action history. None of this changes the
+standalone model's existing trial workflow.
