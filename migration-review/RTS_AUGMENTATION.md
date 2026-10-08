@@ -70,10 +70,26 @@ forecast/baseline; do not reuse the old baseline merely because the directory
 name still matches. Hashes verify archived files, not equivalence of an edited
 RTS model.
 
-Plot baseline output with the existing plotter pointed at the baseline
-directory. Prepared CSVs include both mainstem targets and applied release
-requirements. Scheme output archiving and comparison plot integration remain
-follow-up work; a preparation manifest explicitly means prepared, not computed.
+After the augmented compute finishes, close the forecast and DSSVue and run
+`plot_rts_augmentation.py --forecast-root ... --scheme ... --members 1981-1991`.
+Synthetic members default to 3000-3002 and are excluded from historical bands.
+The command checks that the selected scheme is active, preserves a whole live
+DSS snapshot under a unique `results-*` directory inside the scheme archive,
+then creates offline comparison plots, CSV differences, and a read report.
+Each invocation captures a new snapshot; it does not overwrite prior results.
+
+Historical baseline/augmented bands compare paired valid member values. Click
+a historical member in the legend to show both individual traces. Mainstem
+flow plots show prepared targets; participating reservoir outflow plots expose
+the prepared minimum-release traces by member. Identical requirements are shown
+once, differing requirements as exact individual traces initially hidden in
+the legend. A median is not labeled as an applied requirement.
+
+Captured records do not certify compute success: old output can survive a
+failed recompute. Capture metadata explicitly records unverified compute
+status. Check the RTS status/logs and read report before using the comparison
+as evidence of successful augmented results. The preparation manifest remains
+prepared-not-computed because plotting cannot certify that status.
 
 ## Current verification
 

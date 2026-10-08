@@ -71,8 +71,10 @@ calculation or every model output. RTS reported a Java null-pointer error for
 The RTS preparation and loading scripts and the explicit RTS activation switch
 are implemented on the review branch. They have cloud unit tests but have not
 yet been validated against actual Windows DSS/RTS. The maintained standalone
-calculator remains unchanged. Augmented compute and scheme-result archiving
-remain unvalidated/unimplemented, respectively.
+calculator remains unchanged. Scheme-result capture and comparison plotting
+are implemented; actual Windows validation is still required. The user has
+loaded scheme_02 and run a compute, but successful augmented completion has
+not yet been confirmed from RTS logs.
 
 The RTS travel shift limits reservoir release dates to the declared target
 window shifted earlier by each reservoir's travel time; it does not leave NaNs
