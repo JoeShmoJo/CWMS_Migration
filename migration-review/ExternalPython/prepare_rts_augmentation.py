@@ -5,6 +5,7 @@ loaded from the maintained legacy script without executing its top-level run.
 """
 import argparse
 import ast
+import csv
 import datetime
 import hashlib
 import json
@@ -38,8 +39,28 @@ def load_functions(source, namespace):
 
 
 def read_config(path):
-    table = pd.read_csv(path, comment='#', dtype=str).fillna('')
-    table.columns = [col.strip() for col in table.columns]
+    # Excel-style comment rows may contain commas followed by empty cells.
+    # pandas comment='#' can retain their suffix as an apparent header.
+    # Locate the actual Variable header using CSV parsing, not line splitting.
+    with open(path, encoding='utf-8-sig', newline='') as handle:
+        rows = list(csv.reader(handle))
+    header_index = next((i for i, row in enumerate(rows)
+                         if row and row[0].strip() == 'Variable'), None)
+    if header_index is None:
+        raise ValueError('No Variable header found in ' + str(path))
+    header = [cell.strip() for cell in rows[header_index]]
+    while header and not header[-1]:
+        header.pop()
+    if len(set(header)) != len(header) or any(not cell for cell in header):
+        raise ValueError('Empty or duplicate configuration column names')
+    records = []
+    for row in rows[header_index + 1:]:
+        if not row or not row[0].strip() or row[0].lstrip().startswith('#'):
+            continue
+        if any(cell.strip() for cell in row[len(header):]):
+            raise ValueError('Unexpected extra configuration cells: ' + row[0])
+        records.append((row[:len(header)] + [''] * len(header))[:len(header)])
+    table = pd.DataFrame(records, columns=header).fillna('')
     table['Variable'] = table['Variable'].str.strip()
     if table['Variable'].duplicated().any():
         raise ValueError('Duplicate configuration variables')

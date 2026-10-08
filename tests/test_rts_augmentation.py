@@ -15,11 +15,26 @@ import pandas as pd
 SCRIPTS = Path(__file__).resolve().parents[1] / 'migration-review/ExternalPython'
 sys.path.insert(0, str(SCRIPTS))
 import prepare_rts_augmentation as preparation
-from prepare_rts_augmentation import load_functions, calculate, validate_daily, sha256
+from prepare_rts_augmentation import load_functions, calculate, validate_daily, sha256, read_config
 from load_rts_augmentation import validate_manifest
 
 
 class PreparationTests(unittest.TestCase):
+    def test_config_comments_with_trailing_cells_and_bom(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'config.csv'
+            path.write_text('\ufeff# Description,,,,\n"# Comment, with comma",,,,\n'
+                            '  # Other comment,,,,\n\n'
+                            'Variable,Lookout Point,Hills Creek,,\n'
+                            'Abbreviation,LOP,HCR,,\n'
+                            'SupportsSalem,TRUE,FALSE,,\nSupportsAlbany,TRUE,FALSE,,\n'
+                            'MinConStor,118800,155400,,\nMaxRelease,2700,1800,,\n'
+                            'TravelTimeDays,2,2,,\n', encoding='utf-8')
+            aliases, flags, floors, limits, travel, selected = read_config(path)
+            self.assertEqual(selected, ['Lookout Point'])
+            self.assertEqual(floors['Hills Creek'], 155400)
+            self.assertEqual(aliases['Lookout Point'], 'LOP')
+
     def test_prepare_archives_baseline_and_never_writes_live_dss(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory) / 'forecast'
