@@ -13,7 +13,7 @@ $names = @('RFC_Downloader_Module.py', 'CWMS_Downloader_Module.py',
     'write_rule_curves.py', 'CON_SEASON_RULE_CURVES.csv', 'write_ensemble_dummies.py',
     'write_ensemble_shared_inputs.py', 'ensemble_ids.py', 'catalog_forecast_outputs.py', 'plot_rts_forecast.py',
     'check_augmentation_inputs.py', 'augmentation_mapping.py',
-    'prepare_rts_augmentation.py', 'load_rts_augmentation.py', 'plot_rts_augmentation.py')
+    'prepare_rts_augmentation.py', 'load_rts_augmentation.py', 'plot_rts_augmentation.py', 'rts_workflow.py')
 foreach ($name in $names) {
     if (-not (Test-Path -LiteralPath (Join-Path $PSScriptRoot "ExternalPython\$name"))) {
         throw "Missing installation source: $name"
@@ -29,6 +29,11 @@ $items += [pscustomobject]@{
     Source = Join-Path $PSScriptRoot 'RTS_FORECAST_EXTRACT.py'
     Target = Join-Path $WatershedRoot 'scripts\RTS_FORECAST_EXTRACT.py'
     Backup = Join-Path $backup 'RTS_FORECAST_EXTRACT.py'
+}
+$items += [pscustomobject]@{
+    Source = Join-Path $PSScriptRoot 'RTS_WORKFLOW_MENU.py'
+    Target = Join-Path $WatershedRoot 'scripts\RTS_WORKFLOW_MENU.py'
+    Backup = Join-Path $backup 'RTS_WORKFLOW_MENU.py'
 }
 $svTarget = Join-Path $WatershedRoot 'scripts\externalSVs\MainstemFlowAugSV.py'
 if (-not (Test-Path -LiteralPath $svTarget)) {

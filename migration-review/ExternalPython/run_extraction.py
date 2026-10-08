@@ -71,6 +71,14 @@ def main():
             if status:
                 raise RuntimeError('{} failed ({}). Partial test copy retained at {}; log: {}'.format(script, status, target, log))
     print('Extraction steps completed on TEST COPY ONLY:', target, flush=True)
+    import hashlib
+    digest = hashlib.sha256()
+    with target.open('rb') as dss_handle:
+        for block in iter(lambda: dss_handle.read(1024 * 1024), b''):
+            digest.update(block)
+    (stage / 'extraction-complete.json').write_text(json.dumps({
+        'status': 'complete', 'context': data, 'dss_sha256': digest.hexdigest()}, indent=2), encoding='utf-8')
+    print('MENU_EXTRACT:', stage, flush=True)
     print('Not compute-ready yet: verify rule-curve inputs, ensemble membership, and RTS mapping behavior.', flush=True)
 
 

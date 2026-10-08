@@ -81,3 +81,9 @@ window shifted earlier by each reservoir's travel time; it does not leave NaNs
 at the tail and then silently turn them into zero on write. Consider adopting
 this explicit boundary handling in standalone after validation. A September 30
 test end does not change the full model's April-October seasonal requirement.
+
+The RTS Swing workflow menu is now implemented using the supplied DP menu
+pattern. It runs extraction, archive loading, preparation, scheme loading/reset,
+and plotting as background hydro39 jobs; compute remains manual in RTS. It is
+an RTS-only launcher, not a replacement for the standalone Simulation module
+menus. Existing forecast baselines need a one-time explicit context link.
