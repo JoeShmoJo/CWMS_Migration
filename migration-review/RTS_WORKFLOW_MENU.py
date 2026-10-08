@@ -8,7 +8,10 @@ import uuid
 
 from javax.swing import (JFrame, JPanel, JLabel, JButton, JTextField, JComboBox,
                          JTextArea, JScrollPane, JProgressBar, SwingWorker, JCheckBox,
-                         SwingUtilities, BorderFactory, JFileChooser, JOptionPane)
+                         SwingUtilities, BorderFactory, JFileChooser, JOptionPane, JDialog,
+                         JTable, JList, DefaultListModel, ListSelectionModel)
+from javax.swing.table import DefaultTableModel
+from java.lang import Boolean, String
 from java.awt import BorderLayout, GridLayout, Desktop
 from java.lang import Runnable, ProcessBuilder
 from java.lang import Exception as JavaException
@@ -68,7 +71,7 @@ class BackgroundTask(SwingWorker):
     def __init__(self, owner, action, context, executable):
         SwingWorker.__init__(self)
         self.owner, self.action, self.context, self.executable = owner, action, context, executable
-        self.extraction, self.html_path = None, None
+        self.extraction, self.html_path, self.state_path = None, None, None
     def doInBackground(self):
         descriptor, context_path = tempfile.mkstemp(prefix='rts-menu-', suffix='.json')
         os.close(descriptor)
@@ -100,6 +103,8 @@ class BackgroundTask(SwingWorker):
                         SwingUtilities.invokeLater(OnUI(self.owner.append, line))
                         if line.startswith('MENU_EXTRACT: '):
                             self.extraction = line[len('MENU_EXTRACT: '):].strip()
+                        if line.startswith('MENU_STATE: '):
+                            self.state_path = line[len('MENU_STATE: '):].strip()
                         if line.startswith('Open: '):
                             self.html_path = line[len('Open: '):].strip()
             finally:
@@ -109,23 +114,18 @@ class BackgroundTask(SwingWorker):
             if os.path.isfile(context_path):
                 os.remove(context_path)
     def done(self):
+        callback = self.owner.after_task
+        self.owner.after_task = None
+        success = False
         try:
             status = self.get()
             if status != 0:
                 raise RuntimeError('Task failed (exit %s). See output and log.' % status)
-            if self.extraction:
-                self.owner.extraction.setText(self.extraction)
             if self.html_path:
                 self.owner.last_html = self.html_path
+                Desktop.getDesktop().browse(File(self.html_path).toURI())
             self.owner.append('Completed: ' + self.action)
-            if self.action == 'load-extract':
-                self.owner.append('NEXT: compute the baseline using RTS, then Prepare augmentation.')
-            elif self.action == 'load-baseline':
-                self.owner.append('NEXT: edit the model and compute unaugmented in RTS, then Save as baseline.')
-            elif self.action == 'save-baseline':
-                self.owner.append('Prepare a new named scheme against the current baseline. Older results retain their original pairing.')
-            elif self.action == 'load-scheme':
-                self.owner.append('NEXT: compute in RTS, then Compare plots. Do not re-extract.')
+            success = True
         except (Exception, JavaException) as exc:
             self.owner.append('FAILED: ' + str(exc))
             JOptionPane.showMessageDialog(self.owner, str(exc), 'RTS workflow error', JOptionPane.ERROR_MESSAGE)
@@ -133,95 +133,255 @@ class BackgroundTask(SwingWorker):
             if hasattr(self, 'log_path'):
                 self.owner.append('Log: ' + self.log_path)
             self.owner.set_busy(False)
-            self.owner.update_active_label()
+            self.owner.update_status()
+        if success and callback:
+            try:
+                data = None
+                if self.state_path:
+                    with codecs.open(self.state_path, 'r', 'utf-8') as handle:
+                        data = json.load(handle)
+                callback(data)
+            except (Exception, JavaException) as exc:
+                JOptionPane.showMessageDialog(self.owner, str(exc), 'RTS workflow', JOptionPane.ERROR_MESSAGE)
+
+
+class ReservoirModel(DefaultTableModel):
+    def __init__(self, data, columns):
+        DefaultTableModel.__init__(self, data, columns)
+    def getColumnClass(self, column):
+        return Boolean if str(self.getColumnName(column)).startswith('Supports') else String
+    def isCellEditable(self, row, column):
+        return column > 0 and str(self.getColumnName(column)) != 'Abbreviation'
+
+
+class ConfigurationWindow(JDialog):
+    def __init__(self, owner, state):
+        JDialog.__init__(self, owner, 'Augmentation configuration', False)
+        self.owner, self.state = owner, state
+        self.controls = []
+        pane = JPanel(BorderLayout(8, 8))
+        pane.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12))
+        top = JPanel(GridLayout(0, 2, 5, 5))
+        self.name = JTextField()
+        top.add(JLabel('Configuration name'))
+        top.add(self.name)
+        self.controls.append(self.name)
+        self.days = JTextField()
+        top.add(JLabel('Short forecast days'))
+        self.days.setToolTipText('Days of forecast inflows used before the median remaining-inflow estimate.')
+        top.add(self.days)
+        self.controls.append(self.days)
+        self.wy_mode = JComboBox(['fixed-abundant', 'storage-maf'])
+        top.add(JLabel('Water-year input interpretation'))
+        top.add(self.wy_mode)
+        self.controls.append(self.wy_mode)
+        seasons = state['outputs']['seasons']
+        self.season = JComboBox([str(item['year']) for item in seasons])
+        top.add(JLabel('Covered conservation season (forecast metadata)'))
+        top.add(self.season)
+        self.controls.append(self.season)
+        pane.add(top, BorderLayout.NORTH)
+        self.table = JTable()
+        self.table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF)
+        self.controls.append(self.table)
+        pane.add(JScrollPane(self.table), BorderLayout.CENTER)
+        bottom = JPanel(GridLayout(0, 1, 4, 4))
+        details = state['outputs']
+        bottom.add(JLabel('Baseline: %s  |  %s to %s  |  %s historical, %s synthetic members' %
+            (state['current_baseline'], details['first'], details['last'], len(details['members']), len(details['synthetic_members']))))
+        bottom.add(JLabel('Salem and Albany currently require the same supporting reservoirs. Hills Creek is combined with Lookout Point.'))
+        bottom.add(JLabel('All CSV parameters are retained. The calculator uses participation, storage floors, release limits and travel times.'))
+        buttons = JPanel(GridLayout(1, 3, 5, 5))
+        for title, handler in [('Open Configuration', self.open_configuration), ('Save Configuration', self.save_configuration)]:
+            button = JButton(title, actionPerformed=handler)
+            buttons.add(button)
+            self.controls.append(button)
+        self.process_button = JButton('Process and Load Releases', actionPerformed=self.process)
+        buttons.add(self.process_button)
+        self.controls.append(self.process_button)
+        bottom.add(buttons)
+        pane.add(bottom, BorderLayout.SOUTH)
+        self.setContentPane(pane)
+        self.populate(state['configuration'])
+        self.process_button.setEnabled(bool(seasons))
+        self.setSize(1050, 520)
+        self.setLocationRelativeTo(owner)
+        self.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE)
+    def populate(self, config):
+        if (config.get('schema') != 1 or not config.get('columns') or config['columns'][0] != 'Variable'
+                or any(len(row) != len(config['columns']) for row in config.get('rows', []))):
+            raise RuntimeError('Choose a reusable RTS configuration JSON file.')
+        self.config = config
+        self.name.setText(config['name'])
+        self.days.setText(str(config['calculation']['forecast_days']))
+        self.wy_mode.setSelectedItem(config['calculation']['wy_type_mode'])
+        columns = ['Reservoir'] + [row[0] for row in config['rows']]
+        data = []
+        for number, reservoir in enumerate(config['columns'][1:], 1):
+            values = [reservoir]
+            for row in config['rows']:
+                value = row[number]
+                values.append(value.upper() == 'TRUE' if row[0].startswith('Supports') else value)
+            data.append(values)
+        self.model = ReservoirModel(data, columns)
+        self.table.setModel(self.model)
+        for index in range(self.table.getColumnCount()):
+            self.table.getColumnModel().getColumn(index).setPreferredWidth(135 if index == 0 else 115)
+    def configuration(self):
+        if self.table.isEditing() and not self.table.getCellEditor().stopCellEditing():
+            raise RuntimeError('Finish editing the table cell first.')
+        rows = []
+        for column in range(1, self.model.getColumnCount()):
+            variable = str(self.model.getColumnName(column))
+            values = [variable]
+            for row in range(self.model.getRowCount()):
+                value = self.model.getValueAt(row, column)
+                values.append(('TRUE' if str(value).upper() == 'TRUE' else 'FALSE') if variable.startswith('Supports') else str(value).strip())
+            rows.append(values)
+        return {'schema': 1, 'name': str(self.name.getText()).strip(), 'columns': self.config['columns'], 'rows': rows,
+                'calculation': {'forecast_days': int(str(self.days.getText()).strip()), 'wy_type_mode': str(self.wy_mode.getSelectedItem())}}
+    def open_configuration(self, event):
+        try:
+            chooser = JFileChooser(self.owner.configuration_library())
+            if chooser.showOpenDialog(self) == JFileChooser.APPROVE_OPTION:
+                with codecs.open(str(chooser.getSelectedFile().getAbsolutePath()), 'r', 'utf-8-sig') as handle:
+                    self.populate(json.load(handle))
+        except (Exception, JavaException) as exc:
+            JOptionPane.showMessageDialog(self, str(exc), 'Configuration', JOptionPane.ERROR_MESSAGE)
+    def save_configuration(self, event):
+        try:
+            config = self.configuration()
+            chooser = JFileChooser(self.owner.configuration_library())
+            chooser.setSelectedFile(File(chooser.getCurrentDirectory(), config['name'] + '.json'))
+            if chooser.showSaveDialog(self) == JFileChooser.APPROVE_OPTION:
+                filename = str(chooser.getSelectedFile().getAbsolutePath())
+                if os.path.isfile(filename) and JOptionPane.showConfirmDialog(self, 'Replace this configuration file?\n' + filename,
+                        'Save configuration', JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION:
+                    return
+                self.owner.start('save-config', {'configuration': config, 'configuration_file': filename})
+        except (Exception, JavaException) as exc:
+            JOptionPane.showMessageDialog(self, str(exc), 'Configuration', JOptionPane.ERROR_MESSAGE)
+    def process(self, event):
+        try:
+            config = self.configuration()
+            complete = self.owner.confirm_completed('Archive any completed current results before loading new releases?')
+            if complete is None:
+                return
+            self.owner.start('process-config', {'configuration': config, 'season_year': str(self.season.getSelectedItem()),
+                'expected_baseline_id': self.state['current_baseline'], 'confirm_completed': complete}, self.processed)
+        except (Exception, JavaException) as exc:
+            JOptionPane.showMessageDialog(self, str(exc), 'Configuration', JOptionPane.ERROR_MESSAGE)
+    def processed(self, state):
+        JOptionPane.showMessageDialog(self, 'Releases are loaded.\nReopen the forecast and run the model in RTS.\nThen use Plot Results to archive and view the completed run. Do not re-extract.')
+        self.dispose()
+
+
+class ResultsWindow(JDialog):
+    def __init__(self, owner, state):
+        JDialog.__init__(self, owner, 'Plot saved results', False)
+        self.owner, self.controls = owner, []
+        pane = JPanel(BorderLayout(8, 8))
+        pane.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12))
+        pane.add(JLabel('Select one saved run, or two to compare (Ctrl-click). Previous-baseline results retain their original data.'), BorderLayout.NORTH)
+        self.model = DefaultListModel()
+        self.list = JList(self.model)
+        self.list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION)
+        pane.add(JScrollPane(self.list), BorderLayout.CENTER)
+        self.controls.append(self.list)
+        buttons = JPanel(GridLayout(1, 3, 5, 5))
+        for title, handler in [('Plot Selected', self.plot), ('Delete Selected Augmented Result', self.delete), ('Open Last Plots', self.open_last)]:
+            button = JButton(title, actionPerformed=handler)
+            buttons.add(button)
+            self.controls.append(button)
+        pane.add(buttons, BorderLayout.SOUTH)
+        self.setContentPane(pane)
+        self.populate(state)
+        self.setSize(1000, 400)
+        self.setLocationRelativeTo(owner)
+        self.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE)
+    def populate(self, state):
+        self.runs = state['runs']
+        self.model.clear()
+        for item in self.runs:
+            self.model.addElement('%s | %s | %s' % (item['status'], item['baseline_id'], item['label']))
+        if self.runs:
+            self.list.setSelectedIndex(len(self.runs) - 1)
+    def selected(self):
+        return [self.runs[int(index)] for index in self.list.getSelectedIndices()]
+    def plot(self, event):
+        rows = self.selected()
+        if len(rows) not in (1, 2):
+            JOptionPane.showMessageDialog(self, 'Select one or two saved runs.')
+            return
+        self.owner.start('plot-selected', {'selected_runs': [row['id'] for row in rows]})
+    def delete(self, event):
+        rows = self.selected()
+        if len(rows) != 1 or rows[0]['kind'] != 'augmented':
+            JOptionPane.showMessageDialog(self, 'Select exactly one augmented result. Baselines are retained.')
+            return
+        message = 'Permanently delete this archived result and plots that include it?\n' + rows[0]['label'] + '\nBaseline and configuration inputs remain; deletion is recorded in the history.'
+        if JOptionPane.showConfirmDialog(self, message, 'Delete archived result', JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION:
+            self.owner.start('delete-result', {'result_dir': rows[0]['directory'], 'include_plots': True}, self.deleted)
+    def deleted(self, state):
+        self.owner.start('results', {'confirm_completed': False}, self.populate)
+    def open_last(self, event):
+        self.owner.open_plots(event)
 
 
 class WorkflowMenu(JFrame):
     def __init__(self):
         JFrame.__init__(self, 'RTS ensemble workflow')
-        self.busy, self.last_html = False, None
-        self.context = forecast_context()
-        self.executable = python_executable()
-        if not os.path.isfile(os.path.join(EXTERNAL_PYTHON_DIR, 'rts_workflow.py')):
-            raise IOError('Install the RTS workflow files first.')
-        self.controls = []
+        self.context, self.executable = forecast_context(), python_executable()
+        self.busy, self.last_html, self.after_task = False, None, None
+        self.controls, self.dialogs = [], []
+        if not os.path.isfile(os.path.join(EXTERNAL_PYTHON_DIR, 'workflow_simple.py')):
+            raise IOError('Install the updated RTS workflow files first.')
         pane = JPanel(BorderLayout(8, 8))
         pane.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12))
-        top = JPanel(GridLayout(0, 1, 3, 3))
-        self.forecast_label, self.window_label, self.active_label = JLabel(), JLabel(), JLabel()
-        for label in (self.forecast_label, self.window_label, self.active_label):
-            top.add(label)
-        top.add(JLabel('Finish compute and close DSSVue before preparing, loading, or capturing results. Compute stays in RTS.'))
-        self.use_closed = JCheckBox('Use the displayed forecast after closing it in RTS', False)
-        self.use_closed.setToolTipText('Refresh after any date changes before closing the forecast to release DSS locks. This keeps the displayed target explicit.')
-        top.add(self.use_closed)
+        top = JPanel(BorderLayout(5, 5))
+        metadata = JPanel(GridLayout(0, 2, 5, 3))
+        self.metadata = {}
+        for key, label in [('forecast_name', 'Forecast'), ('run_name', 'Forecast alternative'), ('dss_path', 'DSS'),
+                           ('lookback', 'Lookback'), ('start', 'Forecast start'), ('end', 'End'), ('timezone', 'Timezone')]:
+            field = JTextField()
+            field.setEditable(False)
+            field.setEnabled(False)
+            self.metadata[key] = field
+            metadata.add(JLabel(label))
+            metadata.add(field)
+        top.add(metadata, BorderLayout.CENTER)
+        options = JPanel(GridLayout(0, 1, 3, 3))
+        self.status = JLabel()
+        options.add(self.status)
+        options.add(JLabel('Compute stays in RTS. Finish compute and close DSSVue before file operations.'))
+        self.use_closed = JCheckBox('Use this displayed forecast after closing it in RTS', False)
+        options.add(self.use_closed)
         self.controls.append(self.use_closed)
+        refresh = JButton('Refresh forecast metadata', actionPerformed=self.refresh)
+        options.add(refresh)
+        self.controls.append(refresh)
+        top.add(options, BorderLayout.SOUTH)
         pane.add(top, BorderLayout.NORTH)
-        fields = JPanel(GridLayout(0, 2, 5, 3))
-        year = self.context['end'][0][-4:]
-        values = [('scheme', 'Scheme name (new for each preparation)', 'scheme_03'),
-                  ('run_code', 'ResSim output run code', 'C0'),
-                  ('members', 'Historical members', '1981-1991'),
-                  ('synthetic_members', 'Synthetic members (separate)', '3000-3002'),
-                  ('season_year', 'Augmentation season year', year),
-                  ('season_end', 'Last target date (within baseline coverage)', year + '-09-30'),
-                  ('forecast_days', 'Short forecast days', '10')]
-        self.fields = {}
-        for name, label, value in values:
-            field = JTextField(value)
-            self.fields[name] = field
-            fields.add(JLabel(label))
-            fields.add(field)
-            self.controls.append(field)
-        self.wy_mode = JComboBox(['fixed-abundant', 'storage-maf'])
-        fields.add(JLabel('Water-year input (fixed-abundant verifies constant 4)'))
-        fields.add(self.wy_mode)
-        self.controls.append(self.wy_mode)
-        self.extraction = JTextField('')
-        fields.add(JLabel('Completed extraction folder'))
-        fields.add(self.extraction)
-        self.controls.append(self.extraction)
-        self.result = JTextField('')
-        self.result.setEditable(False)
-        fields.add(JLabel('Selected archived result (for plotting or deletion)'))
-        fields.add(self.result)
-        self.controls.append(self.result)
         center = JPanel(BorderLayout(6, 6))
-        center.add(fields, BorderLayout.NORTH)
-        self.text = JTextArea(16, 95)
-        self.text.setEditable(False)
-        center.add(JScrollPane(self.text), BorderLayout.CENTER)
-        pane.add(center, BorderLayout.CENTER)
-        bottom = JPanel(BorderLayout(4, 4))
-        buttons = JPanel(GridLayout(0, 3, 5, 5))
-        actions = [('1. Extract to archive', 'extract'), ('2. Load extract / baseline', 'load-extract'),
-                   ('3. Prepare augmentation', 'prepare'), ('4. Load selected scheme', 'load-scheme'),
-                   ('5. Current forecast plots', 'plots'), ('6. Archive + compare plots', 'compare'),
-                   ('Load baseline (augmentation off)', 'load-baseline'), ('Save as baseline after compute', 'save-baseline'),
-                   ('List archived results', 'list-results'), ('Plot selected archived pair', 'plot-archive'),
-                   ('Delete selected archived result', 'delete-result'),
-                   ('Reset augmentation', 'reset'), ('Link existing baseline', 'link-baseline')]
-        for title, action in actions:
-            button = JButton(title, actionPerformed=lambda event, selected=action: self.start(selected))
-            buttons.add(button)
-            self.controls.append(button)
-        for title, handler in [('Refresh selected forecast', self.refresh), ('Choose extraction folder', self.choose_extract),
-                               ('Choose saved scheme', self.choose_scheme), ('Choose archived result', self.choose_result),
-                               ('Open last plots', self.open_plots)]:
+        buttons = JPanel(GridLayout(2, 2, 8, 8))
+        for title, handler in [('Initial Extract', self.extract), ('Augmentation Configuration', self.configuration),
+                               ('Plot Results', self.results), ('Reset Baseline', self.reset)]:
             button = JButton(title, actionPerformed=handler)
             buttons.add(button)
             self.controls.append(button)
-        bottom.add(buttons, BorderLayout.CENTER)
+        center.add(buttons, BorderLayout.NORTH)
+        self.text = JTextArea(13, 85)
+        self.text.setEditable(False)
+        center.add(JScrollPane(self.text), BorderLayout.CENTER)
+        pane.add(center, BorderLayout.CENTER)
         self.progress = JProgressBar()
         self.progress.setStringPainted(True)
         self.progress.setString('Ready')
-        bottom.add(self.progress, BorderLayout.SOUTH)
-        pane.add(bottom, BorderLayout.SOUTH)
+        pane.add(self.progress, BorderLayout.SOUTH)
         self.setContentPane(pane)
-        self.update_labels()
-        self.append('Baseline edits: Load baseline, edit and compute in RTS, then Save as baseline. No automatic model compute.')
-        self.append('Use the steps in order. Prepare creates a scheme; Load activates it; compute manually in RTS.')
-        self.append('For this existing forecast, use Link existing baseline once, then Choose saved scheme to select scheme_02.')
+        self.update_metadata()
+        self.append('Initial Extract archives and loads inputs. Modify the base alternative if needed, then compute in RTS.')
+        self.append('After compute, Augmentation Configuration or Plot Results can accept and archive completed results.')
         self.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE)
         self.pack()
         self.setLocationRelativeTo(None)
@@ -229,93 +389,116 @@ class WorkflowMenu(JFrame):
     def append(self, line):
         self.text.append(unicode(line) + '\n')
         self.text.setCaretPosition(self.text.getDocument().getLength())
-    def update_labels(self):
-        c = self.context
-        self.forecast_label.setText('Forecast: %s   Run: %s   DSS: %s' % (c['forecast_name'], c['run_name'], c['dss_path']))
-        self.window_label.setText('Lookback: %s   Forecast: %s   End: %s   %s' %
-            (' '.join(c['lookback']), ' '.join(c['start']), ' '.join(c['end']), c['timezone']))
-        self.update_active_label()
-    def update_active_label(self):
-        marker = os.path.join(os.path.dirname(self.context['dss_path']), 'rts-augmentation-active.json')
+    def update_metadata(self):
+        for key, field in self.metadata.items():
+            value = self.context[key]
+            field.setText(' '.join(value) if isinstance(value, list) else value)
+            field.setToolTipText(field.getText())
+        self.update_status()
+    def update_status(self):
+        root = os.path.dirname(self.context['dss_path'])
+        baseline, mode = 'not saved yet', 'no augmentation'
         try:
-            with open(marker, 'r') as handle:
-                scheme = json.load(handle)['scheme']
-            self.active_label.setText('Active augmentation: ' + scheme + self.baseline_label())
+            with open(os.path.join(root, 'augmentation-archives', 'baseline-versions.json')) as handle:
+                baseline = str(json.load(handle)['current'])
         except IOError:
-            self.active_label.setText('Active augmentation: baseline / disabled' + self.baseline_label())
+            pass
         except (Exception, JavaException):
-            self.active_label.setText('Active augmentation: unreadable marker (inspect before computing)')
-    def baseline_label(self):
-        path = os.path.join(os.path.dirname(self.context['dss_path']), 'augmentation-archives', 'baseline-versions.json')
+            baseline = 'unreadable registry'
         try:
-            with open(path) as handle:
-                return '   Current baseline: ' + str(json.load(handle)['current'])
+            with open(os.path.join(root, 'rts-augmentation-active.json')) as handle:
+                active = json.load(handle)
+            mode = active.get('configuration_name', active['scheme'])
         except IOError:
-            return '   Baseline not versioned yet'
+            pass
         except (Exception, JavaException):
-            return '   Baseline registry unreadable'
+            mode = 'unreadable activation marker - inspect before computing'
+        self.status.setText('Baseline: %s   |   Next compute: %s' % (baseline, mode))
     def set_busy(self, busy):
         self.busy = busy
         for control in self.controls:
             control.setEnabled(not busy)
+        for dialog in self.dialogs:
+            for control in dialog.controls:
+                control.setEnabled(not busy)
+            dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE if busy else JDialog.DISPOSE_ON_CLOSE)
+            if isinstance(dialog, ConfigurationWindow):
+                dialog.process_button.setEnabled(not busy and bool(dialog.state['outputs']['seasons']))
         self.progress.setIndeterminate(busy)
         self.progress.setString('Running - see output below' if busy else 'Ready')
         self.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE if busy else JFrame.DISPOSE_ON_CLOSE)
     def refresh(self, event):
         try:
-            context = forecast_context()
-            if context != self.context:
-                self.use_closed.setSelected(False)
-                self.extraction.setText('')
-                self.result.setText('')
+            if self.busy:
+                return
+            current = forecast_context()
+            if current != self.context:
+                for dialog in self.dialogs:
+                    dialog.dispose()
+                self.dialogs = []
                 self.last_html = None
-                self.fields['season_year'].setText(context['end'][0][-4:])
-                self.fields['season_end'].setText(context['end'][0][-4:] + '-09-30')
-            self.context = context
-            self.update_labels()
+                self.use_closed.setSelected(False)
+            self.context = current
+            self.update_metadata()
         except (Exception, JavaException) as exc:
             JOptionPane.showMessageDialog(self, str(exc))
-    def choose_extract(self, event):
-        chooser = JFileChooser(os.path.dirname(self.context['dss_path']))
-        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY)
-        if chooser.showOpenDialog(self) == JFileChooser.APPROVE_OPTION:
-            self.extraction.setText(str(chooser.getSelectedFile().getAbsolutePath()))
-    def choose_scheme(self, event):
-        root = os.path.join(os.path.dirname(self.context['dss_path']), 'augmentation-archives')
-        chooser = JFileChooser(root)
-        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY)
-        if chooser.showOpenDialog(self) == JFileChooser.APPROVE_OPTION:
-            path = str(chooser.getSelectedFile().getAbsolutePath())
-            if os.path.normcase(os.path.dirname(path)) != os.path.normcase(root):
-                JOptionPane.showMessageDialog(self, 'Choose a scheme directory inside this forecast augmentation-archives folder.')
-                return
-            self.fields['scheme'].setText(os.path.basename(path))
-    def choose_result(self, event):
-        root = os.path.join(os.path.dirname(self.context['dss_path']), 'augmentation-archives')
-        try:
-            with open(os.path.join(root, 'archive-index.json')) as handle:
-                index = json.load(handle)
-            rows = index['results']
-            if not rows:
-                raise RuntimeError('No archived results. Archive + compare after computing a loaded scheme first.')
-            labels = ['%s | %s | %s | %s' %
-                      (row['baseline_status'], row['scheme'], row.get('captured_utc', ''),
-                       os.path.basename(row['directory'])) for row in rows]
-            selected = JOptionPane.showInputDialog(self, 'Choose a result paired with its original baseline:',
-                'Archived results', JOptionPane.QUESTION_MESSAGE, None, labels, labels[0])
-            if selected is not None:
-                row = rows[labels.index(str(selected))]
-                self.result.setText(row['directory'])
-                self.fields['scheme'].setText(row['scheme'])
-                self.append('Selected: ' + row['baseline_status'] + ' ' + row['baseline_id'])
-        except (Exception, JavaException) as exc:
-            JOptionPane.showMessageDialog(self, str(exc) + '\nUse List archived results to refresh the catalog.')
+    def confirm_completed(self, purpose):
+        message = purpose + '\nHas the current manual RTS compute finished successfully?\nYes: accept/archive its results. No: use previously saved results only. Cancel: stop.'
+        answer = JOptionPane.showConfirmDialog(self, message, 'Accept completed results', JOptionPane.YES_NO_CANCEL_OPTION)
+        if answer == JOptionPane.CANCEL_OPTION or answer == JOptionPane.CLOSED_OPTION:
+            return None
+        return answer == JOptionPane.YES_OPTION
+    def extract(self, event):
+        message = 'Download, archive and load initial inputs for the displayed forecast?\nAfterwards, modify the base alternative if needed and compute in RTS.'
+        if JOptionPane.showConfirmDialog(self, message, 'Initial Extract', JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION:
+            self.start('initial-extract', {}, self.extracted)
+    def extracted(self, state):
+        JOptionPane.showMessageDialog(self, 'Initial inputs are loaded and archived.\nReopen the forecast, modify the base alternative if needed, and run the model in RTS.')
+    def configuration(self, event):
+        complete = self.confirm_completed('Accept the current results before opening augmentation configuration?')
+        if complete is not None:
+            self.start('begin-config', {'confirm_completed': complete}, self.open_configuration)
+    def open_configuration(self, state):
+        for dialog in self.dialogs:
+            if isinstance(dialog, ConfigurationWindow):
+                dialog.dispose()
+        dialog = ConfigurationWindow(self, state)
+        self.dialogs.append(dialog)
+        dialog.setVisible(True)
+    def results(self, event):
+        complete = self.confirm_completed('Accept the current results before choosing saved runs to plot?')
+        if complete is not None:
+            self.start('results', {'confirm_completed': complete}, self.open_results)
+    def open_results(self, state):
+        for dialog in self.dialogs:
+            if isinstance(dialog, ResultsWindow):
+                dialog.dispose()
+        dialog = ResultsWindow(self, state)
+        self.dialogs.append(dialog)
+        dialog.setVisible(True)
+    def reset(self, event):
+        message = 'Disable augmentation for the next compute?\nModify the base alternative if needed, then run it in RTS.\nThe baseline may change. Older results become Previous baseline only after different unaugmented results are accepted.'
+        if JOptionPane.showConfirmDialog(self, message, 'Reset Baseline', JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION:
+            return
+        complete = self.confirm_completed('Archive the current completed results before resetting?')
+        if complete is not None:
+            self.start('reset-baseline', {'confirm_completed': complete}, self.reset_done)
+    def reset_done(self, state):
+        for dialog in self.dialogs:
+            if isinstance(dialog, ConfigurationWindow):
+                dialog.dispose()
+        JOptionPane.showMessageDialog(self, 'Augmentation is disabled.\nModify the base alternative if needed, then run it in RTS.\nAfter it finishes, open Augmentation Configuration or Plot Results and confirm completion to accept the baseline.')
+    def configuration_library(self):
+        directory = os.path.join(os.path.dirname(EXTERNAL_PYTHON_DIR), 'rts-augmentation-configurations')
+        if not os.path.isdir(directory):
+            os.makedirs(directory)
+        return directory
     def open_plots(self, event):
         if self.last_html and os.path.isfile(self.last_html):
             Desktop.getDesktop().browse(File(self.last_html).toURI())
         else:
-            JOptionPane.showMessageDialog(self, 'Create plots in this menu first.')
-    def start(self, action):
+            JOptionPane.showMessageDialog(self, 'Create plots first.')
+    def start(self, action, settings, callback=None):
         if self.busy:
             return
         try:
@@ -323,37 +506,19 @@ class WorkflowMenu(JFrame):
                 current = forecast_context()
             except NoForecastError:
                 if not self.use_closed.isSelected():
-                    raise RuntimeError('Forecast is closed. Reopen it, or check Use the displayed forecast after closing it in RTS.')
+                    raise RuntimeError('Forecast is closed. Reopen it or select Use this displayed forecast after closing it in RTS.')
                 current = self.context
-                self.append('Forecast closed: using the displayed forecast ' + current['forecast_name'])
             if current != self.context:
-                raise RuntimeError('Selected forecast/run/time window changed. Click Refresh selected forecast before running a task.')
-            if action == 'save-baseline':
-                message = 'Have you finished an unaugmented compute in RTS?\nSave the displayed forecast as baseline. If its time series changed, older augmented results will be labelled Previous baseline.\nThe script cannot verify RTS compute success. Check its status first.'
-                if JOptionPane.showConfirmDialog(self, message, 'Save computed baseline', JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION:
-                    return
-            if action == 'delete-result':
-                selected = str(self.result.getText()).strip()
-                if not selected:
-                    raise RuntimeError('Choose an archived result first.')
-                message = 'Permanently delete this archived augmented result and its plots?\n' + selected + '\nBaseline and scheme inputs will remain. This action is recorded in the history.'
-                if JOptionPane.showConfirmDialog(self, message, 'Delete archived result', JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION:
-                    return
-            if action == 'link-baseline':
-                message = 'Link the existing baseline to the displayed forecast dates?\nDo this only if the model, dates, and downloaded inputs are unchanged since that baseline was computed.\nThe baseline DSS will remain unchanged.'
-                if JOptionPane.showConfirmDialog(self, message, 'Link existing baseline', JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION:
-                    return
-            settings = dict((name, str(field.getText())) for name, field in self.fields.items())
-            settings['wy_type_mode'] = str(self.wy_mode.getSelectedItem())
-            settings['extraction_dir'] = str(self.extraction.getText()).strip()
-            settings['result_dir'] = str(self.result.getText()).strip()
+                raise RuntimeError('Forecast selection or dates changed. Refresh forecast metadata first.')
             context = dict(self.context)
             context['menu_settings'] = settings
+            self.after_task = callback
             self.append('\nStarting: ' + action)
             self.set_busy(True)
             self.worker = BackgroundTask(self, action, context, self.executable)
             self.worker.execute()
         except (Exception, JavaException) as exc:
+            self.after_task = None
             self.set_busy(False)
             JOptionPane.showMessageDialog(self, str(exc), 'RTS workflow', JOptionPane.ERROR_MESSAGE)
 

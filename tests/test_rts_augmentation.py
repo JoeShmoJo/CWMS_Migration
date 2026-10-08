@@ -92,7 +92,10 @@ class PreparationTests(unittest.TestCase):
                        ('pydsstools', 'pydsstools.heclib', 'pydsstools.heclib.dss', 'pydsstools.core')}
             modules['pydsstools.heclib.dss'].HecDss = types.SimpleNamespace(Open=FakeDss)
             modules['pydsstools.core'].TimeSeriesContainer = types.SimpleNamespace
-            args = ['prepare', '--forecast-root', str(root), '--scheme', 'test', '--members', '1981',
+            override = Path(directory) / 'override' / 'MinFlowSalemAlbanyConfig.csv'
+            override.parent.mkdir()
+            override.write_text((sv / 'MinFlowSalemAlbanyConfig.csv').read_text().replace('2700', '50'))
+            args = ['prepare', '--config-csv', str(override), '--forecast-root', str(root), '--scheme', 'test', '--members', '1981',
                     '--season-year', '2027', '--season-end', '2027-05-20']
             with patch.object(preparation, '__file__', str(scripts / 'prepare_rts_augmentation.py')), \
                     patch.object(sys, 'argv', args), patch.dict(sys.modules, modules):
@@ -102,6 +105,9 @@ class PreparationTests(unittest.TestCase):
             manifest = json.loads((root / 'augmentation-archives/test/manifest.json').read_text())
             self.assertEqual(manifest['status'], 'prepared-not-computed')
             self.assertEqual(len(manifest['paths']), 3)
+            self.assertEqual(manifest['summary'][0]['maximum_cfs'], 50)
+            self.assertIn('2700', (sv / 'MinFlowSalemAlbanyConfig.csv').read_text())
+            self.assertIn('50', (root / 'augmentation-archives/test/MinFlowSalemAlbanyConfig.csv').read_text())
             self.assertTrue(all(path != live for path, _ in writes))
             self.assertFalse((root / 'rts-augmentation-active.json').exists())
 

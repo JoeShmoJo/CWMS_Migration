@@ -185,6 +185,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--forecast-root', required=True)
     parser.add_argument('--scheme', required=True)
+    parser.add_argument('--config-csv', help='RTS-only configuration snapshot; never overwrites the standalone configuration')
     parser.add_argument('--members', default='1981-1991,3000-3002')
     parser.add_argument('--run-code', default='C0')
     parser.add_argument('--season-year', required=True, type=int)
@@ -217,6 +218,11 @@ def main():
         raise FileExistsError('Scheme already exists; use a new name: ' + str(scheme))
     config_paths = [scripts.parent / 'externalSVs' / name for name in
         ('MinFlowSalemAlbanyConfig.csv', 'MinFlowSalem_2008BiOp.csv', 'MinFlowAlbany_2008BiOp.csv')]
+    if args.config_csv:
+        override = Path(args.config_csv).resolve()
+        if override.name != 'MinFlowSalemAlbanyConfig.csv':
+            raise ValueError('Configuration snapshot must be named MinFlowSalemAlbanyConfig.csv')
+        config_paths[0] = override
     config_paths += [scripts / 'median_remaining_by_day.pkl', scripts / 'MainstemAugmentation.py']
     for path in config_paths:
         if not path.is_file():

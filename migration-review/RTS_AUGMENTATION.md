@@ -103,3 +103,13 @@ Cloud unit tests exercise the actual legacy calculation functions, single
 storage-floor subtraction, travel-time boundaries, missing-input rejection,
 archive checksum validation, and baseline initializer behavior. Actual HEC-DSS
 writes and the active RTS compute path require the user's Windows validation.
+
+The simplified menu no longer exposes saved-scheme loading as a user workflow.
+Reusable configuration JSON is passed to the RTS preparer through `--config-csv`
+as a temporary `MinFlowSalemAlbanyConfig.csv`; the original working CSV is not
+changed. The menu prepares and loads releases as one action, then prompts for
+manual RTS compute. Completed outputs are accepted separately. Plot Results can
+select one or two saved runs, including two augmentation configurations; it
+uses `plot_rts_runs.py` and retains offline plots under the forecast. Reset
+Baseline only disables augmentation until completed unaugmented outputs are
+accepted. See RTS_WORKFLOW_MENU.md for the current four-action workflow.

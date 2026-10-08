@@ -97,3 +97,13 @@ this action-driven result comparison for standalone trials later. It is not a
 snapshot/restore mechanism for operation sets. Result deletion preserves all
 baselines, scheme inputs, and the action history. None of this changes the
 standalone model's existing trial workflow.
+
+The RTS menu now has four main actions: Initial Extract, Augmentation
+Configuration, Plot Results, Reset Baseline. Its configuration editor saves
+portable JSON and supplies a temporary CSV to the RTS preparer; it does not
+overwrite the maintained configuration CSV. Reusable configurations contain no
+forecast or baseline IDs. Actual computed membership/season coverage are inferred
+for each pairing. Reset disables augmentation without restoring an old DSS,
+then completed unaugmented results are explicitly accepted after manual compute.
+Consider this configuration/result separation for standalone later while
+retaining its existing trial workflow and keeping operation-set changes separate.

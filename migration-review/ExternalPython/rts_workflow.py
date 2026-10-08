@@ -100,6 +100,10 @@ def execute(args, context):
     settings = context['menu_settings']
     scripts = Path(__file__).resolve().parent
     print('Forecast:', context['forecast_name'], 'Run:', context['run_name'], flush=True)
+    if args.action in ('initial-extract', 'begin-config', 'results', 'save-config', 'process-config', 'reset-baseline', 'plot-selected'):
+        from workflow_simple import execute_simple
+        execute_simple(args.action, args, context, scripts)
+        return
     clean_context = {key: value for key, value in context.items() if key != 'menu_settings'}
     if args.action == 'load-baseline':
         load_baseline(root, clean_context, settings['run_code'].strip())
@@ -116,7 +120,7 @@ def execute(args, context):
             print('No archived augmented results yet.', flush=True)
         return
     if args.action == 'delete-result':
-        delete_result(root, settings['result_dir'])
+        delete_result(root, settings['result_dir'], include_plots=settings.get('include_plots', False))
         return
     if args.action == 'link-baseline':
         archive = root / 'augmentation-archives'
@@ -169,7 +173,7 @@ def execute(args, context):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--context', required=True)
-    parser.add_argument('--action', required=True, choices=('extract', 'load-extract', 'prepare', 'load-scheme', 'reset', 'plots', 'compare', 'link-baseline', 'load-baseline', 'save-baseline', 'list-results', 'plot-archive', 'delete-result'))
+    parser.add_argument('--action', required=True, choices=('extract', 'load-extract', 'prepare', 'load-scheme', 'reset', 'plots', 'compare', 'link-baseline', 'load-baseline', 'save-baseline', 'list-results', 'plot-archive', 'delete-result', 'initial-extract', 'begin-config', 'results', 'save-config', 'process-config', 'reset-baseline', 'plot-selected'))
     args = parser.parse_args()
     context = json.loads(Path(args.context).read_text(encoding='utf-8-sig'))
     root = Context(context).dss_path.parent

@@ -326,12 +326,25 @@ def write_archive_index(root):
     return rows
 
 
-def delete_result(root, folder):
+def delete_result(root, folder, include_plots=False):
     folder = result_directory(root, folder)
-    event(root, 'result-delete-requested', directory=str(folder),
+    associated = []
+    if include_plots:
+        identity = str(folder.relative_to(Path(root) / 'augmentation-archives'))
+        plot_root = (Path(root) / 'output_plots').resolve()
+        for selection in plot_root.glob('saved-runs-*/selection.json'):
+            directory = selection.parent
+            if directory.is_symlink() or directory.resolve().parent != plot_root:
+                raise ValueError('Invalid associated plot archive directory')
+            metadata = json.loads(selection.read_text())
+            if any(run.get('id') == identity for run in metadata['runs']):
+                associated.append(directory)
+    event(root, 'result-delete-requested', directory=str(folder), plots=[str(path) for path in associated],
           capture=json.loads((folder / 'capture.json').read_text()))
     shutil.rmtree(folder)
-    event(root, 'result-deleted', directory=str(folder))
+    for path in associated:
+        shutil.rmtree(path)
+    event(root, 'result-deleted', directory=str(folder), plots=[str(path) for path in associated])
     write_archive_index(root)
     print('Deleted archived result and its plots:', folder, flush=True)
     print('Baseline, scheme configuration, and action history retained.', flush=True)
