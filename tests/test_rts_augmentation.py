@@ -15,11 +15,22 @@ import pandas as pd
 SCRIPTS = Path(__file__).resolve().parents[1] / 'migration-review/ExternalPython'
 sys.path.insert(0, str(SCRIPTS))
 import prepare_rts_augmentation as preparation
-from prepare_rts_augmentation import load_functions, calculate, validate_daily, sha256, read_config
+from prepare_rts_augmentation import load_functions, calculate, validate_daily, sha256, read_config, read_water_year_type
 from load_rts_augmentation import validate_manifest
 
 
 class PreparationTests(unittest.TestCase):
+    def test_abundant_code_is_explicit_and_not_converted_as_storage(self):
+        dates = pd.date_range('2027-05-15', periods=2)
+        dss = types.SimpleNamespace(read_ts=lambda *a, **k: types.SimpleNamespace(
+            units='ac-ft', values=[4.0, 4.0], pytimes=dates))
+        with self.assertRaisesRegex(ValueError, 'unexpected units'):
+            read_water_year_type(dss, '/', 'storage-maf')
+        self.assertEqual(list(read_water_year_type(dss, '/', 'fixed-abundant')), [4.0, 4.0])
+        dss.read_ts = lambda *a, **k: types.SimpleNamespace(units='ac-ft', values=[4.0, 3.0], pytimes=dates)
+        with self.assertRaisesRegex(ValueError, 'every water-year-type value'):
+            read_water_year_type(dss, '/', 'fixed-abundant')
+
     def test_config_comments_with_trailing_cells_and_bom(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / 'config.csv'

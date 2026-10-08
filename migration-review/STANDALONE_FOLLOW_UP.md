@@ -17,6 +17,13 @@ augmentation schemes.
 
 ## Changes to evaluate after RTS validation
 
+- **Water-year-type metadata:** the current RTS ALL_ABUNDANT input is constant
+  4, but WaterYearTypeVariable exports it under STOR-MAF with AC-FT units.
+  The RTS preparer requires explicit fixed-abundant mode and verifies all values
+  are 4. Review the standalone state-variable units and distinguish categorical
+  codes from physical storage; never divide this code by a million. The existing
+  legacy target selection uses the abundant 1.48 table row for values above 1.2.
+
 - **Local minimum-release inputs:** the imported model saves `Combined Min Trib`
   under `FLOW-SPEC`, replacing the older named `FLOW-MIN` records expected by
   the external calculator. Verify the maintained standalone model uses the

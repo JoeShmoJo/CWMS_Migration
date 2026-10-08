@@ -32,6 +32,13 @@ water-year classification behavior are retained; they are not a new optimization
 method. SummerBufferElev is used by the legacy one-step method, not added as a
 new constraint to this two-step external calculation.
 
+The current forecast uses the extraction's ALL_ABUNDANT constant 4 input.
+Its WaterYearTypeVariable output is labeled AC-FT despite being that constant.
+Use `--wy-type-mode fixed-abundant` for this explicit setup. Every loaded value
+must equal 4; it is not divided by a million. The legacy target selection treats
+4 as abundant and selects the 1.48 target-table row. The default storage-maf
+mode continues to require MAF units and rejects the misleading AC-FT label.
+
 ## Load and compute
 
 After reviewing preparation, run `load_rts_augmentation.py --forecast-root ...

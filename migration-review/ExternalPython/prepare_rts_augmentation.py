@@ -102,6 +102,18 @@ def read_series(dss, path, units):
     return series
 
 
+def read_water_year_type(dss, path, mode):
+    if mode == 'fixed-abundant':
+        # The existing ALL_ABUNDANT input is an explicit constant code of 4,
+        # exported by this state variable with a storage unit label. It is not
+        # a physical acre-foot volume. Require an explicit mode and verify it.
+        series = read_series(dss, path, {'MAF', 'STOR-MAF', 'AC-FT', 'ACRE-FT', 'AF', 'ACRE-FEET'})
+        if not (series.to_numpy(dtype=float) == 4.0).all():
+            raise ValueError('fixed-abundant requires every water-year-type value to equal 4; inspect the model input')
+        return series
+    return read_series(dss, path, {'MAF', 'STOR-MAF'})
+
+
 def validate_daily(data, start, end):
     data = data.reindex(pd.date_range(start, end, freq='D'))
     values = data.to_numpy(dtype=float)
@@ -177,6 +189,8 @@ def main():
     parser.add_argument('--season-year', required=True, type=int)
     parser.add_argument('--season-end', required=True, help='Explicit ISO date; no invented extension of baseline coverage')
     parser.add_argument('--forecast-days', type=int, default=10)
+    parser.add_argument('--wy-type-mode', choices=('storage-maf', 'fixed-abundant'), default='storage-maf',
+                        help='fixed-abundant explicitly accepts the constant 4 input; never converts it as a physical volume')
     args = parser.parse_args()
     if not args.scheme or any(c not in 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-' for c in args.scheme):
         raise ValueError('Scheme name must contain only letters, numbers, underscore, or hyphen')
@@ -258,7 +272,7 @@ def main():
                 for prefix, name in [('SLM', 'SALEM'), ('ALB', 'ALBANY')]:
                     series[prefix + '_flow'] = read_series(dss,
                         '//WILLAMETTE_AT {}/FLOW//1DAY/{}/'.format(name, fpart), {'CFS'})
-                series['WY_type'] = read_series(dss, '//WATERYEARTYPEVARIABLE/STOR-MAF//1DAY/{}/'.format(fpart), {'MAF', 'STOR-MAF'})
+                series['WY_type'] = read_water_year_type(dss, '//WATERYEARTYPEVARIABLE/STOR-MAF//1DAY/{}/'.format(fpart), args.wy_type_mode)
                 # Keep a common validated forecast span, and require the whole
                 # requested seasonal window plus travel-time lead-in.
                 first = max(s.index[0] for s in series.values())
@@ -295,6 +309,7 @@ def main():
                     'paths': paths_written, 'augmentation_sha256': sha256(output),
                     'configuration_sha256': {p.name: sha256(scheme / p.name) for p in config_paths},
                     'forecast_days': args.forecast_days, 'summary': stats,
+                    'wy_type_mode': args.wy_type_mode,
                     'notes': ['Storage floor subtracted once.', 'Signed deficits preserved from legacy method.',
                               'Season ends at explicitly requested date; no extrapolated October inputs.']}
         (scheme / 'manifest.json').write_text(json.dumps(manifest, indent=2))
