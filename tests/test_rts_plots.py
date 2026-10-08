@@ -8,10 +8,26 @@ import numpy as np
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'migration-review' / 'ExternalPython'))
-from plot_rts_forecast import output_groups, parse_members, clean_series, quantiles, main
+from plot_rts_forecast import output_groups, parse_members, clean_series, quantiles, main, load_rule_curve
 
 
 class PlotTests(unittest.TestCase):
+    def test_rule_curve_units_ignore_capitalization(self):
+        fake = types.SimpleNamespace(read_ts=lambda *args, **kwargs: types.SimpleNamespace(
+            values=np.array([1450.0, 1450.0]), pytimes=pd.date_range('2026-10-09', periods=2), units='FT'))
+        curve, label = load_rule_curve(fake, 'Detroit-Pool', 'ft', pd.Timestamp('2026-10-09'), pd.Timestamp('2026-10-10'), Path('unused.csv'))
+        self.assertEqual(label, 'Rule curve (DSS)')
+        self.assertEqual(curve.tolist(), [1450.0, 1450.0])
+
+    def test_rule_curve_falls_back_to_supplied_schedule(self):
+        def missing(*args, **kwargs):
+            raise ValueError('missing DSS record')
+        csv_path = Path(__file__).resolve().parents[1] / 'migration-review' / 'ExternalPython' / 'CON_SEASON_RULE_CURVES.csv'
+        curve, label = load_rule_curve(types.SimpleNamespace(read_ts=missing), 'Detroit-Pool', 'ft',
+                                       pd.Timestamp('2026-10-09'), pd.Timestamp('2026-10-10'), csv_path)
+        self.assertEqual(label, 'Rule curve (CSV schedule)')
+        self.assertEqual(len(curve), 2)
+        self.assertTrue(curve.notna().all())
     def test_selects_actual_run_outputs_and_ignores_input_copies(self):
         paths = ['//Detroit-Pool/Elev/01Jan2026/1Day/C:001981|C0/',
                  '//Detroit-Pool/Elev/01Jan2027/1Day/C:001981|C0/',

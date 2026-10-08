@@ -79,7 +79,36 @@ def quantiles(frame):
     return q
 
 
-def make_figure(frame, title, units, rule_curve=None):
+def unit_key(units):
+    value = str(units).strip().upper()
+    return 'FT' if value in ('FT', 'FEET', 'FOOT') else value
+
+
+def load_rule_curve(dss, location, units, begin, end, csv_path):
+    import pandas as pd
+    rule_path = '//{}/ELEV//1DAY/RULE CURVE/'.format(location[:-5])
+    try:
+        record = dss.read_ts(rule_path, trim_missing=True)
+        if unit_key(record.units) != unit_key(units):
+            raise ValueError('Rule curve/output units differ')
+        curve = clean_series(record)
+        curve = curve[(curve.index >= begin) & (curve.index <= end)]
+        if curve.dropna().empty:
+            raise ValueError('No valid DSS rule-curve values in plot window')
+        return curve, 'Rule curve (DSS)'
+    except Exception as exc:
+        print('DSS RULE CURVE WARNING:', rule_path, exc, flush=True)
+    if unit_key(units) != 'FT':
+        raise ValueError('Supplied CSV rule curves are in feet; plot units are ' + str(units))
+    from write_rule_curves import annual_table, expand
+    dates, values = expand(annual_table(csv_path), begin.to_pydatetime(), end.to_pydatetime())
+    curve = pd.Series(values[location[:-5].upper()], index=dates)
+    curve = curve[(curve.index >= begin) & (curve.index <= end)]
+    print('RULE CURVE: using supplied annual CSV schedule for', location, flush=True)
+    return curve, 'Rule curve (CSV schedule)'
+
+
+def make_figure(frame, title, units, rule_curve=None, rule_label='Rule curve'):
     import plotly.graph_objects as go
     q = quantiles(frame)
     fig = go.Figure()
@@ -96,7 +125,7 @@ def make_figure(frame, title, units, rule_curve=None):
                             hovertemplate='%{x}<br>Median: %{y:.2f}<br>Members: %{customdata}<extra></extra>'))
     if rule_curve is not None:
         fig.add_trace(go.Scatter(x=rule_curve.index, y=rule_curve, mode='lines',
-                                line=dict(color='green', width=2, dash='dash'), name='Rule curve', connectgaps=False))
+                                line=dict(color='green', width=2, dash='dash'), name=rule_label, connectgaps=False))
     fig.update_layout(title=title, xaxis_title='Forecast local date/time', yaxis_title=units,
                       template='plotly_white', hovermode='closest')
     return fig
@@ -151,7 +180,7 @@ def main():
                     if valid_values.empty:
                         raise ValueError('No valid values in requested window')
                     units = str(record.units).strip()
-                    units_seen.add(units)
+                    units_seen.add(unit_key(units))
                     series[member] = values
                     row.update(status='read', samples=len(valid_values), first=str(valid_values.index[0]), last=str(valid_values.index[-1]), units=units)
                 except Exception as exc:
@@ -167,17 +196,14 @@ def main():
             title = '{} — {} — {} ({} members read)'.format(key[1], key[2], args.run_code, len(series))
             filename = '{:02d}_{}.html'.format(number, re.sub(r'[^A-Za-z0-9_-]+', '_', key[1] + '_' + key[2] + '_' + key[3]))
             rule_curve = None
+            rule_label = 'Rule curve'
             if key[1].upper().endswith('-POOL') and key[2].upper() in ('ELEV', 'ELEVATION'):
-                rule_path = '//{}/ELEV//1DAY/RULE CURVE/'.format(key[1][:-5])
                 try:
-                    rule_record = dss.read_ts(rule_path, trim_missing=True)
-                    if str(rule_record.units).strip() != next(iter(units_seen)):
-                        raise ValueError('Rule curve/output units differ')
-                    rule_curve = clean_series(rule_record)
-                    rule_curve = rule_curve[(rule_curve.index >= frame.index.min()) & (rule_curve.index <= frame.index.max())]
+                    rule_curve, rule_label = load_rule_curve(dss, key[1], next(iter(units_seen)), frame.index.min(), frame.index.max(),
+                                                            Path(__file__).with_name('CON_SEASON_RULE_CURVES.csv'))
                 except Exception as exc:
-                    print('RULE CURVE WARNING:', rule_path, exc, flush=True)
-            make_figure(frame, title, next(iter(units_seen)), rule_curve).write_html(output / filename, include_plotlyjs='_plotly.min.js')
+                    print('RULE CURVE WARNING:', key[1], exc, flush=True)
+            make_figure(frame, title, next(iter(units_seen)), rule_curve, rule_label).write_html(output / filename, include_plotlyjs='_plotly.min.js')
             frame.to_csv(output / filename.replace('.html', '_series.csv'))
             quantiles(frame).to_csv(output / filename.replace('.html', '_bands.csv'))
             links.append((filename, title))
