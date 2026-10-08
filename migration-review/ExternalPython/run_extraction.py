@@ -43,6 +43,8 @@ def main():
     else:
         print('No existing forecast DSS. Downloaders will create a new DSS in the test directory.', flush=True)
     data['dss_path'] = str(target)
+    data['percentile_members'] = {'3000': 0.25, '3001': 0.50, '3002': 0.75}
+    data['osi_member'] = 3003
     context_file = stage / 'context.json'
     context_file.write_text(json.dumps(data, indent=2), encoding='utf-8')
     print('Test DSS:', target, flush=True)

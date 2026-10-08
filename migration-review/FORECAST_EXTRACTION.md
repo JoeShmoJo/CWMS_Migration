@@ -49,7 +49,12 @@ Historical observed elevation/outflow records preserve missing days as DSS UNDEF
 slots rather than interpolating or shifting later values. Required lookback and
 RFC inputs still reject missing values and insufficient coverage. Missing/failed
 plotting groups produce warnings and do not prevent the required workflow from
-continuing. OSI copying retains CONFIG.ENSEMBLE_YEAR_TO_COPY and 2029.
+continuing. Future RTS extractions use 3000/3001/3002 for daily non-exceedance
+25/50/75 percent traces, and 3003 for the OSI copy of CONFIG.ENSEMBLE_YEAR_TO_COPY.
+The test context records these IDs. Existing forecasts prepared with the old
+2026/2027/2028/2029 scheme are not changed automatically. Standalone defaults
+retain the legacy IDs, but now reject collisions instead of overwriting real
+RFC members. The old standalone plotting scripts still assume legacy IDs.
 The dummy step also creates C:<member>|DUMMY and C:<member>|WY_TYPE copies for
 members found in downloaded FLOW-LOC/FLOW-UNREG collection records. The generic
 dummy records remain available. A separate write_ensemble_dummies.py --dss PATH
@@ -89,6 +94,12 @@ until an explicit value/policy is provided. Standalone rule-curve files remain
 unchanged. The downloaded CENWP-CALC plotting curves are separate records.
 Validate the copied DSS before any live forecast use.
 Plotting and augmentation scripts are not yet adapted.
+Before adapting plots, run catalog_forecast_outputs.py --forecast-root PATH to
+inspect actual RTS output files, F-parts, and intervals. It omits extraction-test
+directories and repair backups and catalogs the central files and up to two
+ensemble directories. Completed historical-member outputs can be plotted without
+running synthetic input traces: bands from output ensembles and outputs from
+daily percentile input traces are different statistics.
 
 Once local tests pass, install these same Python files into the maintained
 standalone watershed, validate its normal launchers, then carry them through

@@ -281,9 +281,8 @@ def write_rfc_to_dss(
                     base_cols = list(df1d.columns)
                     if base_cols:
                         pct = df1d[base_cols].apply(pd.to_numeric, errors="coerce")
-                        df1d[2026] = pct.quantile(0.25, axis=1, interpolation="linear")
-                        df1d[2027] = pct.quantile(0.50, axis=1, interpolation="linear")
-                        df1d[2028] = pct.quantile(0.75, axis=1, interpolation="linear")
+                        from ensemble_ids import add_percentile_members
+                        df1d = add_percentile_members(pct, forecast=CONTEXT is not None)
 
                     if df1d.empty:
                         continue

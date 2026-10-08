@@ -35,6 +35,8 @@ from extraction_context import load_context
 CONTEXT = load_context()
 if CONTEXT is not None:
     DSS_PATH = CONTEXT.dss_path
+    from ensemble_ids import FORECAST_OSI_MEMBER
+    TARGET_ENSEMBLE_YEAR = FORECAST_OSI_MEMBER
 
 DSS_FILE = str(DSS_PATH)
 
