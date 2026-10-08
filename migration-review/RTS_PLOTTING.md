@@ -24,13 +24,22 @@ percentile input traces and 2029 is the OSI copy; exclude them from historical
 output bands. Future extractions reserve 3000/3001/3002 and 3003, and historical
 member selection must match the actual returned RFC members and computed results.
 Do not include synthetic members in the --members option used for output bands.
-Synthetic trace comparison plots remain a separate next step.
+Members 3000/3001/3002 are now read by default as separately labeled, bold
+daily 25/50/75% inflow-result overlays. They never enter the historical bands.
+Missing synthetic outputs are reported; the plotter cannot compute an unrun trace.
+--synthetic-members overrides that selection, and overlap with --members is rejected.
 
 Each run writes a unique directory under <forecast>/output_plots, prints its
 index.html path, and includes a local Plotly JavaScript bundle for offline use.
 Plots contain individual historical member results, 5–95% and 25–75% pointwise
 output bands, median, and a mapped rule-curve overlay for reservoir elevations
-when available. Legends allow traces to be toggled. The median hover and bands
+when available. By default rule curves come from the supplied annual CSV schedule,
+and only the 11 mapped reservoirs get an overlay (no Big Cliff or Dexter lookup).
+--rule-curve-source dss prefers the mapped DSS record with CSV fallback. Each
+overlay is labeled by source and exported in a rule_curve CSV for date/value review.
+The index now groups elevation and outflow links by reservoir and flow links
+by river location. Routing reaches are omitted from the control-point selection.
+Legends allow traces to be toggled. The median hover and bands
 CSV report time-varying sample counts. Missing members/read failures are reported;
 a chart with some readable results is not evidence every requested member completed.
 read-report.csv records paths and valid coverage; series and bands are also exported.

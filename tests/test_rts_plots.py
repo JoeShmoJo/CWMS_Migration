@@ -8,10 +8,32 @@ import numpy as np
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'migration-review' / 'ExternalPython'))
-from plot_rts_forecast import output_groups, parse_members, clean_series, quantiles, main, load_rule_curve
+from plot_rts_forecast import output_groups, parse_members, clean_series, quantiles, main, load_rule_curve, make_figure, index_page, target_record
 
 
 class PlotTests(unittest.TestCase):
+    def test_synthetic_trace_does_not_change_historical_median(self):
+        dates = pd.date_range('2026-10-09', periods=2)
+        historical = pd.DataFrame({1981: [0.0, 0.0], 1982: [100.0, 100.0]}, index=dates)
+        synthetic = pd.DataFrame({3000: [999.0, 999.0]}, index=dates)
+        figure = make_figure(historical, 'Test', 'FT', synthetic_frame=synthetic)
+        median = next(trace for trace in figure.data if trace.name == 'Median')
+        self.assertEqual(list(median.y), [50.0, 50.0])
+        trace = next(trace for trace in figure.data if trace.name == 'Daily 25% inflow trace')
+        self.assertEqual(list(trace.y), [999.0, 999.0])
+
+    def test_index_groups_reservoir_parameters_in_one_card(self):
+        text = index_page([('e.html', 'Elevation', 'Detroit-Pool', 'Elev'),
+                           ('q.html', 'Outflow', 'Detroit-Pool', 'Flow-Out'),
+                           ('s.html', 'Salem', 'Willamette_at Salem', 'Flow')], 'ForecastTest3', 'C0')
+        self.assertEqual(text.count('<h3>Detroit</h3>'), 1)
+        self.assertIn('Reservoirs', text)
+        self.assertIn('River locations', text)
+        self.assertIn('href="q.html">Outflow', text)
+
+    def test_routes_are_not_control_point_flow_plots(self):
+        self.assertFalse(target_record('//Willamette_at Albany to Willamette+Santiam/Flow//1Day/C:001981|C0/'.split('/')))
+
     def test_rule_curve_units_ignore_capitalization(self):
         fake = types.SimpleNamespace(read_ts=lambda *args, **kwargs: types.SimpleNamespace(
             values=np.array([1450.0, 1450.0]), pytimes=pd.date_range('2026-10-09', periods=2), units='FT'))
