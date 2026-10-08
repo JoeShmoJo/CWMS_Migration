@@ -12,7 +12,7 @@ $names = @('RFC_Downloader_Module.py', 'CWMS_Downloader_Module.py',
     'extraction_context.py', 'run_extraction.py', 'windows_ca.py', 'diagnose_cwms.py', 'cwms_time.py',
     'write_rule_curves.py', 'CON_SEASON_RULE_CURVES.csv', 'write_ensemble_dummies.py',
     'write_ensemble_shared_inputs.py', 'ensemble_ids.py', 'catalog_forecast_outputs.py', 'plot_rts_forecast.py',
-    'check_augmentation_inputs.py')
+    'check_augmentation_inputs.py', 'augmentation_mapping.py')
 foreach ($name in $names) {
     if (-not (Test-Path -LiteralPath (Join-Path $PSScriptRoot "ExternalPython\$name"))) {
         throw "Missing installation source: $name"

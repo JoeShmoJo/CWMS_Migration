@@ -6,6 +6,8 @@ import re
 import numpy as np
 import pandas as pd
 
+from augmentation_mapping import MINIMUM_LOCATIONS, minimum_path
+
 
 def logical_outputs(paths, run_code, members):
     outputs = {}
@@ -73,7 +75,7 @@ def main():
         print('\nRULE / STATE VARIABLE CANDIDATES (member {}):'.format(exemplar))
         for path in sorted(outputs.get(exemplar, [])):
             parts = path.upper().split('/')
-            if parts[3] == 'FLOW-MIN' or 'WATERYEAR' in parts[2] or 'WATER YEAR' in parts[2]:
+            if parts[3] in ('FLOW-MIN', 'FLOW-SPEC') or 'WATERYEAR' in parts[2] or 'WATER YEAR' in parts[2]:
                 print(path)
         reservoirs = ('LOOKOUT POINT', 'HILLS CREEK', 'DETROIT', 'GREEN PETER',
                       'COUGAR', 'BLUE RIVER', 'FALL CREEK', 'DORENA', 'COTTAGE GROVE', 'FERN RIDGE')
@@ -96,6 +98,22 @@ def main():
                 except Exception as exc:
                     failures.append((member, location, parameter, str(exc)))
             print('Member {}: {}/{} core inputs pass'.format(member, passed, len(requirements)), flush=True)
+            minimum_passed = 0
+            available = {p.upper() for p in outputs.get(member, [])}
+            for alias in sorted(MINIMUM_LOCATIONS):
+                path = minimum_path(alias, member, args.run_code)
+                if path.upper() not in available:
+                    failures.append((member, alias + '_minflow', 'FLOW-SPEC', 'Missing ' + path))
+                    continue
+                try:
+                    count, units = inspect_series(dss, path, start, end)
+                    if str(units).strip().upper() != 'CFS':
+                        raise ValueError('Expected CFS, found {}'.format(units))
+                    minimum_passed += 1
+                except Exception as exc:
+                    failures.append((member, alias + '_minflow', 'FLOW-SPEC', str(exc)))
+            print('Member {}: {}/{} Combined Min Trib inputs pass'.format(
+                member, minimum_passed, len(MINIMUM_LOCATIONS)), flush=True)
     print('\nINPUT ISSUES:')
     for member, location, parameter, message in failures:
         print('{} | {} | {} | {}'.format(member, location, parameter, message))
@@ -106,7 +124,8 @@ def main():
         print('{}: {}'.format('FOUND' if path.is_file() else 'MISSING', path))
         if not path.is_file():
             failures.append(('configuration', str(path), '', 'Missing'))
-    print('\nNo DSS records changed. Minimum-flow rule mappings still require review.')
+    print('\nGPR_minflow uses Foster-Combined Min Trib, preserving the legacy Foster requirement.')
+    print('No DSS records changed. This check does not calculate or apply augmentation.')
     if failures:
         raise SystemExit(1)
 

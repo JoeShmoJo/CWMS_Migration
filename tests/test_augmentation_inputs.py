@@ -2,9 +2,11 @@ import importlib.util
 from pathlib import Path
 from types import SimpleNamespace
 import unittest
+import sys
 
 import pandas as pd
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'migration-review/ExternalPython'))
 spec = importlib.util.spec_from_file_location('augmentation_check', Path(__file__).resolve().parents[1] /
     'migration-review/ExternalPython/check_augmentation_inputs.py')
 module = importlib.util.module_from_spec(spec)
@@ -12,6 +14,12 @@ spec.loader.exec_module(module)
 
 
 class AuditTests(unittest.TestCase):
+    def test_minimum_mapping_preserves_foster_requirement(self):
+        self.assertEqual(module.minimum_path('GPR', 1981, 'C0'),
+                         '//FOSTER-COMBINED MIN TRIB/FLOW-SPEC//1DAY/C:001981|C0/')
+        self.assertEqual(module.minimum_path('BLU', 3000, 'C0'),
+                         '//BLUE RIVER-COMBINED MIN TRIB/FLOW-SPEC//1DAY/C:003000|C0/')
+
     def test_catalog_excludes_inputs_and_merges_year_blocks(self):
         paths = ['//DETROIT-POOL/STOR/01Jan2026/1Day/C:001981|C0/',
                  '//DETROIT-POOL/STOR/01Jan2027/1Day/C:001981|C0/',
