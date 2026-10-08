@@ -1,13 +1,14 @@
-"""RTS local-minimum inputs corresponding to the legacy two-step calculation.
+"""RTS reservoir release requirements used by the two-step calculation.
 
-Green Peter intentionally uses Foster's requirement, matching the legacy GPR
-input. Do not substitute Green Peter's own requirement without model review.
+MinFlowPlusWithdrawal transforms the Foster target into Green Peter's release
+requirement using Foster's rule-curve fill rate and local inflow. Read that
+saved Green Peter result; the Foster target itself is not a GPR release.
 """
 MINIMUM_LOCATIONS = {
     'BLU': 'BLUE RIVER', 'COT': 'COTTAGE GROVE', 'CGR': 'COUGAR',
     'DET': 'DETROIT', 'DOR': 'DORENA', 'FAL': 'FALL CREEK',
     'FRN': 'FERN RIDGE', 'HCR': 'HILLS CREEK', 'LOP': 'LOOKOUT POINT',
-    'GPR': 'FOSTER',
+    'GPR': 'GREEN PETER',
 }
 
 

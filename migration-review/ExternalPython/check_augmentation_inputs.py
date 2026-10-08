@@ -124,7 +124,7 @@ def main():
         print('{}: {}'.format('FOUND' if path.is_file() else 'MISSING', path))
         if not path.is_file():
             failures.append(('configuration', str(path), '', 'Missing'))
-    print('\nGPR_minflow uses Foster-Combined Min Trib, preserving the legacy Foster requirement.')
+    print('\nGPR_minflow uses Green Peter-Combined Min Trib: the Foster target converted to a Green Peter release by the model rule.')
     print('No DSS records changed. This check does not calculate or apply augmentation.')
     if failures:
         raise SystemExit(1)

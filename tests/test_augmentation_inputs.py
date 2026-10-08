@@ -14,9 +14,9 @@ spec.loader.exec_module(module)
 
 
 class AuditTests(unittest.TestCase):
-    def test_minimum_mapping_preserves_foster_requirement(self):
+    def test_minimum_mapping_uses_converted_green_peter_release(self):
         self.assertEqual(module.minimum_path('GPR', 1981, 'C0'),
-                         '//FOSTER-COMBINED MIN TRIB/FLOW-SPEC//1DAY/C:001981|C0/')
+                         '//GREEN PETER-COMBINED MIN TRIB/FLOW-SPEC//1DAY/C:001981|C0/')
         self.assertEqual(module.minimum_path('BLU', 3000, 'C0'),
                          '//BLUE RIVER-COMBINED MIN TRIB/FLOW-SPEC//1DAY/C:003000|C0/')
 
