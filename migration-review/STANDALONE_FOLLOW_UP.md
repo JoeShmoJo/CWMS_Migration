@@ -61,6 +61,14 @@ ForecastTest_1055 records for members 1981-1991 and 3000-3002 passed checks of
 calculation or every model output. RTS reported a Java null-pointer error for
 1981 despite readable checked outputs; its cause remains unresolved.
 
-The RTS augmentation calculator, baseline/scheme archive workflow, loading of
-calculated releases, and augmented recompute have not yet been implemented or
-validated. Do not treat this log as completion of those steps.
+The RTS preparation and loading scripts and the explicit RTS activation switch
+are implemented on the review branch. They have cloud unit tests but have not
+yet been validated against actual Windows DSS/RTS. The maintained standalone
+calculator remains unchanged. Augmented compute and scheme-result archiving
+remain unvalidated/unimplemented, respectively.
+
+The RTS travel shift limits reservoir release dates to the declared target
+window shifted earlier by each reservoir's travel time; it does not leave NaNs
+at the tail and then silently turn them into zero on write. Consider adopting
+this explicit boundary handling in standalone after validation. A September 30
+test end does not change the full model's April-October seasonal requirement.

@@ -12,7 +12,8 @@ $names = @('RFC_Downloader_Module.py', 'CWMS_Downloader_Module.py',
     'extraction_context.py', 'run_extraction.py', 'windows_ca.py', 'diagnose_cwms.py', 'cwms_time.py',
     'write_rule_curves.py', 'CON_SEASON_RULE_CURVES.csv', 'write_ensemble_dummies.py',
     'write_ensemble_shared_inputs.py', 'ensemble_ids.py', 'catalog_forecast_outputs.py', 'plot_rts_forecast.py',
-    'check_augmentation_inputs.py', 'augmentation_mapping.py')
+    'check_augmentation_inputs.py', 'augmentation_mapping.py',
+    'prepare_rts_augmentation.py', 'load_rts_augmentation.py')
 foreach ($name in $names) {
     if (-not (Test-Path -LiteralPath (Join-Path $PSScriptRoot "ExternalPython\$name"))) {
         throw "Missing installation source: $name"
@@ -28,6 +29,15 @@ $items += [pscustomobject]@{
     Source = Join-Path $PSScriptRoot 'RTS_FORECAST_EXTRACT.py'
     Target = Join-Path $WatershedRoot 'scripts\RTS_FORECAST_EXTRACT.py'
     Backup = Join-Path $backup 'RTS_FORECAST_EXTRACT.py'
+}
+$svTarget = Join-Path $WatershedRoot 'scripts\externalSVs\MainstemFlowAugSV.py'
+if (-not (Test-Path -LiteralPath $svTarget)) {
+    throw "Expected existing state-variable module: $svTarget"
+}
+$items += [pscustomobject]@{
+    Source = Join-Path $PSScriptRoot 'externalSVs\MainstemFlowAugSV.py'
+    Target = $svTarget
+    Backup = Join-Path $backup 'MainstemFlowAugSV.py'
 }
 # Complete and verify all backups before overwriting any installed file.
 foreach ($item in $items) {
