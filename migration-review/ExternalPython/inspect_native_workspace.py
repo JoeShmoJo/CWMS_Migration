@@ -82,9 +82,18 @@ def main():
                             key=lambda p: (0 if p.is_relative_to(app) else
                                            1 if 'shared' in p.parts else
                                            2 if 'HEC-RTS' in p.parts else 3, str(p)))
-        owner = next((filename for filename in candidates if contains_class(filename)), None)
+        compatible = [filename for filename in candidates if filename.is_relative_to(app)
+                      or 'shared' in filename.parts or 'HEC-RTS' in filename.parts]
+        owner = next((filename for filename in compatible if contains_class(filename)), None)
         if owner is None:
-            parser.error('No installed JAR contains ' + required_class)
+            print('FILE-MANAGER IMPLEMENTATIONS IN THIS INSTALLATION:', flush=True)
+            for filename in candidates:
+                with zipfile.ZipFile(filename) as archive:
+                    for entry in archive.namelist():
+                        if entry.endswith('.class') and 'filemanager' in entry.lower() and 'impl' in entry.lower() and '$' not in entry:
+                            print(str(filename) + ' -> ' + entry, flush=True)
+            parser.error('No ResSim/RTS/shared JAR provides the legacy file manager. '
+                         'Inspection stopped; do not substitute an older HMS implementation.')
         jars.append(owner)
         print('Local file-manager implementation:', owner, flush=True)
     if not any('jython-standalone' in p.name for p in jars):
