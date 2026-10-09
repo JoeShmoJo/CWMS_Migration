@@ -20,6 +20,8 @@ try:
     from hec.lang import UserId
     from hec.rss.server import RssRmiWorkspaceImpl
     from hec.clientapp.server import HecRmiWorkspaceImpl
+    from hec.rss.plugins.ensemble import EnsemblePlugin
+    from hec.rss.plugins.ensemble.compute import EnsembleComputeLauncher
     from mil.army.usace.hec.rmi.server import RmiFileManagerImpl, RemoteWrapper
     root = sys.argv[1].replace('\\', '/')
     user = UserId.getUserId()
@@ -87,6 +89,9 @@ try:
         raise RuntimeError('Parent watershed workspace load returned false')
     workspace.setParentWorkspace(parent)
     print('PARENT WORKSPACE: %s; UNIT SYSTEM: %s' % (parent.getWorkspacePath(), parent.getUnitSystem()))
+    # Normal ResSim startup loads plugins. Headless workspace construction
+    # does not; the ensemble singleton registers its alternative data type.
+    EnsemblePlugin.getPlugin()
     if not workspace.load():
         raise RuntimeError('Workspace load returned false')
     print('WORKSPACE: ' + workspace.getWorkspacePath())
@@ -99,6 +104,8 @@ try:
     if launcher is None:
         raise RuntimeError('No ensemble launcher loaded')
     print('LAUNCHER: ' + str(type(launcher)))
+    if not isinstance(launcher, EnsembleComputeLauncher):
+        raise RuntimeError('Expected native EnsembleComputeLauncher; refusing default launcher')
     for variant in ('', 'RTS'):
         data = alt.getInputTSDataSet() if not variant else alt.getInputTSDataSet(variant, False)
         if data is None:
