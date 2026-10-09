@@ -207,6 +207,9 @@ try:
         print('TRIAL COMPUTE: members ' + sys.argv[4] + '; configured workers: ' + System.getProperty('ResSim.ComputeThreadCount'))
         print('OUTPUT DSS: ' + sys.argv[3])
         print('TIME WINDOW: ' + run.getTimeWindowString())
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        from native_worker_state import isolate_native_workers
+        isolate_native_workers()
         launcher.setComputeInformation(info, workspace, run, alt, None)
         result = launcher.compute()
         print('NATIVE COMPUTE RETURN CODE: ' + str(result))
@@ -286,6 +289,8 @@ def main():
         parser.error('Jython standalone JAR missing from installed classpath')
     script = root.parent / 'inspect-workspace-jython.py'
     script.write_text(JYTHON, encoding='utf-8')
+    if args.compute:
+        shutil.copy2(Path(__file__).with_name('native_worker_state.py'), root.parent / 'native_worker_state.py')
     token = uuid.uuid4().hex[:8]
     output = root / ('native-parallel-' + token + '.dss')
     log = root.parent / ('native-compute-' + token + '.log' if args.compute else 'native-workspace-inspection.log')
