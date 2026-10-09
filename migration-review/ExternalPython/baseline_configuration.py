@@ -175,6 +175,35 @@ def resolve(config, scripts, watershed):
     return result, linked
 
 
+def read_alternative_settings(path):
+    """Read the flat settings used by the baseline adapter, leaving unrelated
+    Hjson values (including augmentation settings and OFF) to ResSim's reader.
+    CSV paths may be quoted JSON strings or Hjson bare strings.
+    """
+    wanted=set(TABLE_KEYS) | {'draftToRCActive','irrmActive','irrmTargetElevs'}
+    values={}
+    for number,line in enumerate(Path(path).read_text(encoding='utf-8-sig').splitlines(),1):
+        text=line.strip()
+        if not text or text.startswith(('#','//')): continue
+        if ':' not in text:
+            raise ValueError('Unsupported multiline alt_config syntax at {}:{}'.format(path,number))
+        key,value=text.split(':',1);key=key.strip().strip('"')
+        if key not in wanted: continue
+        value=value.strip()
+        try:
+            parsed,end=json.JSONDecoder().raw_decode(value)
+            remainder=value[end:].strip()
+            if remainder and not remainder.startswith(('#','//')):
+                raise ValueError('Unexpected trailing text')
+        except (ValueError,json.JSONDecodeError) as exc:
+            if key in TABLE_KEYS and value and not value.startswith(('"','[','{')):
+                parsed=value.split(' #',1)[0].strip()
+            else:
+                raise ValueError('Unsupported value for {} at {}:{}: {}'.format(key,path,number,exc)) from exc
+        values[key]=parsed
+    return values
+
+
 def current_configuration(root, scripts):
     marker = Path(root)/'rts-baseline-config-active.json'
     if marker.exists():
@@ -192,13 +221,7 @@ def current_configuration(root, scripts):
     result=template(scripts);watershed=Path(scripts).parent.parent
     values={}
     for filename in ('_default.txt','Con_Season.txt'):
-        path=watershed/'scripts/alt_config'/filename
-        for line in path.read_text(encoding='utf-8-sig').splitlines():
-            text=line.strip()
-            if not text or text.startswith('#'): continue
-            if ':' not in text: raise ValueError('Unsupported alt_config syntax; import a complete JSON configuration instead')
-            key,value=text.split(':',1)
-            values[key.strip()]=json.loads(value.strip())
+        values.update(read_alternative_settings(watershed/'scripts/alt_config'/filename))
     for alt_key,(rule,table_name) in TABLE_KEYS.items():
         table=result['rules'][rule]['tables'][table_name]
         path=Path(values.get(alt_key,table['csv_path']))

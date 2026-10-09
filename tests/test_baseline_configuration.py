@@ -40,6 +40,17 @@ class ConfigurationTests(unittest.TestCase):
         run=SimpleNamespace(getDSSOutputFile=lambda:str(root/'EnsembleRuns'/str(member)/'forecast.dss'),getOutputFPart=lambda:'C:{:06d}|C0'.format(member))
         network=SimpleNamespace(getRssRun=lambda:run,makeAbsolutePathFromWatershed=lambda p:str(watershed/p) if not Path(p).is_absolute() else str(p),getStateVariable=lambda name:store,printMessage=lambda msg:None)
         return network,rule,store
+    def test_actual_alternative_defaults_include_non_json_values(self):
+        values=config.read_alternative_settings(ROOT/'standalone-review/scripts/alt_config/_default.txt')
+        self.assertTrue(values['draftToRCActive'])
+        self.assertEqual(values['minFlowConfigCSV'],'scripts/externalRules/MinFlowConfig.csv')
+        self.assertNotIn('mainstemFlowAugMethod',values)
+        path=self.root/'override.txt'
+        path.write_text('DEVEL_CHECK_SCRIPTS: OFF\nmainstemFlowAugMethod: AutoDetect\nminFlowConfigCSV: scripts/example.csv\ndraftToRCActive: false # disabled\n')
+        values.update(config.read_alternative_settings(path))
+        self.assertFalse(values['draftToRCActive'])
+        self.assertEqual(values['minFlowConfigCSV'],'scripts/example.csv')
+
     def test_editor_serves_bound_configuration_and_stops_cleanly(self):
         import queue
         import threading

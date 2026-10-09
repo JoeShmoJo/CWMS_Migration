@@ -476,7 +476,7 @@ class WorkflowMenu(JFrame):
             builder.redirectErrorStream(True)
             builder.redirectOutput(log)
             builder.start()
-            self.append('Baseline editor launched in your browser. Log: ' + str(log))
+            self.append('Baseline editor process started; browser opens after settings load. Log: ' + str(log))
             self.append('Finish compute and close the forecast before Apply. Afterwards refresh this menu and compute unaugmented in RTS.')
         except (Exception, JavaException) as exc:
             JOptionPane.showMessageDialog(self, str(exc), 'Baseline configuration', JOptionPane.ERROR_MESSAGE)
