@@ -40,6 +40,25 @@ class ConfigurationTests(unittest.TestCase):
         run=SimpleNamespace(getDSSOutputFile=lambda:str(root/'EnsembleRuns'/str(member)/'forecast.dss'),getOutputFPart=lambda:'C:{:06d}|C0'.format(member))
         network=SimpleNamespace(getRssRun=lambda:run,makeAbsolutePathFromWatershed=lambda p:str(watershed/p) if not Path(p).is_absolute() else str(p),getStateVariable=lambda name:store,printMessage=lambda msg:None)
         return network,rule,store
+    def test_direct_adapter_preserves_original_timestep_function(self):
+        path=self.scripts.parent/'_rts_baseline_originals/externalRules/DraftToRC.py'
+        namespace={}
+        exec(compile(path.read_text(),str(path),'exec'),namespace)
+        original_run=namespace['runRuleScript']
+        footer=ROOT/'migration-review/baseline-runtime/DraftToRC.py'
+        exec(compile(footer.read_text(),str(footer),'exec'),namespace)
+        self.assertIs(namespace['runRuleScript'],original_run)
+        self.configuration['rules']['draft_to_rc']['settings']['days_lookahead']=7
+        self.apply()
+        network,rule,store=self.network()
+        namespace['initRuleScript'](rule,network)
+        self.assertEqual(namespace['runRuleScript'](rule,network,None),7)
+        self.assertNotIn('_rts_baseline_module',rule.values)
+        other=self.root.parent/'other';other.mkdir()
+        network,rule,store=self.network(root=other)
+        namespace['initRuleScript'](rule,network)
+        self.assertEqual(namespace['runRuleScript'](rule,network,None),3)
+
     def test_actual_alternative_defaults_include_non_json_values(self):
         values=config.read_alternative_settings(ROOT/'standalone-review/scripts/alt_config/_default.txt')
         self.assertTrue(values['draftToRCActive'])

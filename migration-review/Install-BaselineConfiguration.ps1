@@ -10,7 +10,6 @@ foreach ($module in $modules) {
     $original = Join-Path $scripts "externalRules\$module.py"
     if (-not (Test-Path -LiteralPath $original)) { throw "Missing existing imported rule: $original" }
     $preserved = Join-Path $scripts "_rts_baseline_originals\externalRules\$module.py"
-    $items += [pscustomobject]@{Source=Join-Path $PSScriptRoot "baseline-runtime\$module.py"; Target=$original}
     # Preserve the installed implementation on first installation; never replace
     # it with the adapter wrapper during an update.
     $isAdapter = Select-String -LiteralPath $original -Pattern 'from rts_baseline_runtime import' -SimpleMatch -Quiet
@@ -25,6 +24,13 @@ foreach ($module in $modules) {
         Copy-Item -LiteralPath $original -Destination $preserved
         if ((Get-FileHash $original).Hash -ne (Get-FileHash $preserved).Hash) { throw "Preservation failed: $module" }
     }
+    # Append initialization only. Preserve the original per-timestep function
+    # and its direct module dispatch rather than retrieving PyModule from Java.
+    $adapted = Join-Path $backup ($module + '.adapted.py')
+    $footer = Join-Path $PSScriptRoot "baseline-runtime\$module.py"
+    $adaptedContent = [IO.File]::ReadAllText($preserved) + [IO.File]::ReadAllText($footer)
+    [IO.File]::WriteAllText($adapted, $adaptedContent, (New-Object Text.UTF8Encoding($false)))
+    $items += [pscustomobject]@{Source=$adapted;Target=$original}
 }
 $setup = Join-Path $scripts 'externalSVs\Alternative_Setup.py'
 if (-not (Test-Path -LiteralPath $setup)) { throw "Missing Alternative_Setup: $setup" }

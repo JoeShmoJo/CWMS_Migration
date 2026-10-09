@@ -23,6 +23,16 @@ with open(os.path.join(stage,'resolved.json'),'w') as f:json.dump(data,f)
 with open(os.path.join(root,'rts-baseline-config-active.json'),'w') as f:json.dump({'id':'test','directory':'baseline-configurations/sets/test','resolved_sha256':r.digest(os.path.join(stage,'resolved.json'))},f)
 new=Store();r.initialize_rule('DraftToRC',new,n);assert r.run_rule(new,n,None)==7;assert r.run_rule(old,n,None)==3
 assert len(os.listdir(os.path.join(stage,'initialization-receipts')))==1
+namespace={}
+with open(path) as f: exec(compile(f.read(),path,'exec'),namespace)
+original_run=namespace['runRuleScript']
+footer=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'migration-review','baseline-runtime','DraftToRC.py')
+with open(footer) as f: exec(compile(f.read(),footer,'exec'),namespace)
+rule=Store();namespace['initRuleScript'](rule,n)
+assert namespace['runRuleScript'] is original_run
+assert namespace['runRuleScript'](rule,n,None)==7
+assert '_rts_baseline_module' not in rule.values
+print('Jython direct timestep function unchanged; initialization configured without Java module storage')
 import shutil
 shutil.rmtree(root)
 print('Jython 2.7.3: isolated initialization, settings reload, and receipt passed')

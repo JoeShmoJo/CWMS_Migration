@@ -91,18 +91,45 @@ def alternative_overrides(network):
     return result
 
 
-def initialize_rule(module_name, rule, network):
+class _Namespace(object):
+    """Adapt globals for initialization without putting a module into Java state."""
+    def __init__(self, namespace):
+        object.__setattr__(self, '_namespace', namespace)
+    def __getattr__(self, name):
+        if name == 'initRuleScript':
+            return self._namespace['_rts_original_initRuleScript']
+        try:
+            return self._namespace[name]
+        except KeyError:
+            raise AttributeError(name)
+    def __setattr__(self, name, value):
+        self._namespace[name] = value
+
+
+def initialize_rule(module_name, rule, network, namespace=None):
     scripts = str(network.makeAbsolutePathFromWatershed('scripts'))
     path = os.path.join(scripts, '_rts_baseline_originals', 'externalRules', module_name + '.py')
-    module_id = '_rts_rule_' + module_name + '_' + uuid.uuid4().hex
-    if imp is not None:
-        module = imp.load_source(module_id, path)
+    if namespace is not None:
+        # Reset defaults at each initialization so a subsequent forecast with
+        # no applied configuration cannot inherit the previous forecast's set.
+        if '_rts_baseline_defaults' not in namespace:
+            namespace['_rts_baseline_defaults'] = dict((name, copy.deepcopy(namespace[name]))
+                for name in CONSTANTS.values() if name in namespace)
+            if '_resolveConfigPath' in namespace:
+                namespace['_rts_baseline_defaults']['_resolveConfigPath'] = namespace['_resolveConfigPath']
+        for name, value in namespace['_rts_baseline_defaults'].items():
+            namespace[name] = copy.deepcopy(value)
+        module = _Namespace(namespace)
     else:
-        import importlib.util
-        spec = importlib.util.spec_from_file_location(module_id, path)
-        module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
-    sys.modules.pop(module_id, None)
+        module_id = '_rts_rule_' + module_name + '_' + uuid.uuid4().hex
+        if imp is not None:
+            module = imp.load_source(module_id, path)
+        else:
+            import importlib.util
+            spec = importlib.util.spec_from_file_location(module_id, path)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+        sys.modules.pop(module_id, None)
     found = active(network)
     if found:
         source, data, pointer = found
@@ -125,7 +152,8 @@ def initialize_rule(module_name, rule, network):
             else:
                 module._resolveConfigPath = lambda unused, key, default: paths.get(key, network.makeAbsolutePathFromWatershed(default))
         network.printMessage('RTS baseline init: %s [%s]' % (module_name, pointer['id']))
-    rule.varPut('_rts_baseline_module', module)
+    if namespace is None:
+        rule.varPut('_rts_baseline_module', module)
     outcome = module.initRuleScript(rule, network)
     if found and outcome:
         source, data, pointer = found
