@@ -70,7 +70,7 @@ class OnUI(Runnable):
 class BackgroundTask(SwingWorker):
     def __init__(self, owner, action, context, executable):
         SwingWorker.__init__(self)
-        self.owner, self.action, self.context, self.executable = owner, action, context, executable
+        self.workflow_menu, self.action, self.context, self.executable = owner, action, context, executable
         self.extraction, self.html_path, self.state_path = None, None, None
     def doInBackground(self):
         descriptor, context_path = tempfile.mkstemp(prefix='rts-menu-', suffix='.json')
@@ -100,7 +100,7 @@ class BackgroundTask(SwingWorker):
                         line = unicode(line)
                         log.write(line + '\n')
                         log.flush()
-                        SwingUtilities.invokeLater(OnUI(self.owner.append, line))
+                        SwingUtilities.invokeLater(OnUI(self.workflow_menu.append, line))
                         if line.startswith('MENU_EXTRACT: '):
                             self.extraction = line[len('MENU_EXTRACT: '):].strip()
                         if line.startswith('MENU_STATE: '):
@@ -114,26 +114,26 @@ class BackgroundTask(SwingWorker):
             if os.path.isfile(context_path):
                 os.remove(context_path)
     def done(self):
-        callback = self.owner.after_task
-        self.owner.after_task = None
+        callback = self.workflow_menu.after_task
+        self.workflow_menu.after_task = None
         success = False
         try:
             status = self.get()
             if status != 0:
                 raise RuntimeError('Task failed (exit %s). See output and log.' % status)
             if self.html_path:
-                self.owner.last_html = self.html_path
+                self.workflow_menu.last_html = self.html_path
                 Desktop.getDesktop().browse(File(self.html_path).toURI())
-            self.owner.append('Completed: ' + self.action)
+            self.workflow_menu.append('Completed: ' + self.action)
             success = True
         except (Exception, JavaException) as exc:
-            self.owner.append('FAILED: ' + str(exc))
-            JOptionPane.showMessageDialog(self.owner, str(exc), 'RTS workflow error', JOptionPane.ERROR_MESSAGE)
+            self.workflow_menu.append('FAILED: ' + str(exc))
+            JOptionPane.showMessageDialog(self.workflow_menu, str(exc), 'RTS workflow error', JOptionPane.ERROR_MESSAGE)
         finally:
             if hasattr(self, 'log_path'):
-                self.owner.append('Log: ' + self.log_path)
-            self.owner.set_busy(False)
-            self.owner.update_status()
+                self.workflow_menu.append('Log: ' + self.log_path)
+            self.workflow_menu.set_busy(False)
+            self.workflow_menu.update_status()
         if success and callback:
             try:
                 data = None
@@ -142,7 +142,7 @@ class BackgroundTask(SwingWorker):
                         data = json.load(handle)
                 callback(data)
             except (Exception, JavaException) as exc:
-                JOptionPane.showMessageDialog(self.owner, str(exc), 'RTS workflow', JOptionPane.ERROR_MESSAGE)
+                JOptionPane.showMessageDialog(self.workflow_menu, str(exc), 'RTS workflow', JOptionPane.ERROR_MESSAGE)
 
 
 class ReservoirModel(DefaultTableModel):
@@ -157,15 +157,16 @@ class ReservoirModel(DefaultTableModel):
 class ConfigurationWindow(JDialog):
     def __init__(self, owner, state):
         JDialog.__init__(self, owner, 'Augmentation configuration', False)
-        self.owner, self.state = owner, state
+        # Avoid Java Window.owner (read-only) and Component.name (String).
+        self.workflow_menu, self.state = owner, state
         self.controls = []
         pane = JPanel(BorderLayout(8, 8))
         pane.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12))
         top = JPanel(GridLayout(0, 2, 5, 5))
-        self.name = JTextField()
+        self.config_name_field = JTextField()
         top.add(JLabel('Configuration name'))
-        top.add(self.name)
-        self.controls.append(self.name)
+        top.add(self.config_name_field)
+        self.controls.append(self.config_name_field)
         self.days = JTextField()
         top.add(JLabel('Short forecast days'))
         self.days.setToolTipText('Days of forecast inflows used before the median remaining-inflow estimate.')
@@ -212,7 +213,7 @@ class ConfigurationWindow(JDialog):
                 or any(len(row) != len(config['columns']) for row in config.get('rows', []))):
             raise RuntimeError('Choose a reusable RTS configuration JSON file.')
         self.config = config
-        self.name.setText(config['name'])
+        self.config_name_field.setText(config['name'])
         self.days.setText(str(config['calculation']['forecast_days']))
         self.wy_mode.setSelectedItem(config['calculation']['wy_type_mode'])
         columns = ['Reservoir'] + [row[0] for row in config['rows']]
@@ -238,11 +239,11 @@ class ConfigurationWindow(JDialog):
                 value = self.model.getValueAt(row, column)
                 values.append(('TRUE' if str(value).upper() == 'TRUE' else 'FALSE') if variable.startswith('Supports') else str(value).strip())
             rows.append(values)
-        return {'schema': 1, 'name': str(self.name.getText()).strip(), 'columns': self.config['columns'], 'rows': rows,
+        return {'schema': 1, 'name': str(self.config_name_field.getText()).strip(), 'columns': self.config['columns'], 'rows': rows,
                 'calculation': {'forecast_days': int(str(self.days.getText()).strip()), 'wy_type_mode': str(self.wy_mode.getSelectedItem())}}
     def open_configuration(self, event):
         try:
-            chooser = JFileChooser(self.owner.configuration_library())
+            chooser = JFileChooser(self.workflow_menu.configuration_library())
             if chooser.showOpenDialog(self) == JFileChooser.APPROVE_OPTION:
                 with codecs.open(str(chooser.getSelectedFile().getAbsolutePath()), 'r', 'utf-8-sig') as handle:
                     self.populate(json.load(handle))
@@ -251,23 +252,23 @@ class ConfigurationWindow(JDialog):
     def save_configuration(self, event):
         try:
             config = self.configuration()
-            chooser = JFileChooser(self.owner.configuration_library())
+            chooser = JFileChooser(self.workflow_menu.configuration_library())
             chooser.setSelectedFile(File(chooser.getCurrentDirectory(), config['name'] + '.json'))
             if chooser.showSaveDialog(self) == JFileChooser.APPROVE_OPTION:
                 filename = str(chooser.getSelectedFile().getAbsolutePath())
                 if os.path.isfile(filename) and JOptionPane.showConfirmDialog(self, 'Replace this configuration file?\n' + filename,
                         'Save configuration', JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION:
                     return
-                self.owner.start('save-config', {'configuration': config, 'configuration_file': filename})
+                self.workflow_menu.start('save-config', {'configuration': config, 'configuration_file': filename})
         except (Exception, JavaException) as exc:
             JOptionPane.showMessageDialog(self, str(exc), 'Configuration', JOptionPane.ERROR_MESSAGE)
     def process(self, event):
         try:
             config = self.configuration()
-            complete = self.owner.confirm_completed('Archive any completed current results before loading new releases?')
+            complete = self.workflow_menu.confirm_completed('Archive any completed current results before loading new releases?')
             if complete is None:
                 return
-            self.owner.start('process-config', {'configuration': config, 'season_year': str(self.season.getSelectedItem()),
+            self.workflow_menu.start('process-config', {'configuration': config, 'season_year': str(self.season.getSelectedItem()),
                 'expected_baseline_id': self.state['current_baseline'], 'confirm_completed': complete}, self.processed)
         except (Exception, JavaException) as exc:
             JOptionPane.showMessageDialog(self, str(exc), 'Configuration', JOptionPane.ERROR_MESSAGE)
@@ -279,15 +280,15 @@ class ConfigurationWindow(JDialog):
 class ResultsWindow(JDialog):
     def __init__(self, owner, state):
         JDialog.__init__(self, owner, 'Plot saved results', False)
-        self.owner, self.controls = owner, []
+        self.workflow_menu, self.controls = owner, []
         pane = JPanel(BorderLayout(8, 8))
         pane.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12))
         pane.add(JLabel('Select one saved run, or two to compare (Ctrl-click). Previous-baseline results retain their original data.'), BorderLayout.NORTH)
         self.model = DefaultListModel()
-        self.list = JList(self.model)
-        self.list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION)
-        pane.add(JScrollPane(self.list), BorderLayout.CENTER)
-        self.controls.append(self.list)
+        self.results_list = JList(self.model)
+        self.results_list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION)
+        pane.add(JScrollPane(self.results_list), BorderLayout.CENTER)
+        self.controls.append(self.results_list)
         buttons = JPanel(GridLayout(1, 3, 5, 5))
         for title, handler in [('Plot Selected', self.plot), ('Delete Selected Augmented Result', self.delete), ('Open Last Plots', self.open_last)]:
             button = JButton(title, actionPerformed=handler)
@@ -305,15 +306,15 @@ class ResultsWindow(JDialog):
         for item in self.runs:
             self.model.addElement('%s | %s | %s' % (item['status'], item['baseline_id'], item['label']))
         if self.runs:
-            self.list.setSelectedIndex(len(self.runs) - 1)
+            self.results_list.setSelectedIndex(len(self.runs) - 1)
     def selected(self):
-        return [self.runs[int(index)] for index in self.list.getSelectedIndices()]
+        return [self.runs[int(index)] for index in self.results_list.getSelectedIndices()]
     def plot(self, event):
         rows = self.selected()
         if len(rows) not in (1, 2):
             JOptionPane.showMessageDialog(self, 'Select one or two saved runs.')
             return
-        self.owner.start('plot-selected', {'selected_runs': [row['id'] for row in rows]})
+        self.workflow_menu.start('plot-selected', {'selected_runs': [row['id'] for row in rows]})
     def delete(self, event):
         rows = self.selected()
         if len(rows) != 1 or rows[0]['kind'] != 'augmented':
@@ -321,11 +322,11 @@ class ResultsWindow(JDialog):
             return
         message = 'Permanently delete this archived result and plots that include it?\n' + rows[0]['label'] + '\nBaseline and configuration inputs remain; deletion is recorded in the history.'
         if JOptionPane.showConfirmDialog(self, message, 'Delete archived result', JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION:
-            self.owner.start('delete-result', {'result_dir': rows[0]['directory'], 'include_plots': True}, self.deleted)
+            self.workflow_menu.start('delete-result', {'result_dir': rows[0]['directory'], 'include_plots': True}, self.deleted)
     def deleted(self, state):
-        self.owner.start('results', {'confirm_completed': False}, self.populate)
+        self.workflow_menu.start('results', {'confirm_completed': False}, self.populate)
     def open_last(self, event):
-        self.owner.open_plots(event)
+        self.workflow_menu.open_plots(event)
 
 
 class WorkflowMenu(JFrame):
