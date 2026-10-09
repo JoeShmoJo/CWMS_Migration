@@ -10,6 +10,61 @@ import uuid
 import zipfile
 
 
+def seed_trial_inputs(root, output):
+    """Forecast mode reads inputs from its output DSS; seed inputs only."""
+    from inspect_parallel_inputs import key, records
+    from pydsstools.heclib.dss import HecDss
+    from pydsstools.core import TimeSeriesContainer
+    import numpy as np
+    needed = {key(record['DssPathname'])[0]
+              for name in ('_Con_Season.fits', '_Con_SeasonRTS.fits')
+              for record in records(root / 'rss' / name)}
+    count = 0
+    with HecDss.Open(str(root / 'forecast.dss')) as source, HecDss.Open(str(output)) as target:
+        for path in source.getPathnameList('/*/*/*/*/*/*/'):
+            logical, member = key(path)
+            if logical not in needed or member not in (1981, 1982):
+                continue
+            ts = source.read_ts(path, trim_missing=True)
+            if ts.pytimes is None or not len(ts.pytimes):
+                raise ValueError('Empty trial input: ' + path)
+            container = TimeSeriesContainer()
+            container.pathname = path
+            container.startDateTime = ts.pytimes[0].strftime('%d%b%Y %H%M').upper()
+            container.interval = {'1DAY': 1440, '6HOUR': 360}[path.split('/')[5].upper()]
+            container.values = np.ma.asarray(ts.values, dtype=float).filled(-901.0)
+            container.numberValues = len(container.values)
+            container.units, container.type = ts.units, ts.type
+            target.put_ts(container)
+            count += 1
+    print('Seeded input blocks:', count, 'No pool outputs copied.', flush=True)
+
+
+def verify_trial_outputs(output):
+    from pydsstools.heclib.dss import HecDss
+    import numpy as np
+    found = {1981: set(), 1982: set()}
+    with HecDss.Open(str(output)) as source:
+        for path in source.getPathnameList('/*/*/*/*/*/*/'):
+            parts = path.split('/')
+            for member in found:
+                if (parts[6].upper() == 'C:%06d|C0' % member and
+                        parts[2].upper().endswith('-POOL') and
+                        parts[3].upper() in ('ELEV', 'ELEVATION', 'FLOW-OUT')):
+                    ts = source.read_ts(path, trim_missing=True)
+                    if ts.values is None:
+                        continue
+                    values = np.ma.asarray(ts.values, dtype=float).filled(np.nan)
+                    valid = np.isfinite(values) & (values > -1e20) & ~np.isin(values, [-901, -902, -903])
+                    if valid.sum() > 1:
+                        found[member].add((parts[2].upper(), parts[3].upper()))
+    for member, groups in found.items():
+        if not any(c in ('ELEV', 'ELEVATION') for b, c in groups) or not any(c == 'FLOW-OUT' for b, c in groups):
+            raise ValueError('No valid fresh pool elevations/outflows for member %s; launcher return code is insufficient' % member)
+        print('Fresh pool output groups, member %s: %s' % (member, len(groups)))
+    print('Outputs exist; complete coverage and agreement with RTS still require comparison.')
+
+
 JYTHON = r'''
 import os
 import sys
@@ -226,6 +281,7 @@ def main():
     script = root.parent / 'inspect-workspace-jython.py'
     script.write_text(JYTHON, encoding='utf-8')
     token = uuid.uuid4().hex[:8]
+    output = root / ('native-parallel-' + token + '.dss')
     log = root.parent / ('native-compute-' + token + '.log' if args.compute else 'native-workspace-inspection.log')
     arguments = ['-Xmx3600m', '-DResSim.ComputeThreadCount=2',
                '-Djava.library.path=' + str(app / 'lib'), '-Dproperties.path=config',
@@ -233,7 +289,8 @@ def main():
                '-cp', os.pathsep.join(str(p.resolve()) for p in jars),
                'org.python.util.jython', str(script), str(root)]
     if args.compute:
-        arguments += ['compute', str(root / ('native-parallel-' + token + '.dss'))]
+        seed_trial_inputs(root, output)
+        arguments += ['compute', str(output)]
     # Windows CreateProcess limits the command line to 32,767 characters.
     # Java 9+ reads these options from a file without that command-line limit.
     argfile = root.parent / 'native-workspace-java.args'
@@ -249,6 +306,8 @@ def main():
             handle.write(line)
         status = process.wait()
     print('Exit code:', status, 'Log:', log)
+    if args.compute and status == 0:
+        verify_trial_outputs(output)
     sys.exit(status)
 
 
