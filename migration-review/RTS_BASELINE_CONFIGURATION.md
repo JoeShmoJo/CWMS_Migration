@@ -27,3 +27,9 @@ Installation preserves the actual imported implementations in `scripts/_rts_base
 This first version exposes existing rule settings; it does not generalize reservoir-specific rule logic or change stack order. Native rules and embedded constants outside these eleven external modules remain governed by the imported model. Follow-up work for standalone: consider per-reservoir applicability and reusable configuration readers after the RTS adapter is validated; do not copy these RTS wrappers into standalone.
 
 Validation: Python workflow suite, HTTP editor checks, and Jython 2.7.3 initialization/reload smoke test. PowerShell installation and actual ResSim compute must be verified on Windows.
+
+## Slow-compute diagnostic
+
+After canceling normally and closing RTS, run `ExternalPython/diagnose_baseline_execution.py --watershed <imported watershed> --forecast-root <forecast model folder> --mode original` from the repository. This backs up the current eleven adapters and active pointer, restores the preserved pre-editor rule implementations, and disables baseline configuration overrides. It leaves DSS and augmentation inputs unchanged. Restart RTS and compute the same forecast; do not extract, Apply, or accept these diagnostic results as baseline. Close RTS before restoring with the same command and `--mode configured`. The switch affects all forecasts using this imported watershed while active.
+
+The first timing comparison restores both the original execution path and the original baseline settings. A faster run implicates that combination; it does not by itself distinguish adapter overhead from settings differences. Restore configured mode before continuing baseline workflow. The diagnostic does not recover the pre-test simulation outputs; recompute the desired configuration before accepting future results.

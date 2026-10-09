@@ -124,6 +124,8 @@ def accept_completed(root, context):
     from plot_rts_augmentation import capture
     from load_rts_augmentation import validate_manifest
     root = Path(root)
+    if (root / 'baseline-execution-test.json').exists():
+        raise ValueError('Diagnostic execution mode is active; do not accept timing-test results as baseline.')
     data = registry(root)
     if data['current']:
         saved_context = data['versions'][data['current']].get('context')

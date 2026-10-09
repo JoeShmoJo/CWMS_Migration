@@ -248,6 +248,8 @@ def current_configuration(root, scripts):
 
 def apply_configuration(root, context, config, scripts):
     root=Path(root).resolve();scripts=Path(scripts).resolve();watershed=scripts.parent.parent
+    if (root/'baseline-execution-test.json').exists():
+        raise ValueError('Restore configured execution mode before applying settings.')
     resolved,linked=resolve(config,scripts,watershed)
     identity=uuid.uuid4().hex
     sets=root/'baseline-configurations/sets';sets.mkdir(parents=True,exist_ok=True)
