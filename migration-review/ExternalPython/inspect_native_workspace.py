@@ -19,10 +19,36 @@ try:
     from hec.io import Identifier
     from hec.lang import UserId
     from hec.rss.server import RssRmiWorkspaceImpl
+    from mil.army.usace.hec.rmi.server import RmiFileManagerImpl, RemoteWrapper
     root = sys.argv[1].replace('\\', '/')
     user = UserId.getUserId()
     workspace = RssRmiWorkspaceImpl(8089)
     workspace.setLocal(True)
+    # The workspace fallback still names hec.server.RmiFileManagerImpl,
+    # while this installation ships the implementation in mil.army....
+    manager = RmiFileManagerImpl()
+    wrapper = RemoteWrapper()
+    wrapper.setRemote(manager)
+    # Configure both the inherited portable-object file manager and the
+    # workspace's own cached wrapper, preventing its legacy fallback.
+    cls = workspace.getClass()
+    portable_setter = None
+    while cls is not None:
+        for method in cls.getDeclaredMethods():
+            if method.getName() == 'setFileManager' and len(method.getParameterTypes()) == 1 and method.getParameterTypes()[0] == wrapper.getClass():
+                portable_setter = method
+                break
+        if portable_setter is not None:
+            break
+        cls = cls.getSuperclass()
+    if portable_setter is None:
+        raise RuntimeError('No compatible file-manager setter found')
+    portable_setter.setAccessible(True)
+    portable_setter.invoke(workspace, [wrapper])
+    cache = RssRmiWorkspaceImpl.getSuperclass().getDeclaredField('_fileManager')
+    cache.setAccessible(True)
+    cache.set(workspace, wrapper)
+    print('FILE MANAGER: ' + manager.getClass().getName())
     workspace.setIdentifier(user, Identifier(root + '/rss/rss.conf'))
     workspace.setWorkspacePath(root)
     if not workspace.load():
@@ -71,7 +97,7 @@ def main():
     jars += sorted((args.installation / 'shared' / 'jar').glob('*.jar'))
     jars += sorted((args.installation / 'shared' / 'jar' / 'sys').glob('*.jar'))
     jars += sorted((args.installation / 'HEC-RTS' / 'jar' / 'ext').glob('*.jar'))
-    required_class = 'hec/server/RmiFileManagerImpl.class'
+    required_class = 'mil/army/usace/hec/rmi/server/RmiFileManagerImpl.class'
     def contains_class(filename):
         with zipfile.ZipFile(filename) as archive:
             return required_class in archive.namelist()
@@ -92,7 +118,7 @@ def main():
                     for entry in archive.namelist():
                         if entry.endswith('.class') and 'filemanager' in entry.lower() and 'impl' in entry.lower() and '$' not in entry:
                             print(str(filename) + ' -> ' + entry, flush=True)
-            parser.error('No ResSim/RTS/shared JAR provides the legacy file manager. '
+            parser.error('No ResSim/RTS/shared JAR provides the current file manager. '
                          'Inspection stopped; do not substitute an older HMS implementation.')
         jars.append(owner)
         print('Local file-manager implementation:', owner, flush=True)
