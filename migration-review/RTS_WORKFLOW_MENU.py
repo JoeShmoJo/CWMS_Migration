@@ -366,7 +366,7 @@ class WorkflowMenu(JFrame):
         center = JPanel(BorderLayout(6, 6))
         buttons = JPanel(GridLayout(0, 2, 8, 8))
         for title, handler in [('Initial Extract', self.extract), ('Augmentation Configuration', self.configuration),
-                               ('Plot Results', self.results), ('Reset Baseline', self.reset),
+                               ('Plot Results', self.results),
                                ('Baseline Configuration', self.baseline_configuration)]:
             button = JButton(title, actionPerformed=handler)
             buttons.add(button)
@@ -503,18 +503,6 @@ class WorkflowMenu(JFrame):
         dialog = ResultsWindow(self, state)
         self.dialogs.append(dialog)
         dialog.setVisible(True)
-    def reset(self, event):
-        message = 'Disable augmentation for the next compute?\nModify the base alternative if needed, then run it in RTS.\nThe baseline may change. Older results become Previous baseline only after different unaugmented results are accepted.'
-        if JOptionPane.showConfirmDialog(self, message, 'Reset Baseline', JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION:
-            return
-        complete = self.confirm_completed('Archive the current completed results before resetting?')
-        if complete is not None:
-            self.start('reset-baseline', {'confirm_completed': complete}, self.reset_done)
-    def reset_done(self, state):
-        for dialog in self.dialogs:
-            if isinstance(dialog, ConfigurationWindow):
-                dialog.dispose()
-        JOptionPane.showMessageDialog(self, 'Augmentation is disabled.\nModify the base alternative if needed, then run it in RTS.\nAfter it finishes, open Augmentation Configuration or Plot Results and confirm completion to accept the baseline.')
     def configuration_library(self):
         directory = os.path.join(os.path.dirname(EXTERNAL_PYTHON_DIR), 'rts-augmentation-configurations')
         if not os.path.isdir(directory):
