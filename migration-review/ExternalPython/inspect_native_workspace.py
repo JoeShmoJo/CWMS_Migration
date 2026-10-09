@@ -45,7 +45,7 @@ try:
         raise RuntimeError('No compatible file-manager setter found')
     portable_setter.setAccessible(True)
     portable_setter.invoke(workspace, [wrapper])
-    cache = RssRmiWorkspaceImpl.getSuperclass().getDeclaredField('_fileManager')
+    cache = workspace.getClass().getSuperclass().getDeclaredField('_fileManager')
     cache.setAccessible(True)
     cache.set(workspace, wrapper)
     print('FILE MANAGER: ' + manager.getClass().getName())
