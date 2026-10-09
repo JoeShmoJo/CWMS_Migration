@@ -18,9 +18,21 @@ import pandas as pd
 
 from baseline_versions import digest_file
 
-SCHEMA = 1
-PARAMETERS = {'ELEV', 'ELEVATION', 'FLOW', 'FLOW-IN', 'FLOW-OUT',
-              'STOR', 'STOR-MAF', 'FLOW-SPEC'}
+SCHEMA = 2
+
+
+def needed_record(parts):
+    from plot_rts_forecast import target_record
+    from write_rule_curves import RESERVOIRS
+    from augmentation_mapping import MINIMUM_LOCATIONS
+    location, parameter = parts[2].upper(), parts[3].upper()
+    if target_record(parts):
+        return True
+    if location in {name + '-POOL' for name in RESERVOIRS}:
+        return parameter in {'STOR', 'FLOW-IN', 'FLOW-OUT'}
+    if location in {name + '-COMBINED MIN TRIB' for name in MINIMUM_LOCATIONS.values()}:
+        return parameter == 'FLOW-SPEC'
+    return location == 'WATERYEARTYPEVARIABLE' and parameter == 'STOR-MAF'
 
 
 def logical_path(path):
@@ -96,7 +108,7 @@ def open_cached_run(filename, run_code, expected_sha256=None):
             for path in dss.getPathnameList('/*/*/*/*/*/*/'):
                 logical = logical_path(path)
                 parts = logical.split('/')
-                if parts[3].upper() in PARAMETERS and re.fullmatch(r'C:\d{6}\|' + re.escape(run_code), parts[6], re.I):
+                if needed_record(parts) and re.fullmatch(r'C:\d{6}\|' + re.escape(run_code), parts[6], re.I):
                     paths.setdefault(logical.upper(), logical)
             for number, (key, path) in enumerate(sorted(paths.items())):
                 try:

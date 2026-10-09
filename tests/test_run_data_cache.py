@@ -65,6 +65,24 @@ class CacheTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, 'absent'):
                     cache.read_ts(self.path.replace('1981', '1982'))
 
+    def test_reads_only_plot_outputs_and_required_augmentation_inputs(self):
+        required = [self.path,
+                    '//Lookout Point-Pool/STOR//1DAY/C:001981|C0/',
+                    '//Hills Creek-Pool/FLOW-IN//1DAY/C:001981|C0/',
+                    '//Green Peter-Combined Min Trib/FLOW-SPEC//1DAY/C:001981|C0/',
+                    '//WATERYEARTYPEVARIABLE/STOR-MAF//1DAY/C:001981|C0/',
+                    '//Willamette_at Salem/FLOW//1DAY/C:001981|C0/']
+        irrelevant = ['//Detroit-Power Plant/FLOW-OUT//1DAY/C:001981|C0/',
+                      '//Diversion 1 up/FLOW//1DAY/C:001981|C0/',
+                      '//Return 2/FLOW//1DAY/C:001981|C0/',
+                      '//Willamette_at Albany to Willamette+Santiam/FLOW//1DAY/C:001981|C0/',
+                      '//Detroit-Flood Min/FLOW-SPEC//1DAY/C:001981|C0/',
+                      '//Dexter-Pool/STOR//1DAY/C:001981|C0/']
+        with patch.object(self.fake.HecDss.Open, 'getPathnameList', return_value=required + irrelevant):
+            with self.build() as cache:
+                self.assertEqual(set(cache.getPathnameList('*')), set(required))
+        self.assertEqual({path for action, path in self.calls if action == 'read'}, set(required))
+
     def test_microsecond_indexes_and_timezone_round_trip(self):
         self.times = pd.DatetimeIndex(np.array(['2027-04-01', '2027-04-02', '2027-04-04'], dtype='datetime64[us]'))
         with self.build() as cache:

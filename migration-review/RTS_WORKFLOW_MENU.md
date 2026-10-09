@@ -195,3 +195,12 @@ that failed during cache creation, close the menu and remove only that run's
 `run-data-cache-C0` folder; its next use rebuilds it. Deleting an augmented result
 also removes its cache. No standalone modules or configuration CSVs are changed
 by caching.
+
+
+Cache selection is restricted by location and parameter: plotted reservoir and
+river outputs, mapped reservoir storage/inflows, Combined Min Trib requirements,
+and the water-year variable. Power-plant, diversion, return-flow and unrelated
+rule/reach series are excluded. The narrower cache format rebuilds existing
+caches once on their next use. Accepting a new baseline still performs the
+broader hydrologic comparison needed to detect changes; that is separate from
+plotting/cache creation.
