@@ -54,8 +54,13 @@ class SimpleWorkflowTests(unittest.TestCase):
                 return ['//Lookout Point-Pool/Elev/01Jan2027/1Day/C:001987|C0/',
                         '//Lookout Point-Pool/Flow-OUT/01Jan2027/1Day/C:001987|C0/',
                         '//Lookout Point-Pool/Elev/01Jan2027/1Day/C:003001|C0/',
-                        '//Lookout Point-Pool/Flow-OUT/01Jan2027/1Day/C:003001|C0/']
+                        '//Lookout Point-Pool/Flow-OUT/01Jan2027/1Day/C:003001|C0/',
+                        '//Willamette at Salem/Flow/01Jan2027/1Day/C:001987|C0/',
+                        '//MainstemFlowAugSV/Flow/01Jan2027/1Day/C:001987|C0/',
+                        '//Lookout Point-Powerhouse/Flow-OUT/01Jan2027/1Day/C:001987|C0/']
             def read_ts(self, path, **kwargs):
+                if not path.split('/')[2].upper().endswith('-POOL'):
+                    raise AssertionError('Inspection read unrelated output: '+path)
                 value = float(self.filename.read_text())
                 units = 'FT' if path.split('/')[3].upper() == 'ELEV' else 'CFS'
                 return SimpleNamespace(values=np.full(len(dates), value), pytimes=dates, units=units, type='INST-VAL')

@@ -67,15 +67,19 @@ def save_configuration(config, destination):
 
 
 def inspect_run(filename, run_code=None):
-    """Infer members and coverage from actual finite reservoir/river outputs."""
+    """Infer members and coverage from computed pool elevation/outflow only.
+
+    Do not build the broader plotting cache just to inspect a baseline.
+    """
+    from pydsstools.heclib.dss import HecDss
     from run_data_cache import is_archived, open_cached_run
-    if is_archived(filename) and run_code is not None:
-        reader = open_cached_run(filename, run_code)
-    else:
-        from pydsstools.heclib.dss import HecDss
-        reader = HecDss.Open(str(filename))
+    cache = Path(filename).parent / ('run-data-cache-' + run_code.upper()) if run_code else None
+    reader = open_cached_run(filename,run_code) if cache and cache.is_dir() and is_archived(filename) else HecDss.Open(str(filename))
     with reader as dss:
-        paths = dss.getPathnameList('/*/*/*/*/*/*/')
+        paths = [str(path) for path in dss.getPathnameList('/*/*/*/*/*/*/')
+                 if len(str(path).split('/')) == 8
+                 and str(path).split('/')[2].upper().endswith('-POOL')
+                 and str(path).split('/')[3].upper() in ('ELEV','ELEVATION','FLOW-OUT')]
         codes = set()
         members = set()
         for path in paths:
@@ -90,17 +94,13 @@ def inspect_run(filename, run_code=None):
                 raise ValueError('Cannot identify one output run code. Finish the selected RTS compute first.')
             run_code = next(iter(codes))
         groups = output_groups(paths, run_code, members)
-        if hasattr(dss, 'metadata'):
-            coverage = {int(member): [(pd.Timestamp(first), pd.Timestamp(last)) for first, last in spans]
-                        for member, spans in dss.metadata['coverage'].items()}
-        else:
-            coverage = {}
-            for key, member_paths in groups.items():
-                for member, path in member_paths.items():
-                    series = clean_series(dss.read_ts(path, trim_missing=True)).dropna()
-                    if series.empty:
-                        continue
-                    coverage.setdefault(member, []).append((series.index[0], series.index[-1]))
+        coverage = {}
+        for key, member_paths in groups.items():
+            for member, path in member_paths.items():
+                series = clean_series(dss.read_ts(path, trim_missing=True)).dropna()
+                if series.empty:
+                    continue
+                coverage.setdefault(member, []).append((series.index[0], series.index[-1]))
         if not coverage:
             raise ValueError('No finite computed outputs. Run the model in RTS before continuing.')
     first = max(pair[0] for pairs in coverage.values() for pair in pairs)
