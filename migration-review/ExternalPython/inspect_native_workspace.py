@@ -19,6 +19,7 @@ try:
     from hec.io import Identifier
     from hec.lang import UserId
     from hec.rss.server import RssRmiWorkspaceImpl
+    from hec.clientapp.server import HecRmiWorkspaceImpl
     from mil.army.usace.hec.rmi.server import RmiFileManagerImpl, RemoteWrapper
     root = sys.argv[1].replace('\\', '/')
     user = UserId.getUserId()
@@ -72,6 +73,20 @@ try:
     path_setter.invoke(workspace, [String(root)])
     workspace.setWorkspacePath(root)
     print('CONFIGURATION FILE: ' + str(opened.getFile().getPath()))
+    parent = HecRmiWorkspaceImpl(8089)
+    parent.setLocal(True)
+    portable_setter.invoke(parent, [wrapper])
+    cache.set(parent, wrapper)
+    parent_file = manager.openFile(user, Identifier(root + '/' + os.path.basename(root) + '.wksp'))
+    if parent_file is None or parent_file.getFile() is None or not parent_file.getFile().canRead():
+        raise RuntimeError('Existing parent watershed workspace could not be opened')
+    parent.identifier = parent_file
+    path_setter.invoke(parent, [String(root)])
+    parent.setWorkspacePath(root)
+    if not parent.load():
+        raise RuntimeError('Parent watershed workspace load returned false')
+    workspace.setParentWorkspace(parent)
+    print('PARENT WORKSPACE: %s; UNIT SYSTEM: %s' % (parent.getWorkspacePath(), parent.getUnitSystem()))
     if not workspace.load():
         raise RuntimeError('Workspace load returned false')
     print('WORKSPACE: ' + workspace.getWorkspacePath())
