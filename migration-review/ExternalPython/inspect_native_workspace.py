@@ -55,7 +55,21 @@ try:
     if opened is None or opened.getFile() is None or not opened.getFile().canRead():
         raise RuntimeError('Existing rss.conf could not be opened for reading')
     workspace.identifier = opened
-    workspace.setPath(root)
+    cls = workspace.getClass()
+    path_setter = None
+    while cls is not None:
+        for method in cls.getDeclaredMethods():
+            if method.getName() == 'setPath' and len(method.getParameterTypes()) == 1:
+                path_setter = method
+                break
+        if path_setter is not None:
+            break
+        cls = cls.getSuperclass()
+    if path_setter is None:
+        raise RuntimeError('Protected workspace path setter not found')
+    from java.lang import String
+    path_setter.setAccessible(True)
+    path_setter.invoke(workspace, [String(root)])
     workspace.setWorkspacePath(root)
     print('CONFIGURATION FILE: ' + str(opened.getFile().getPath()))
     if not workspace.load():
