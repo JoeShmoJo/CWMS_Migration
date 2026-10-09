@@ -94,7 +94,7 @@ def baseline_identity(root, manifest=None):
     return identity
 
 
-def read_fingerprint_series(dss, logical, paths):
+def read_fingerprint_series(dss, logical, paths, allow_empty=False):
     """Read cataloged DSS blocks explicitly; blank D parts can return no data."""
     from plot_rts_forecast import unit_key
     samples={};units=kind=None
@@ -103,9 +103,13 @@ def read_fingerprint_series(dss, logical, paths):
         raw_times=getattr(record,'pytimes',None)
         raw_values=getattr(record,'values',None)
         if raw_times is None or raw_values is None:
+            if allow_empty and raw_times is None and raw_values is None:
+                continue
             raise ValueError('DSS returned no timestamps or values for cataloged record: '+path)
         times=pd.DatetimeIndex(raw_times)
         values=np.ma.asarray(raw_values,dtype=float).filled(np.nan)
+        if allow_empty and not len(times) and not len(values):
+            continue
         if len(times)!=len(values) or not len(values) or times.has_duplicates or times.hasnans:
             raise ValueError('Empty or ambiguous baseline DSS block: '+path)
         current_units=unit_key(record.units)
@@ -167,7 +171,16 @@ def semantic_fingerprint(filename, run_code):
         for number, (key, (logical, paths)) in enumerate(sorted(keys.items()), 1):
             if number % 100 == 0:
                 print('Compared series:', number, '/', len(keys), flush=True)
-            times,values,units,kind=read_fingerprint_series(dss,logical,paths)
+            parts = logical.split('/')[1:-1]
+            # Inactive operation rules may have catalog entries but no samples.
+            # Preserve their empty logical state in the fingerprint; do not
+            # apply this exception to pool outputs or hydrologic inputs.
+            optional_rule_output = parts[2].upper() == 'FLOW-SPEC' and bool(output_f.fullmatch(parts[5]))
+            times,values,units,kind=read_fingerprint_series(dss,logical,paths,allow_empty=optional_rule_output)
+            if not len(values):
+                records[key] = hashlib.sha256(('EMPTY-RULE-OUTPUT:' + key).encode('utf-8')).hexdigest()
+                print('Empty rule output recorded:',logical,flush=True)
+                continue
             order = np.argsort(times.asi8)
             values = values[order].copy()
             values[~np.isfinite(values) | (np.abs(values) > 1e30)] = np.nan

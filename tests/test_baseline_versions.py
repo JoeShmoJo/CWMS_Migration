@@ -203,6 +203,30 @@ class BaselineTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'01Jan2026'):
             versions.read_fingerprint_series(empty,logical,paths)
 
+    def test_empty_rule_spec_is_fingerprinted_but_empty_elevation_fails(self):
+        names=['//POOL/ELEV/01Jan2026/1Day/C:001981|C0/',
+               '//POOL/FLOW-OUT/01Jan2026/1Day/C:001981|C0/',
+               '//Big Cliff-Inactive-ZBOp Rule/FLOW-SPEC/01Jan2026/1Day/C:001981|C0/']
+        empty_elevation=False
+        rule_values=None
+        class FakeDSS:
+            def __enter__(self): return self
+            def __exit__(self,*args): pass
+            def getPathnameList(self,pattern): return names
+            def read_ts(self,path,trim_missing=True):
+                empty=('/FLOW-SPEC/' in path and rule_values is None) or ('/ELEV/' in path and empty_elevation)
+                return SimpleNamespace(pytimes=None if empty else pd.date_range('2026-10-10',periods=2),
+                    values=None if empty else (rule_values if '/FLOW-SPEC/' in path else [1,2]),units='Feet',type='INST-VAL')
+        fake=SimpleNamespace(HecDss=SimpleNamespace(Open=lambda name:FakeDSS()))
+        with patch.dict(sys.modules,{'pydsstools.heclib.dss':fake}):
+            first=versions.semantic_fingerprint(self.live,'C0')
+            self.assertEqual(len(first['records']),3)
+            rule_values=[0,0]
+            self.assertNotEqual(first['sha256'],versions.semantic_fingerprint(self.live,'C0')['sha256'])
+            empty_elevation=True
+            with self.assertRaisesRegex(ValueError,'POOL/ELEV'):
+                versions.semantic_fingerprint(self.live,'C0')
+
     def test_logical_series_ignore_calendar_blocks_case_missing_payloads_and_other_runs(self):
         names = ['//POOL/ELEV/01Jan2026/1Day/C:001981|C0/',
                  '//POOL/ELEV/01Jan2027/1Day/C:001981|C0/',
