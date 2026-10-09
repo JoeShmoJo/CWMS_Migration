@@ -10,7 +10,7 @@ import uuid
 import zipfile
 
 
-def seed_trial_inputs(root, output):
+def seed_trial_inputs(root, output, members):
     """Forecast mode reads inputs from its output DSS; seed inputs only."""
     from inspect_parallel_inputs import key, records
     from pydsstools.heclib.dss import HecDss
@@ -23,7 +23,7 @@ def seed_trial_inputs(root, output):
     with HecDss.Open(str(root / 'forecast.dss')) as source, HecDss.Open(str(output)) as target:
         for path in source.getPathnameList('/*/*/*/*/*/*/'):
             logical, member = key(path)
-            if logical not in needed or member not in (1981, 1982):
+            if logical not in needed or member not in members:
                 continue
             ts = source.read_ts(path, trim_missing=True)
             if ts.pytimes is None or not len(ts.pytimes):
@@ -40,15 +40,15 @@ def seed_trial_inputs(root, output):
     print('Seeded input blocks:', count, 'No pool outputs copied.', flush=True)
 
 
-def verify_trial_outputs(output):
+def verify_trial_outputs(output, members):
     from pydsstools.heclib.dss import HecDss
     import numpy as np
-    found = {1981: set(), 1982: set()}
+    found = {member: set() for member in members}
     with HecDss.Open(str(output)) as source:
         for path in source.getPathnameList('/*/*/*/*/*/*/'):
             parts = path.split('/')
             for member in found:
-                if (parts[6].upper() == 'C:%06d|C0' % member and
+                if (parts[6].upper() in ('C:%06d|C0' % member, 'C:%06d|' % member) and
                         parts[2].upper().endswith('-POOL') and
                         parts[3].upper() in ('ELEV', 'ELEVATION', 'FLOW-OUT')):
                     ts = source.read_ts(path, trim_missing=True)
@@ -203,7 +203,7 @@ try:
         info.user = user
         info.doCompute = True
         info.variant = 'RTS'
-        print('TRIAL COMPUTE: members 1981-1982; configured workers: ' + System.getProperty('ResSim.ComputeThreadCount'))
+        print('TRIAL COMPUTE: members ' + sys.argv[4] + '; configured workers: ' + System.getProperty('ResSim.ComputeThreadCount'))
         print('OUTPUT DSS: ' + sys.argv[3])
         print('TIME WINDOW: ' + run.getTimeWindowString())
         launcher.setComputeInformation(info, workspace, run, alt, None)
@@ -232,14 +232,19 @@ def main():
         parser.error('Only a prepared ressim-parallel-trial-* copy is accepted')
     if not (root / 'rss' / 'rss.conf').is_file():
         parser.error('Trial workspace configuration missing')
+    manifest = root / 'native-trial.json'
+    members = json.loads(manifest.read_text(encoding='utf-8'))['members'] if manifest.exists() else [1981, 1982]
+    if len(members) != 2 or len(set(members)) != 2 or any(type(m) is not int or not 0 <= m <= 999999 for m in members):
+        parser.error('Invalid two-member trial manifest')
     if args.compute:
         if args.watershed is None or not (args.watershed / 'scripts').is_dir():
             parser.error('--compute requires --watershed with an existing scripts folder')
         if (root / 'rts-augmentation-active.json').exists():
             parser.error('First native trial must have augmentation disabled')
         alternative_text = (root / 'rss' / '_Con_Season.ralt').read_text(encoding='utf-8-sig')
-        if '\nEnsembleMembersString:1981-1982\n' not in alternative_text:
-            parser.error('Trial alternative must be restricted to members 1981-1982')
+        expected_members = ','.join(str(m) for m in members) if manifest.exists() else '1981-1982'
+        if ('\nEnsembleMembersString:' + expected_members + '\n') not in alternative_text:
+            parser.error('Trial alternative does not match its two-member manifest')
         if not (root / 'scripts').exists():
             shutil.copytree(args.watershed / 'scripts', root / 'scripts')
         print('Using trial script snapshot:', root / 'scripts', flush=True)
@@ -289,8 +294,8 @@ def main():
                '-cp', os.pathsep.join(str(p.resolve()) for p in jars),
                'org.python.util.jython', str(script), str(root)]
     if args.compute:
-        seed_trial_inputs(root, output)
-        arguments += ['compute', str(output)]
+        seed_trial_inputs(root, output, members)
+        arguments += ['compute', str(output), ','.join(str(m) for m in members)]
     # Windows CreateProcess limits the command line to 32,767 characters.
     # Java 9+ reads these options from a file without that command-line limit.
     argfile = root.parent / 'native-workspace-java.args'
@@ -307,7 +312,7 @@ def main():
         status = process.wait()
     print('Exit code:', status, 'Log:', log)
     if args.compute and status == 0:
-        verify_trial_outputs(output)
+        verify_trial_outputs(output, members)
     sys.exit(status)
 
 
