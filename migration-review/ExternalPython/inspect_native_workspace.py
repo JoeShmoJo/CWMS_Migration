@@ -7,6 +7,7 @@ import subprocess
 import shutil
 import sys
 import uuid
+import time
 import zipfile
 
 
@@ -304,13 +305,36 @@ def main():
     command = [str(java), '@' + str(argfile)]
     print('TWO-MEMBER TRIAL COMPUTE.' if args.compute else 'INSPECTION ONLY: no compute.', 'Log:', log, flush=True)
     with log.open('w', encoding='utf-8') as handle:
-        process = subprocess.Popen(command, cwd=app, stdout=subprocess.PIPE,
-                                   stderr=subprocess.STDOUT, text=True, errors='replace')
-        for line in process.stdout:
-            print(line, end='', flush=True)
-            handle.write(line)
-        status = process.wait()
+        process = subprocess.Popen(command, cwd=app, stdout=handle,
+                                   stderr=subprocess.STDOUT)
+        print('Java PID:', process.pid, 'Full compute output goes directly to the log.', flush=True)
+        started = time.monotonic()
+        try:
+            while True:
+                try:
+                    status = process.wait(timeout=15)
+                    break
+                except subprocess.TimeoutExpired:
+                    print('Java still running: %.0f seconds; log %.1f MB' %
+                          (time.monotonic() - started, log.stat().st_size / 1048576), flush=True)
+        except KeyboardInterrupt:
+            print('Stopping only the trial Java process; trial output is incomplete.', flush=True)
+            process.terminate()
+            try:
+                process.wait(timeout=10)
+            except subprocess.TimeoutExpired:
+                process.kill()
+                process.wait()
+            root.parent.joinpath('native-compute-' + token + '.interrupted').write_text(
+                'Trial interrupted; do not use its output as completed results.\n', encoding='utf-8')
+            raise
     print('Exit code:', status, 'Log:', log)
+    with log.open(encoding='utf-8', errors='replace') as handle:
+        summary = [line.strip() for line in handle if any(word in line for word in
+                   ('Total Compute Time', 'NATIVE COMPUTE RETURN CODE:', 'TRIAL COMPUTE:',
+                    'OUTPUT DSS:', 'SCRIPT ROOT:', 'Traceback', 'ERROR Ensemble', 'RuntimeError:'))]
+    for line in summary[-12:]:
+        print(line)
     if args.compute and status == 0:
         verify_trial_outputs(output, members)
     sys.exit(status)
