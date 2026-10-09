@@ -131,6 +131,7 @@ def accept_completed(root, context):
         if saved_context and any(saved_context.get(key) != context.get(key) for key in keys):
             raise ValueError('Forecast dates differ from the saved baseline. Use a new forecast for new dates or extracted inputs.')
     marker = root / 'rts-augmentation-active.json'
+    baseline_configuration_pointer = None
     if marker.exists():
         active = json.loads(marker.read_text())
         scheme = root / 'augmentation-archives' / active['scheme']
@@ -158,12 +159,24 @@ def accept_completed(root, context):
         data = registry(root)
         code = data['versions'][data['current']]['run_code'] if data['current'] else None
         details = inspect_run(root / 'forecast.dss', code)
+        from baseline_configuration import check_initialization
+        baseline_configuration_pointer = check_initialization(root, details)
         if data['current']:
             # The explicit completed-compute confirmation is the acceptance
             # action; no old DSS is loaded over the just-computed results.
             atomic_json(root / 'augmentation-archives/baseline-edit-session.json',
                         {'baseline_id': data['current'], 'context': context, 'run_code': details['run_code']})
         save_baseline(root, context, details['run_code'])
+    if baseline_configuration_pointer is not None:
+        from baseline_configuration import archive_configuration
+        directory = root / 'baseline-configurations' / 'accepted-computes' / uuid.uuid4().hex
+        directory.mkdir(parents=True)
+        archive_configuration(root, directory, baseline_configuration_pointer)
+        atomic_json(directory / 'acceptance.json', {'baseline_id': registry(root)['current'],
+                    'forecast_dss_sha256': digest_file(root / 'forecast.dss'),
+                    'compute_status': 'user-confirmed-success-not-verified'})
+        event(root, 'baseline-configuration-compute-accepted', directory=str(directory),
+              configuration_id=baseline_configuration_pointer['id'], baseline_id=registry(root)['current'])
     # Warm the immutable archive once; future configuration/plots reuse arrays.
     from run_data_cache import open_cached_run
     if marker.exists():

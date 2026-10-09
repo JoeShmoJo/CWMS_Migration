@@ -364,9 +364,10 @@ class WorkflowMenu(JFrame):
         top.add(options, BorderLayout.SOUTH)
         pane.add(top, BorderLayout.NORTH)
         center = JPanel(BorderLayout(6, 6))
-        buttons = JPanel(GridLayout(2, 2, 8, 8))
+        buttons = JPanel(GridLayout(0, 2, 8, 8))
         for title, handler in [('Initial Extract', self.extract), ('Augmentation Configuration', self.configuration),
-                               ('Plot Results', self.results), ('Reset Baseline', self.reset)]:
+                               ('Plot Results', self.results), ('Reset Baseline', self.reset),
+                               ('Baseline Configuration', self.baseline_configuration)]:
             button = JButton(title, actionPerformed=handler)
             buttons.add(button)
             self.controls.append(button)
@@ -455,6 +456,31 @@ class WorkflowMenu(JFrame):
             self.start('initial-extract', {}, self.extracted)
     def extracted(self, state):
         JOptionPane.showMessageDialog(self, 'Initial inputs are loaded and archived.\nReopen the forecast, modify the base alternative if needed, and run the model in RTS.')
+    def baseline_configuration(self, event):
+        try:
+            current = forecast_context()
+            if current != self.context:
+                raise RuntimeError('Forecast changed. Refresh metadata first.')
+            filename = os.path.join(EXTERNAL_PYTHON_DIR, 'baseline_configuration.py')
+            if not os.path.isfile(filename) or not os.path.isfile(os.path.join(os.path.dirname(EXTERNAL_PYTHON_DIR), 'rts_baseline_runtime.py')):
+                raise RuntimeError('Run Install-BaselineConfiguration.ps1 to install the baseline adapters first.')
+            folder = os.path.join(os.path.dirname(self.context['dss_path']), 'workflow-logs')
+            if not os.path.isdir(folder):
+                os.makedirs(folder)
+            context_file = os.path.join(folder, 'baseline-editor-' + str(uuid.uuid4()) + '.json')
+            with open(context_file, 'w') as handle:
+                json.dump(self.context, handle)
+            log = File(os.path.join(folder, 'baseline-editor-' + str(uuid.uuid4()) + '.log'))
+            builder = ProcessBuilder([self.executable, '-u', filename, '--editor', '--context', context_file])
+            builder.directory(File(EXTERNAL_PYTHON_DIR))
+            builder.redirectErrorStream(True)
+            builder.redirectOutput(log)
+            builder.start()
+            self.append('Baseline editor launched in your browser. Log: ' + str(log))
+            self.append('Finish compute and close the forecast before Apply. Afterwards refresh this menu and compute unaugmented in RTS.')
+        except (Exception, JavaException) as exc:
+            JOptionPane.showMessageDialog(self, str(exc), 'Baseline configuration', JOptionPane.ERROR_MESSAGE)
+
     def configuration(self, event):
         complete = self.confirm_completed('Accept the current results before opening augmentation configuration?')
         if complete is not None:
