@@ -54,9 +54,10 @@ try:
     if not workspace.load():
         raise RuntimeError('Workspace load returned false')
     print('WORKSPACE: ' + workspace.getWorkspacePath())
-    alt = workspace.openManager(Identifier(root + '/rss/_Con_Season.ralt'))
+    print('REGISTERED ALTERNATIVES: ' + str(workspace.getManagerIDList('main', 'hec.rss.model.RssAlt')))
+    alt = workspace.openManagerByName('main', 'hec.rss.model.RssAlt', ':Con_Season')
     if alt is None:
-        raise RuntimeError('Alternative could not be opened')
+        raise RuntimeError('Registered :Con_Season alternative could not be opened')
     print('ALTERNATIVE CLASS: ' + str(type(alt)))
     launcher = alt.getComputeLauncher()
     if launcher is None:
