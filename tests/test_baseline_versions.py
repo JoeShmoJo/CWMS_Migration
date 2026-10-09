@@ -186,6 +186,23 @@ class BaselineTests(unittest.TestCase):
         for difference in result.glob('plots-*/comparison-*-paired-difference.csv'):
             self.assertEqual(pd.read_csv(difference)['1981'].tolist(), [50, 50])
 
+    def test_fingerprint_reads_cataloged_blocks_and_merges_overlap(self):
+        calls=[]
+        class FakeDSS:
+            def read_ts(self,path,trim_missing=True):
+                calls.append(path)
+                if '/01Jan2026/' in path:
+                    dates=['2026-12-31','2027-01-01'];values=[1,2]
+                else: dates=['2027-01-01','2027-01-02'];values=[2,3]
+                return SimpleNamespace(pytimes=pd.to_datetime(dates),values=values,units='Feet',type='INST-VAL')
+        logical='//POOL/ELEV//1Day/C:001981|C0/'
+        paths=['//POOL/ELEV/01Jan2026/1Day/C:001981|C0/','//POOL/ELEV/01Jan2027/1Day/C:001981|C0/']
+        times,values,units,kind=versions.read_fingerprint_series(FakeDSS(),logical,paths)
+        self.assertEqual(values.tolist(),[1,2,3]);self.assertEqual(calls,paths)
+        empty=SimpleNamespace(read_ts=lambda *args,**kwargs:SimpleNamespace(pytimes=None,values=None))
+        with self.assertRaisesRegex(ValueError,'01Jan2026'):
+            versions.read_fingerprint_series(empty,logical,paths)
+
     def test_logical_series_ignore_calendar_blocks_case_missing_payloads_and_other_runs(self):
         names = ['//POOL/ELEV/01Jan2026/1Day/C:001981|C0/',
                  '//POOL/ELEV/01Jan2027/1Day/C:001981|C0/',

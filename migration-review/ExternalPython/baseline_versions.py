@@ -94,6 +94,38 @@ def baseline_identity(root, manifest=None):
     return identity
 
 
+def read_fingerprint_series(dss, logical, paths):
+    """Read cataloged DSS blocks explicitly; blank D parts can return no data."""
+    from plot_rts_forecast import unit_key
+    samples={};units=kind=None
+    for path in sorted(paths):
+        record=dss.read_ts(path,trim_missing=True)
+        raw_times=getattr(record,'pytimes',None)
+        raw_values=getattr(record,'values',None)
+        if raw_times is None or raw_values is None:
+            raise ValueError('DSS returned no timestamps or values for cataloged record: '+path)
+        times=pd.DatetimeIndex(raw_times)
+        values=np.ma.asarray(raw_values,dtype=float).filled(np.nan)
+        if len(times)!=len(values) or not len(values) or times.has_duplicates or times.hasnans:
+            raise ValueError('Empty or ambiguous baseline DSS block: '+path)
+        current_units=unit_key(record.units)
+        current_kind=str(getattr(record,'type','')).strip().upper()
+        if units is not None and (units,kind)!=(current_units,current_kind):
+            raise ValueError('Inconsistent units/type across DSS blocks: '+logical)
+        units,kind=current_units,current_kind
+        for timestamp,value in zip(times,values):
+            value=float(value)
+            if not np.isfinite(value) or abs(value)>1e30: value=float('nan')
+            if timestamp in samples:
+                previous=samples[timestamp]
+                if np.isfinite(previous) and np.isfinite(value) and previous!=value:
+                    raise ValueError('Conflicting overlapping DSS block values: '+logical+' at '+str(timestamp))
+                if np.isfinite(previous): continue
+            samples[timestamp]=value
+    times=pd.DatetimeIndex(sorted(samples))
+    return times,np.array([samples[time] for time in times],dtype=float),units,kind
+
+
 def semantic_fingerprint(filename, run_code):
     """Hash logical series, ignoring DSS layout/calendar blocks and missing sentinels.
 
@@ -126,25 +158,21 @@ def semantic_fingerprint(filename, run_code):
                 continue
             logical = '/{}/{}/{}//{}/{}/'.format(a, b, c, e, f)
             key = logical.upper()
-            keys.setdefault(key, logical)
+            keys.setdefault(key, (logical, set()))[1].add(str(path))
         if not keys:
             raise ValueError('No hydrologic time series found for baseline comparison')
         records = {}
         has_elevation = has_outflow = False
         print('Comparing hydrologic series:', len(keys), str(filename), flush=True)
-        for number, (key, logical) in enumerate(sorted(keys.items()), 1):
+        for number, (key, (logical, paths)) in enumerate(sorted(keys.items()), 1):
             if number % 100 == 0:
                 print('Compared series:', number, '/', len(keys), flush=True)
-            record = dss.read_ts(logical, trim_missing=True)
-            times = pd.DatetimeIndex(record.pytimes)
-            values = np.ma.asarray(record.values, dtype=float).filled(np.nan)
-            if len(times) != len(values) or not len(values) or times.has_duplicates or times.hasnans:
-                raise ValueError('Empty or ambiguous baseline time series: ' + logical)
+            times,values,units,kind=read_fingerprint_series(dss,logical,paths)
             order = np.argsort(times.asi8)
             values = values[order].copy()
             values[~np.isfinite(values) | (np.abs(values) > 1e30)] = np.nan
             values[values == 0] = 0.0
-            metadata = [key, unit_key(record.units), str(getattr(record, 'type', '')).strip().upper(),
+            metadata = [key, units, kind,
                         [time.isoformat() for time in times[order]]]
             digest = hashlib.sha256(json.dumps(metadata, separators=(',', ':')).encode('utf-8'))
             # Explicit marker for missing values makes NaN payloads irrelevant.
