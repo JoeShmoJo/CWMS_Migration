@@ -48,7 +48,7 @@ try:
     cache = workspace.getClass().getSuperclass().getDeclaredField('_fileManager')
     cache.setAccessible(True)
     cache.set(workspace, wrapper)
-    print('FILE MANAGER: ' + manager.getClass().getName())
+    print('FILE MANAGER: ' + str(type(manager)))
     workspace.setIdentifier(user, Identifier(root + '/rss/rss.conf'))
     workspace.setWorkspacePath(root)
     if not workspace.load():
@@ -57,11 +57,11 @@ try:
     alt = workspace.openManager(Identifier(root + '/rss/_Con_Season.ralt'))
     if alt is None:
         raise RuntimeError('Alternative could not be opened')
-    print('ALTERNATIVE CLASS: ' + alt.getClass().getName())
+    print('ALTERNATIVE CLASS: ' + str(type(alt)))
     launcher = alt.getComputeLauncher()
     if launcher is None:
         raise RuntimeError('No ensemble launcher loaded')
-    print('LAUNCHER: ' + launcher.getClass().getName())
+    print('LAUNCHER: ' + str(type(launcher)))
     for variant in ('', 'RTS'):
         data = alt.getInputTSDataSet() if not variant else alt.getInputTSDataSet(variant, False)
         if data is None:
