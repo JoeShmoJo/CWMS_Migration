@@ -49,8 +49,15 @@ try:
     cache.setAccessible(True)
     cache.set(workspace, wrapper)
     print('FILE MANAGER: ' + str(type(manager)))
-    workspace.setIdentifier(user, Identifier(root + '/rss/rss.conf'))
+    # setIdentifier appends the workspace extension when given rss.conf,
+    # then may create an empty file. Open the existing config explicitly.
+    opened = manager.openFile(user, Identifier(root + '/rss/rss.conf'))
+    if opened is None or opened.getFile() is None or not opened.getFile().canRead():
+        raise RuntimeError('Existing rss.conf could not be opened for reading')
+    workspace.identifier = opened
+    workspace.setPath(root)
     workspace.setWorkspacePath(root)
+    print('CONFIGURATION FILE: ' + str(opened.getFile().getPath()))
     if not workspace.load():
         raise RuntimeError('Workspace load returned false')
     print('WORKSPACE: ' + workspace.getWorkspacePath())
