@@ -89,6 +89,10 @@
             ]
           ]
         }
+      },
+      "help": {
+        "purpose": "Draft a reservoir toward a seasonal target elevation and hold it there for a specified period.",
+        "how_it_works": "Proposes a minimum release to reach the target by its target date. After reaching the target, the holding period ends at the configured duration or end date. Other rules can constrain the release."
       }
     },
     "spring_spill": {
@@ -137,6 +141,10 @@
             ]
           ]
         }
+      },
+      "help": {
+        "purpose": "Hold a reservoir near a spring spill target during its configured operating window.",
+        "how_it_works": "Proposes a minimum release toward the target elevation. Once the pool first approaches the target, the holding duration starts; the configured end date can stop the operation sooner."
       }
     },
     "no_draft": {
@@ -226,6 +234,10 @@
             ]
           ]
         }
+      },
+      "help": {
+        "purpose": "Protect a reservoir from further drafting when its pool is below a seasonal elevation threshold.",
+        "how_it_works": "Interpolates the reservoir’s dated elevation schedule. Below that elevation, maximum release is limited to current inflow; above it, this rule imposes no effective release limit."
       }
     },
     "secondary_flood_draft": {
@@ -298,6 +310,10 @@
             ]
           ]
         }
+      },
+      "help": {
+        "purpose": "Limit releases below the secondary flood pool while allowing powerhouse flow and a minimum drafting allowance.",
+        "how_it_works": "Above the secondary elevation, the rule imposes no maximum. At or below it, maximum release is the largest of the secondary-pool release, powerhouse capacity, and inflow plus the minimum draft allowance."
       }
     },
     "firo_space": {
@@ -5807,6 +5823,10 @@
             ]
           ]
         }
+      },
+      "help": {
+        "purpose": "Steer the pool toward a configurable seasonal elevation schedule, with a choice of refill, drafting, or both.",
+        "how_it_works": "Converts the scheduled elevation to storage and proposes a release based on inflow and the difference from previous storage. FILL_ONLY sets a maximum to encourage refill; DRAFT_ONLY sets a minimum to encourage drafting; BOTH can do either. A blank day means no target."
       }
     },
     "minimum_flow_withdrawal": {
@@ -16441,6 +16461,10 @@
             ]
           ]
         }
+      },
+      "help": {
+        "purpose": "Meet tributary minimum flows while accounting for scheduled withdrawals.",
+        "how_it_works": "Adds the daily minimum-flow and withdrawal schedules to propose a minimum reservoir release. Green Peter has special logic to meet the target at Foster, accounting for local inflow and Foster’s storage needs."
       }
     },
     "diversions": {
@@ -29629,6 +29653,10 @@
             ]
           ]
         }
+      },
+      "help": {
+        "purpose": "Set seasonal diversion and return flows using one shared schedule.",
+        "how_it_works": "Each diversion or return reads the column matching its model element name and uses that day’s scheduled flow. Element names must match the model; a missing column is an error."
       }
     },
     "irrm": {
@@ -29648,7 +29676,11 @@
         },
         "glide_days": 1
       },
-      "tables": {}
+      "tables": {},
+      "help": {
+        "purpose": "Reduce a reservoir’s allowable operating pool through an Interim Risk Reduction Measure target.",
+        "how_it_works": "Converts the target elevation to storage and proposes a minimum release to reduce excess storage over the glide period. Activation and target elevation can differ by reservoir."
+      }
     },
     "draft_to_rc": {
       "label": "Draft to Rule Curve",
@@ -29657,7 +29689,11 @@
         "days_lookahead": 3,
         "buffer_ac_ft": 50
       },
-      "tables": {}
+      "tables": {},
+      "help": {
+        "purpose": "Control releases so a pool above its rule curve approaches the curve without drafting too far.",
+        "how_it_works": "Proposes a maximum release using the current rule curve and a lookahead target with a storage buffer. Activation can be global or set separately for each reservoir where this rule is attached."
+      }
     },
     "fill_lop_first": {
       "label": "Fill LOP First",
@@ -29670,7 +29706,11 @@
         "end_day": 30,
         "spillway_elevation_ft": 890
       },
-      "tables": {}
+      "tables": {},
+      "help": {
+        "purpose": "Help Lookout Point fill by requesting additional upstream release during the spring window.",
+        "how_it_works": "Uses Lookout Point’s previous elevation and rule curve, capped by the spillway elevation, to choose a minimum release between the configured flow levels. This script explicitly names Lookout Point; using a different target reservoir would require a script change."
+      }
     },
     "hcr_lop_balance": {
       "label": "HCR / LOP Balance",
@@ -29691,7 +29731,11 @@
         "glide_days": 1,
         "lop_drawdown_rule_name": "Deep Drawdown"
       },
-      "tables": {}
+      "tables": {},
+      "help": {
+        "purpose": "Keep Hills Creek and Lookout Point at similar fractions of their conservation storage during the balancing season.",
+        "how_it_works": "Uses their combined previous storage to calculate a target for Hills Creek, then proposes a minimum release subject to flow limits. Balancing stands down when Lookout Point’s Deep Drawdown rule is operating. These two reservoirs are explicitly named in the script."
+      }
     }
   }
 }

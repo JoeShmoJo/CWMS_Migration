@@ -100,3 +100,23 @@ Next implementation steps: finalize field definitions and validations; implement
 portable JSON/CSV resolution and snapshotting; build the independent editor;
 install/test the RTS adapter; connect Apply and baseline acceptance to the menu.
 The mockup deliberately disables Apply until those pieces are implemented.
+
+
+## Rule explanations and reservoir scope
+
+Each rule section includes a short purpose and a collapsible How it works hint.
+These explanations also appear in the exported readable summary. They describe
+what the supplied scripts actually do, rather than imply that attaching a rule
+or changing its scope is part of configuration editing.
+
+Draft to Rule Curve already accepts a global activation Boolean or a map of
+reservoir activation Booleans. The mockup exposes both forms. Converting the
+global setting preserves that value for each of the thirteen watershed reservoirs;
+individual choices can then be changed. Switching back to one global setting
+requires an explicit replacement confirmation. In the existing script, an
+omitted reservoir defaults to enabled. This does not attach the rule to any new
+reservoir or change the rule stack.
+
+Fill LOP First and HCR / LOP Balance explicitly name their target reservoirs in
+the scripts. Making those reusable at other reservoirs is a separate script
+improvement to assess before adding target-reservoir selectors to the editor.
