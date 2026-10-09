@@ -7,6 +7,18 @@ spec=importlib.util.spec_from_file_location('execution_switch',Path(__file__).re
 execution=importlib.util.module_from_spec(spec);spec.loader.exec_module(execution)
 
 class ExecutionSwitchTests(unittest.TestCase):
+    def test_comparison_ignores_csv_numeric_format_and_detects_real_changes(self):
+        import copy
+        original={'rules':{'draft':{'settings':{'active':True,'days':3},'tables':{'schedule':{'columns':['Day','Flow'],'rows':[['1','1.00']]}}}}}
+        applied=copy.deepcopy(original)
+        applied['rules']['draft']['tables']['schedule']['rows']=[[1,1.0]]
+        self.assertEqual(execution.compare_configurations(original,applied),[])
+        applied['rules']['draft']['settings']['days']=7
+        applied['rules']['draft']['tables']['schedule']['rows'][0][1]=5
+        changes=execution.compare_configurations(original,applied)
+        self.assertEqual(len(changes),2)
+        self.assertIn('days',changes[0]);self.assertIn('changed cells',changes[1])
+
     def test_switch_and_restore_preserve_configuration_and_dss(self):
         with tempfile.TemporaryDirectory() as directory:
             watershed=Path(directory)/'watershed/model';root=Path(directory)/'forecast';root.mkdir()
