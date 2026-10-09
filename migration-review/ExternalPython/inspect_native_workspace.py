@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 import subprocess
 import sys
+import zipfile
 
 
 JYTHON = r'''
@@ -70,6 +71,22 @@ def main():
     jars += sorted((args.installation / 'shared' / 'jar').glob('*.jar'))
     jars += sorted((args.installation / 'shared' / 'jar' / 'sys').glob('*.jar'))
     jars += sorted((args.installation / 'HEC-RTS' / 'jar' / 'ext').glob('*.jar'))
+    required_class = 'hec/server/RmiFileManagerImpl.class'
+    def contains_class(filename):
+        with zipfile.ZipFile(filename) as archive:
+            return required_class in archive.namelist()
+    if not any(contains_class(filename) for filename in jars):
+        # The file-manager implementation is shipped separately from the
+        # client interfaces. Locate its actual owner rather than guess a name.
+        candidates = sorted(args.installation.resolve().rglob('*.jar'),
+                            key=lambda p: (0 if p.is_relative_to(app) else
+                                           1 if 'shared' in p.parts else
+                                           2 if 'HEC-RTS' in p.parts else 3, str(p)))
+        owner = next((filename for filename in candidates if contains_class(filename)), None)
+        if owner is None:
+            parser.error('No installed JAR contains ' + required_class)
+        jars.append(owner)
+        print('Local file-manager implementation:', owner, flush=True)
     if not any('jython-standalone' in p.name for p in jars):
         parser.error('Jython standalone JAR missing from installed classpath')
     script = root.parent / 'inspect-workspace-jython.py'
