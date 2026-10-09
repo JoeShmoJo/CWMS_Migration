@@ -133,8 +133,8 @@ def read_fingerprint_series(dss, logical, paths, allow_empty=False):
 def semantic_fingerprint(filename, run_code):
     """Hash logical series, ignoring DSS layout/calendar blocks and missing sentinels.
 
-    Includes reservoir/river outputs, local minimum rules, WY type and all
-    hydrologic input series. Excludes prepared augmentation and other run codes.
+    Includes only computed reservoir pool elevation and outflow for the selected
+    run code and all archived members. Excludes rule/state/input/river records.
     No numerical tolerance: any finite value, timestamp, unit, or type change
     counts. Existing gaps are represented, never filled or interpolated.
     """
@@ -142,9 +142,6 @@ def semantic_fingerprint(filename, run_code):
     from plot_rts_forecast import unit_key
     keys = {}
     output_f = re.compile(r'^C:\d+\|' + re.escape(run_code) + '$', re.I)
-    parameters = {'FLOW', 'FLOW-IN', 'FLOW-OUT', 'FLOW-UNREG', 'FLOW-SPEC',
-                  'STOR', 'STOR-MAF', 'ELEV', 'ELEVATION', 'ELEV-FOREBAY',
-                  'PRECIP', 'PRECIP-INC', 'TEMP', 'TEMPERATURE', 'SWE'}
     with HecDss.Open(str(filename)) as dss:
         for path in dss.getPathnameList('/*/*/*/*/*/*/'):
             # Preserve blank pathname parts, including the usually blank A part.
@@ -152,35 +149,22 @@ def semantic_fingerprint(filename, run_code):
             if len(parts) != 6:
                 raise ValueError('Malformed DSS pathname: ' + str(path))
             a, b, c, _, e, f = parts
-            if c.upper() not in parameters and not f.upper().endswith('|RULE CURVE') and f.upper() != 'RULE CURVE':
-                continue
-            if 'EXTERNALFLOWAUG' in c.upper():
-                continue
-            # Input ensemble F parts may be blank or end in | / |RULE CURVE.
-            # Only exact run-code matches are accepted as simulation outputs.
-            if re.search(r'\|[A-Z]\d+$', f, re.I) and not output_f.fullmatch(f):
+            if not b.upper().endswith('-POOL') or c.upper() not in ('ELEV','ELEVATION','FLOW-OUT') or not output_f.fullmatch(f):
                 continue
             logical = '/{}/{}/{}//{}/{}/'.format(a, b, c, e, f)
             key = logical.upper()
             keys.setdefault(key, (logical, set()))[1].add(str(path))
         if not keys:
-            raise ValueError('No hydrologic time series found for baseline comparison')
+            raise ValueError('No computed reservoir pool elevation/outflow series found for baseline comparison')
         records = {}
         has_elevation = has_outflow = False
-        print('Comparing hydrologic series:', len(keys), str(filename), flush=True)
+        coverage = {}
+        print('Comparing reservoir pool elevation/outflow series:', len(keys), str(filename), flush=True)
         for number, (key, (logical, paths)) in enumerate(sorted(keys.items()), 1):
             if number % 100 == 0:
                 print('Compared series:', number, '/', len(keys), flush=True)
             parts = logical.split('/')[1:-1]
-            # Inactive operation rules may have catalog entries but no samples.
-            # Preserve their empty logical state in the fingerprint; do not
-            # apply this exception to pool outputs or hydrologic inputs.
-            optional_rule_output = parts[2].upper() == 'FLOW-SPEC' and bool(output_f.fullmatch(parts[5]))
-            times,values,units,kind=read_fingerprint_series(dss,logical,paths,allow_empty=optional_rule_output)
-            if not len(values):
-                records[key] = hashlib.sha256(('EMPTY-RULE-OUTPUT:' + key).encode('utf-8')).hexdigest()
-                print('Empty rule output recorded:',logical,flush=True)
-                continue
+            times,values,units,kind=read_fingerprint_series(dss,logical,paths)
             order = np.argsort(times.asi8)
             values = values[order].copy()
             values[~np.isfinite(values) | (np.abs(values) > 1e30)] = np.nan
@@ -196,10 +180,16 @@ def semantic_fingerprint(filename, run_code):
             if output_f.fullmatch(parts[5]):
                 has_elevation |= parts[2].upper() in ('ELEV', 'ELEVATION') and np.isfinite(values).any()
                 has_outflow |= parts[2].upper() == 'FLOW-OUT' and np.isfinite(values).any()
+                group=(parts[1].upper(),parts[5].upper())
+                if np.isfinite(values).any():
+                    coverage.setdefault(group,set()).add('ELEV' if parts[2].upper() in ('ELEV','ELEVATION') else 'FLOW-OUT')
+        incomplete=[group for group,parameters in coverage.items() if parameters != {'ELEV','FLOW-OUT'}]
+        if incomplete:
+            raise ValueError('Pool elevation/outflow pair missing: '+str(incomplete))
         if not has_elevation or not has_outflow:
             raise ValueError('Computed baseline elevation and outflow records are required')
     digest = hashlib.sha256(json.dumps(records, sort_keys=True).encode('utf-8')).hexdigest()
-    return {'sha256': digest, 'records': records}
+    return {'sha256': digest, 'records': records, 'scope': 'reservoir-pool-elevation-outflow-v1'}
 
 
 def disable(root, token):
@@ -284,7 +274,10 @@ def save_baseline(root, context, run_code, fingerprint=semantic_fingerprint):
             source = baseline_directory(root)
             if digest_file(source / 'forecast.dss') != old['sha256']:
                 raise ValueError('Saved baseline checksum mismatch')
-            old_fp = old.get('fingerprint') or fingerprint(source / 'forecast.dss', run_code)
+            old_fp = old.get('fingerprint')
+            if old_fp is None or old_fp.get('scope') != candidate_fp.get('scope'):
+                print('Rebuilding saved baseline comparison with current scope.',flush=True)
+                old_fp = fingerprint(source / 'forecast.dss', run_code)
             old['fingerprint'] = old_fp
             missing = set(old_fp['records']) - set(candidate_fp['records'])
             if missing:

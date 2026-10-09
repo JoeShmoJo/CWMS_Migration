@@ -17,8 +17,8 @@ import baseline_versions as versions
 def fake_fingerprint(path, code):
     # A changed DSS housekeeping byte does not change the logical values.
     value = path.read_bytes().split(b'|')[0].decode()
-    records = {'//POOL/ELEV//1DAY/C:001981|C0/': value,
-               '//POOL/FLOW-OUT//1DAY/C:001981|C0/': value}
+    records = {'//Test-Pool/ELEV//1DAY/C:001981|C0/': value,
+               '//Test-Pool/FLOW-OUT//1DAY/C:001981|C0/': value}
     return {'sha256': hashlib.sha256(json.dumps(records).encode()).hexdigest(), 'records': records}
 
 
@@ -195,18 +195,21 @@ class BaselineTests(unittest.TestCase):
                     dates=['2026-12-31','2027-01-01'];values=[1,2]
                 else: dates=['2027-01-01','2027-01-02'];values=[2,3]
                 return SimpleNamespace(pytimes=pd.to_datetime(dates),values=values,units='Feet',type='INST-VAL')
-        logical='//POOL/ELEV//1Day/C:001981|C0/'
-        paths=['//POOL/ELEV/01Jan2026/1Day/C:001981|C0/','//POOL/ELEV/01Jan2027/1Day/C:001981|C0/']
+        logical='//Test-Pool/ELEV//1Day/C:001981|C0/'
+        paths=['//Test-Pool/ELEV/01Jan2026/1Day/C:001981|C0/','//Test-Pool/ELEV/01Jan2027/1Day/C:001981|C0/']
         times,values,units,kind=versions.read_fingerprint_series(FakeDSS(),logical,paths)
         self.assertEqual(values.tolist(),[1,2,3]);self.assertEqual(calls,paths)
         empty=SimpleNamespace(read_ts=lambda *args,**kwargs:SimpleNamespace(pytimes=None,values=None))
         with self.assertRaisesRegex(ValueError,'01Jan2026'):
             versions.read_fingerprint_series(empty,logical,paths)
 
-    def test_empty_rule_spec_is_fingerprinted_but_empty_elevation_fails(self):
-        names=['//POOL/ELEV/01Jan2026/1Day/C:001981|C0/',
-               '//POOL/FLOW-OUT/01Jan2026/1Day/C:001981|C0/',
-               '//Big Cliff-Inactive-ZBOp Rule/FLOW-SPEC/01Jan2026/1Day/C:001981|C0/']
+    def test_unrelated_outputs_are_not_read_but_empty_pool_elevation_fails(self):
+        names=['//Test-Pool/ELEV/01Jan2026/1Day/C:001981|C0/',
+               '//Test-Pool/FLOW-OUT/01Jan2026/1Day/C:001981|C0/',
+               '//Big Cliff-Inactive-ZBOp Rule/FLOW-SPEC/01Jan2026/1Day/C:001981|C0/',
+               '//MainstemFlowAugSV/Flow/01Jan2027/1Day/C:001981|C0/',
+               '//Test-Powerhouse/FLOW-OUT/01Jan2027/1Day/C:001981|C0/',
+               '//Test-Tailwater/ELEV/01Jan2027/1Day/C:001981|C0/']
         empty_elevation=False
         rule_values=None
         class FakeDSS:
@@ -214,25 +217,26 @@ class BaselineTests(unittest.TestCase):
             def __exit__(self,*args): pass
             def getPathnameList(self,pattern): return names
             def read_ts(self,path,trim_missing=True):
+                if not '/Test-Pool/' in path: raise AssertionError('Read unrelated output: '+path)
                 empty=('/FLOW-SPEC/' in path and rule_values is None) or ('/ELEV/' in path and empty_elevation)
                 return SimpleNamespace(pytimes=None if empty else pd.date_range('2026-10-10',periods=2),
                     values=None if empty else (rule_values if '/FLOW-SPEC/' in path else [1,2]),units='Feet',type='INST-VAL')
         fake=SimpleNamespace(HecDss=SimpleNamespace(Open=lambda name:FakeDSS()))
         with patch.dict(sys.modules,{'pydsstools.heclib.dss':fake}):
             first=versions.semantic_fingerprint(self.live,'C0')
-            self.assertEqual(len(first['records']),3)
+            self.assertEqual(len(first['records']),2)
             rule_values=[0,0]
-            self.assertNotEqual(first['sha256'],versions.semantic_fingerprint(self.live,'C0')['sha256'])
+            self.assertEqual(first['sha256'],versions.semantic_fingerprint(self.live,'C0')['sha256'])
             empty_elevation=True
-            with self.assertRaisesRegex(ValueError,'POOL/ELEV'):
+            with self.assertRaisesRegex(ValueError,'Test-Pool/ELEV'):
                 versions.semantic_fingerprint(self.live,'C0')
 
     def test_logical_series_ignore_calendar_blocks_case_missing_payloads_and_other_runs(self):
-        names = ['//POOL/ELEV/01Jan2026/1Day/C:001981|C0/',
-                 '//POOL/ELEV/01Jan2027/1Day/C:001981|C0/',
-                 '//POOL/FLOW-OUT/01Jan2026/1Day/C:001981|C0/',
+        names = ['//Test-Pool/ELEV/01Jan2026/1Day/C:001981|C0/',
+                 '//Test-Pool/ELEV/01Jan2027/1Day/C:001981|C0/',
+                 '//Test-Pool/FLOW-OUT/01Jan2026/1Day/C:001981|C0/',
                  '//SALEM/FLOW-MIN-EXTERNALFLOWAUG//1Day/C:001981|C0/',
-                 '//POOL/ELEV//1Day/C:001981|C1/']
+                 '//Test-Pool/ELEV//1Day/C:001981|C1/']
         values = [1.0, -3.402823466e38]
         class FakeDSS:
             def __enter__(self): return self
