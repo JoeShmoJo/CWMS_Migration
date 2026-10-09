@@ -1,6 +1,6 @@
 # RTS baseline configuration: first implementation
 
-The workflow menu now opens **Baseline Configuration** in a browser. It imports the installed settings for the eleven scripted baseline rules. Augmentation remains separate. Save JSON exports a portable configuration; readable HTML exports an inspection copy. The editor can also run independently with `baseline_configuration.py --editor`.
+The workflow menu now opens **Baseline Configuration** in a browser. It imports the installed settings for the eleven scripted baseline rules. Augmentation remains separate. Save Configuration automatically stores a new named version in `scripts/baseline-configuration-library` in the imported watershed. Open Saved Configuration selects from that library without browsing folders. Saved sets embed validated CSV schedule values for reuse in other forecasts. Export JSON downloads a portable copy; readable HTML exports an inspection copy. The editor can also run independently with `baseline_configuration.py --editor`.
 
 Apply validates settings, snapshots linked CSV contents, stages generated tables and script provenance beneath the selected forecast, and disables augmentation. It does not rewrite the standalone model or its source configurations. Close the forecast before Apply, then reopen and compute manually in RTS. Do not run extraction again just to apply configuration changes.
 

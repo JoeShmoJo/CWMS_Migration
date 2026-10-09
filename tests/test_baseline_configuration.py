@@ -80,6 +80,18 @@ class ConfigurationTests(unittest.TestCase):
             request=urllib.request.Request(base+'/apply',data=json.dumps(changed).encode(),headers={'X-Editor-Token':token},method='POST')
             with urllib.request.urlopen(request) as response:
                 self.assertEqual(response.status,200)
+            def post(endpoint,body):
+                request=urllib.request.Request(base+endpoint,data=json.dumps(body).encode(),headers={'X-Editor-Token':token},method='POST')
+                with urllib.request.urlopen(request) as response: return json.loads(response.read())
+            active_before=(self.root/'rts-baseline-config-active.json').read_bytes()
+            saved=post('/save',changed)
+            second=post('/save',changed)
+            self.assertNotEqual(saved['id'],second['id'])
+            self.assertEqual(len(post('/library',{})),2)
+            loaded=post('/load',{'id':saved['id']})
+            self.assertEqual(loaded['rules']['draft_to_rc']['settings']['days_lookahead'],7)
+            self.assertEqual((self.root/'rts-baseline-config-active.json').read_bytes(),active_before)
+            with self.assertRaises(urllib.error.HTTPError): post('/load',{'id':'../resolved'})
             request=urllib.request.Request(base+'/close',headers={'X-Editor-Token':token},method='POST')
             urllib.request.urlopen(request).close()
             thread.join(timeout=10)

@@ -218,7 +218,7 @@ def current_configuration(root, scripts):
         return saved
     # Read installed CSVs, not the example schedules. Current Con_Season defaults
     # have flat Hjson key/value lines; refuse more complex syntax rather than guess.
-    result=template(scripts);watershed=Path(scripts).parent.parent
+    result=template(scripts);result['name']='Con_Season imported settings';result['description']='Settings read from the imported RTS model.';watershed=Path(scripts).parent.parent
     values={}
     for filename in ('_default.txt','Con_Season.txt'):
         values.update(read_alternative_settings(watershed/'scripts/alt_config'/filename))
@@ -304,6 +304,31 @@ def archive_configuration(root, destination, pointer):
     atomic_json(Path(destination)/'baseline-configuration.json',pointer)
 
 
+def configuration_library(scripts):
+    return Path(scripts).parent/'baseline-configuration-library'
+
+
+def save_library_configuration(scripts, configuration):
+    if not str(configuration.get('name','')).strip():
+        raise ValueError('Enter a configuration name before saving')
+    resolved,_=resolve(configuration,scripts,Path(scripts).parent.parent)
+    # Saved reusable sets embed the actual schedule values, so they remain
+    # portable even if the original CSV is moved or subsequently edited.
+    identity=uuid.uuid4().hex
+    path=configuration_library(scripts)/(identity+'.json')
+    path.parent.mkdir(parents=True,exist_ok=True)
+    atomic_json(path,resolved)
+    return {'id':identity,'name':resolved['name'],'path':str(path)}
+
+
+def list_library_configurations(scripts):
+    items=[]
+    for path in sorted(configuration_library(scripts).glob('*.json'),key=lambda p:p.stat().st_mtime,reverse=True):
+        data=json.loads(path.read_text())
+        items.append({'id':path.stem,'name':data['name']})
+    return items
+
+
 def serve_editor(scripts, context=None):
     from http.server import BaseHTTPRequestHandler,ThreadingHTTPServer
     import secrets
@@ -326,6 +351,15 @@ const metadata=document.createElement('p');metadata.textContent=CONTEXT;metadata
 applyButton.onclick=async()=>{if(!confirm('Finish all computes and close the forecast in RTS before applying. Apply this set, disable augmentation, and require a new unaugmented compute?'))return;applyButton.disabled=true;try{let response=await fetch('/apply',{method:'POST',headers:{'Content-Type':'application/json','X-Editor-Token':TOKEN},body:JSON.stringify(config)});let data=await response.json();if(!response.ok)throw Error(data.error);status('Applied '+data.name+'. Augmentation is off. Reopen the forecast and compute in RTS; check RTS baseline init messages.');alert('Settings are staged. Reopen the forecast and compute in RTS. Then accept completed baseline results. Do not re-extract.')}catch(e){status('Apply failed: '+e.message);alert(e.message)}finally{applyButton.disabled=false}};
 </script>""".replace('CONTEXT',json.dumps('Apply target: '+context['forecast_name']+' / '+context['run_name']+' / '+str(root))).replace('TOKEN',json.dumps(token))
         page=page.replace('</html>',bridge+'</html>')
+    library_bridge="""<script>
+const exportJSON=document.createElement('button');exportJSON.textContent='Export JSON';exportJSON.onclick=$('save').onclick;$('save').after(exportJSON);$('save').textContent='Save Configuration';$('open').textContent='Import JSON';
+const savedSets=document.createElement('select');savedSets.setAttribute('aria-label','Saved configurations');const loadSet=document.createElement('button');loadSet.textContent='Open Saved Configuration';document.querySelector('.toolbar').append(savedSets,loadSet);
+async function libraryRequest(path,body){const response=await fetch(path,{method:'POST',headers:{'Content-Type':'application/json','X-Editor-Token':TOKEN},body:JSON.stringify(body)});const result=await response.json();if(!response.ok)throw Error(result.error);return result}
+async function refreshLibrary(id){const items=await libraryRequest('/library',{});savedSets.replaceChildren();const placeholder=document.createElement('option');placeholder.value='';placeholder.textContent='Choose a saved configuration';savedSets.append(placeholder);for(const item of items){const option=document.createElement('option');option.value=item.id;option.textContent=item.name+' · '+item.id.slice(0,8);savedSets.append(option)}if(id)savedSets.value=id}
+$('save').onclick=async()=>{try{const saved=await libraryRequest('/save',config);await refreshLibrary(saved.id);status('Saved '+saved.name+' in the watershed configuration library. No settings were activated. Each save preserves a new version.')}catch(e){status('Save failed: '+e.message);alert(e.message)}};
+loadSet.onclick=async()=>{if(!savedSets.value)return;if(!confirm('Replace the settings currently displayed with the saved configuration?'))return;try{config=await libraryRequest('/load',{id:savedSets.value});selected='overview';render();status('Saved configuration opened. Apply separately to activate it.')}catch(e){status('Open failed: '+e.message)}};refreshLibrary().catch(e=>status('Library unavailable: '+e.message));
+</script>""".replace('TOKEN',json.dumps(token))
+    page=page.replace('</html>',library_bridge+'</html>')
     close_bridge="""<script>const closeEditor=document.createElement('button');closeEditor.textContent='Close Editor';document.querySelector('.toolbar').append(closeEditor);closeEditor.onclick=async()=>{await fetch('/close',{method:'POST',headers:{'X-Editor-Token':TOKEN}});document.body.textContent='Editor closed. You can close this browser tab.'};</script>""".replace('TOKEN',json.dumps(token))
     page=page.replace('</html>',close_bridge+'</html>')
     class Handler(BaseHTTPRequestHandler):
@@ -337,12 +371,20 @@ applyButton.onclick=async()=>{if(!confirm('Finish all computes and close the for
             if self.path=='/close' and self.headers.get('X-Editor-Token')==token:
                 self.send_response(200);self.end_headers();self.wfile.write(b'closed')
                 threading.Thread(target=server.shutdown,daemon=True).start();return
-            if not root or self.path!='/apply' or self.headers.get('X-Editor-Token')!=token:
+            if self.path not in ('/apply','/save','/load','/library') or (self.path=='/apply' and not root) or self.headers.get('X-Editor-Token')!=token:
                 self.send_error(403);return
             try:
                 length=int(self.headers.get('Content-Length','0'))
                 if not 0 < length < 8*1024*1024: raise ValueError('Invalid configuration size')
-                result=apply_configuration(root,context,json.loads(self.rfile.read(length)),scripts);code=200
+                payload=json.loads(self.rfile.read(length))
+                if self.path=='/apply': result=apply_configuration(root,context,payload,scripts)
+                elif self.path=='/save': result=save_library_configuration(scripts,payload)
+                elif self.path=='/library': result=list_library_configurations(scripts)
+                else:
+                    identity=payload.get('id','')
+                    if not re.fullmatch('[a-f0-9]{32}',identity): raise ValueError('Invalid saved configuration identifier')
+                    result=json.loads((configuration_library(scripts)/(identity+'.json')).read_text())
+                code=200
             except Exception as exc: result={'error':str(exc)};code=400
             self.send_response(code);self.send_header('Content-Type','application/json');self.end_headers();self.wfile.write(json.dumps(result).encode())
     server=ThreadingHTTPServer(('127.0.0.1',0),Handler)
