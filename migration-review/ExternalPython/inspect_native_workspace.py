@@ -1,5 +1,6 @@
 """Start installed ResSim's JVM and inspect only an isolated trial workspace."""
 import argparse
+import json
 import os
 from pathlib import Path
 import subprocess
@@ -74,10 +75,16 @@ def main():
     script = root.parent / 'inspect-workspace-jython.py'
     script.write_text(JYTHON, encoding='utf-8')
     log = root.parent / 'native-workspace-inspection.log'
-    command = [str(java), '-Xmx3600m', '-DResSim.ComputeThreadCount=2',
+    arguments = ['-Xmx3600m', '-DResSim.ComputeThreadCount=2',
                '-Djava.library.path=' + str(app / 'lib'), '-Dproperties.path=config',
                '-cp', os.pathsep.join(str(p.resolve()) for p in jars),
                'org.python.util.jython', str(script), str(root)]
+    # Windows CreateProcess limits the command line to 32,767 characters.
+    # Java 9+ reads these options from a file without that command-line limit.
+    argfile = root.parent / 'native-workspace-java.args'
+    argfile.write_text('\n'.join(json.dumps(value.replace('\\', '/'), ensure_ascii=False)
+                                 for value in arguments) + '\n', encoding='utf-8')
+    command = [str(java), '@' + str(argfile)]
     print('INSPECTION ONLY: no compute. Log:', log, flush=True)
     with log.open('w', encoding='utf-8') as handle:
         process = subprocess.Popen(command, cwd=app, stdout=subprocess.PIPE,
