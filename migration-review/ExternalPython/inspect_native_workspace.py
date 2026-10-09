@@ -4,7 +4,9 @@ import json
 import os
 from pathlib import Path
 import subprocess
+import shutil
 import sys
+import uuid
 import zipfile
 
 
@@ -114,8 +116,48 @@ try:
         print('INPUT VARIANT: %s; RECORDS: %s' % (variant or 'base', ts.size()))
         for record in ts:
             print('INPUT: ' + str(record.getDSSPathname()))
-    print('INSPECTION COMPLETE: no compute invoked.')
-    status = 0
+    if len(sys.argv) > 2 and sys.argv[2] == 'compute':
+        from hec.clientapp.model import ComputeInfo
+        from java.io import File
+        scripts = File(alt.getSystem().makeAbsolutePathFromWatershed('scripts')).getCanonicalPath()
+        expected = File(root + '/scripts').getCanonicalPath()
+        if scripts != expected:
+            raise RuntimeError('Scripts resolve outside trial copy: ' + scripts)
+        print('SCRIPT ROOT: ' + scripts)
+        run = workspace.getRssRun('C0', False)
+        if run is None:
+            raise RuntimeError('Copied C0 run could not be loaded')
+        run.setComputeType(ComputeInfo.FORECAST_COMPUTE)
+        run.setVariantName('RTS')
+        run.setForecastDir(root)
+        run.setDSSOutputFile(sys.argv[3])
+        run.setRunId('C0')
+        run.setAltPath(alt.getIdentifier().getPath())
+        run.setAlternative(alt)
+        run.setProxyList(workspace.getManagerProxyList('main'))
+        run_wrapper = RemoteWrapper()
+        run_wrapper.setRemote(workspace)
+        run.setWorkspace(run_wrapper)
+        info = ComputeInfo()
+        info.computeType = ComputeInfo.FORECAST_COMPUTE
+        info.forecastpath = root
+        info.modelAltname = 'C0'
+        info.altname = ':Con_Season'
+        info.outputDSSFileName = sys.argv[3]
+        info.runTimeWindow = run.getRunTimeWindow()
+        info.user = user
+        info.doCompute = True
+        info.variant = 'RTS'
+        print('TRIAL COMPUTE: members 1981-1982; configured workers: ' + System.getProperty('ResSim.ComputeThreadCount'))
+        print('OUTPUT DSS: ' + sys.argv[3])
+        print('TIME WINDOW: ' + run.getTimeWindowString())
+        launcher.setComputeInformation(info, workspace, run, alt, None)
+        result = launcher.compute()
+        print('NATIVE COMPUTE RETURN CODE: ' + str(result))
+        status = 0 if result == 0 else 1
+    else:
+        print('INSPECTION COMPLETE: no compute invoked.')
+        status = 0
 except:
     traceback.print_exc()
 finally:
@@ -127,12 +169,25 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--installation', type=Path, required=True)
     parser.add_argument('--trial-root', type=Path, required=True)
+    parser.add_argument('--compute', action='store_true', help='Compute only the prepared two-member trial')
+    parser.add_argument('--watershed', type=Path, help='Source watershed whose scripts are copied into the trial')
     args = parser.parse_args()
     root = args.trial_root.resolve()
     if not root.parent.name.startswith('ressim-parallel-trial-'):
         parser.error('Only a prepared ressim-parallel-trial-* copy is accepted')
     if not (root / 'rss' / 'rss.conf').is_file():
         parser.error('Trial workspace configuration missing')
+    if args.compute:
+        if args.watershed is None or not (args.watershed / 'scripts').is_dir():
+            parser.error('--compute requires --watershed with an existing scripts folder')
+        if (root / 'rts-augmentation-active.json').exists():
+            parser.error('First native trial must have augmentation disabled')
+        alternative_text = (root / 'rss' / '_Con_Season.ralt').read_text(encoding='utf-8-sig')
+        if '\nEnsembleMembersString:1981-1982\n' not in alternative_text:
+            parser.error('Trial alternative must be restricted to members 1981-1982')
+        if not (root / 'scripts').exists():
+            shutil.copytree(args.watershed / 'scripts', root / 'scripts')
+        print('Using trial script snapshot:', root / 'scripts', flush=True)
     app = args.installation.resolve() / 'HEC-ResSim' / '4.1'
     java = app / 'java' / 'bin' / 'java.exe'
     if not java.is_file():
@@ -170,18 +225,22 @@ def main():
         parser.error('Jython standalone JAR missing from installed classpath')
     script = root.parent / 'inspect-workspace-jython.py'
     script.write_text(JYTHON, encoding='utf-8')
-    log = root.parent / 'native-workspace-inspection.log'
+    token = uuid.uuid4().hex[:8]
+    log = root.parent / ('native-compute-' + token + '.log' if args.compute else 'native-workspace-inspection.log')
     arguments = ['-Xmx3600m', '-DResSim.ComputeThreadCount=2',
                '-Djava.library.path=' + str(app / 'lib'), '-Dproperties.path=config',
+               '-Dpython.path=' + str(root / 'scripts'),
                '-cp', os.pathsep.join(str(p.resolve()) for p in jars),
                'org.python.util.jython', str(script), str(root)]
+    if args.compute:
+        arguments += ['compute', str(root / ('native-parallel-' + token + '.dss'))]
     # Windows CreateProcess limits the command line to 32,767 characters.
     # Java 9+ reads these options from a file without that command-line limit.
     argfile = root.parent / 'native-workspace-java.args'
     argfile.write_text('\n'.join(json.dumps(value.replace('\\', '/'), ensure_ascii=False)
                                  for value in arguments) + '\n', encoding='utf-8')
     command = [str(java), '@' + str(argfile)]
-    print('INSPECTION ONLY: no compute. Log:', log, flush=True)
+    print('TWO-MEMBER TRIAL COMPUTE.' if args.compute else 'INSPECTION ONLY: no compute.', 'Log:', log, flush=True)
     with log.open('w', encoding='utf-8') as handle:
         process = subprocess.Popen(command, cwd=app, stdout=subprocess.PIPE,
                                    stderr=subprocess.STDOUT, text=True, errors='replace')
