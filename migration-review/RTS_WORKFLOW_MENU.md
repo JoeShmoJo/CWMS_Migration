@@ -82,8 +82,8 @@ include prepared mainstem targets and per-member minimum-release overlays;
 different member requirements have a visible minimum/maximum range, with exact
 individual traces available in the legend; identical requirements are shown once. Baseline-only plots have no augmentation overlay.
 
-Plotting reads archived DSS files, never the live forecast, and does not require
-a selected configuration to be active. It creates a fresh `output_plots/saved-runs-*`
+Plotting uses verified caches of archived run data, never live forecast outputs,
+and does not require a selected configuration to be active. It creates a fresh `output_plots/saved-runs-*`
 folder with offline HTML, source CSVs, paired differences, requirement CSVs,
 selection metadata, and a read report. Earlier plots remain archived. Their labels reflect when they were generated;
 the chooser and newly generated plots use current baseline-version status. The index
@@ -154,3 +154,44 @@ java -Djava.awt.headless=true -jar /path/to/jython-standalone-2.7.3.jar tests/ch
 This compiles the menu and exercises actual Swing table checkboxes, identifier
 column protection, cell edits and portable configuration round-tripping without
 starting an RTS window or opening DSS files.
+
+
+## Archived data caches
+
+Accepting a completed run creates `run-data-cache-C0` beside its archived
+`forecast.dss`. Older archives build this cache on their first plot or
+augmentation preparation. A single catalog pass identifies actual computed
+series, combines calendar blocks, and caches reservoir elevations, storage,
+inflows/outflows, river flows, Combined Min Trib requirements and water-year
+inputs. Coverage and ensemble membership are stored with the arrays, so opening
+configuration does not reread every series just to infer the time window.
+
+`series.npz` contains compressed NumPy arrays, loaded without pickle. The JSON
+manifest retains original logical DSS pathnames, units, data types, coverage,
+timezone, source-file checksum and cache checksum. Timestamps and values are
+stored together in the array file. Missing values and gaps are
+preserved. Cache-backed augmentation uses the same unit, daily coverage,
+water-year and finite-value checks as DSS-backed calculation. Its computed
+release records are still written to `augmentation.dss` and loaded into the live
+forecast for manual RTS compute.
+
+Subsequent saved-run comparisons and configuration preparations reuse the
+cache. Source and cache byte checksums are still verified; this does read file
+bytes, but avoids repeated DSS catalogs and time-series retrieval. Cache build,
+validation and total plot times are printed in the console. The original DSS
+remains the complete archive, and accepting a newly computed baseline still
+compares its hydrologic series to identify baseline changes.
+
+Saved-run plots use `CON_SEASON_RULE_CURVES.csv` directly, expanded over the
+plotted dates. They do not search the ResSim output or CWMS DSS for rule curves
+with potentially different coverage. Big Cliff and Dexter receive no curve from
+this CSV. Each plot archive contains the actual CSV schedule, its checksum, and
+the expanded per-plot curve data. Prepared release/target CSVs are loaded once
+per scheme per plotting invocation, rather than once per plot.
+
+Caches are disposable derived files. Missing, incompatible or checksum-damaged
+caches rebuild automatically from their archived DSS. To retry a record read
+that failed during cache creation, close the menu and remove only that run's
+`run-data-cache-C0` folder; its next use rebuilds it. Deleting an augmented result
+also removes its cache. No standalone modules or configuration CSVs are changed
+by caching.

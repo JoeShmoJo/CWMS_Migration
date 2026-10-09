@@ -265,7 +265,8 @@ def main():
     output = scheme / 'augmentation.dss'
     stats = []
     try:
-        with HecDss.Open(str(source)) as dss, HecDss.Open(str(output), version=7) as out:
+        from run_data_cache import open_cached_run
+        with open_cached_run(source, args.run_code, base_manifest['sha256']) as dss, HecDss.Open(str(output), version=7) as out:
             for member in sorted(members):
                 fpart = 'C:{:06d}|{}'.format(member, args.run_code)
                 series = {}
@@ -314,6 +315,8 @@ def main():
                     'forecast_root': str(root), 'run_code': args.run_code,
                     'members': sorted(members), 'season_start': str(start), 'season_end': str(end),
                     'baseline_sha256': base_manifest['sha256'], 'baseline_id': baseline_id,
+                    'input_cache_schema': dss.metadata['schema'],
+                    'input_cache_arrays_sha256': dss.metadata['arrays_sha256'],
                     'supporting_reservoirs': selected,
                     'paths': paths_written, 'augmentation_sha256': sha256(output),
                     'configuration_sha256': {p.name: sha256(scheme / p.name) for p in config_paths},

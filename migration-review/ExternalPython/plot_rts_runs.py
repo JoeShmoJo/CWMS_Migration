@@ -6,6 +6,8 @@ import html
 import json
 from pathlib import Path
 import tempfile
+import shutil
+from time import perf_counter
 
 import pandas as pd
 
@@ -16,6 +18,8 @@ from plot_rts_forecast import (clean_series, output_groups, unit_key, make_figur
                                index_page, load_rule_curve, SYNTHETIC_LABELS)
 from prepare_rts_augmentation import read_config
 from workflow_simple import inspect_run
+from run_data_cache import open_cached_run
+from write_rule_curves import RESERVOIRS
 
 
 def validate_run(root, descriptor):
@@ -44,10 +48,14 @@ def validate_run(root, descriptor):
     return directory / 'forecast.dss', code, scheme
 
 
-def requirements(scheme, location, parameter, members):
+def requirements(scheme, location, parameter, members, prepared=None):
     if scheme is None:
         return []
-    aliases, *_ = read_config(scheme / 'MinFlowSalemAlbanyConfig.csv')
+    if prepared is None:
+        aliases, *_ = read_config(scheme / 'MinFlowSalemAlbanyConfig.csv')
+        tables = {member: pd.read_csv(scheme / ('member-{}.csv'.format(member)), index_col=0, parse_dates=True) for member in members}
+    else:
+        aliases, tables = prepared
     column = label = None
     reservoir = next((name for name in aliases if location.upper() == name.upper() + '-POOL'), None)
     if parameter.upper() == 'FLOW-OUT' and reservoir:
@@ -59,7 +67,7 @@ def requirements(scheme, location, parameter, members):
         return []
     data = {}
     for member in members:
-        table = pd.read_csv(scheme / ('member-{}.csv'.format(member)), index_col=0, parse_dates=True)
+        table = tables[member]
         if column in table:
             data[member] = table[column]
     return [(pd.DataFrame(data), label)] if data else []
@@ -83,6 +91,7 @@ def add_requirements(figure, frame, label):
 
 
 def plot_saved_runs(root, descriptors):
+    started = perf_counter()
     root = Path(root)
     if len(descriptors) not in (1, 2):
         raise ValueError('Choose one or two saved runs')
@@ -96,10 +105,18 @@ def plot_saved_runs(root, descriptors):
     destination = Path(tempfile.mkdtemp(prefix='saved-runs-', dir=str(output_root)))
     from plotly.offline import get_plotlyjs
     (destination / 'plotly.min.js').write_text(get_plotlyjs(), encoding='utf-8')
+    rule_csv = destination / 'CON_SEASON_RULE_CURVES.csv'
+    shutil.copy2(Path(__file__).with_name(rule_csv.name), rule_csv)
+    prepared = {}
+    for _, _, scheme in sources:
+        if scheme is not None and scheme not in prepared:
+            aliases, *_ = read_config(scheme / 'MinFlowSalemAlbanyConfig.csv')
+            manifest = json.loads((scheme / 'manifest.json').read_text())
+            prepared[scheme] = (aliases, {member: pd.read_csv(scheme / ('member-{}.csv'.format(member)), index_col=0, parse_dates=True)
+                                         for member in all_members if member in manifest['members']})
     audit, links = [], []
     with ExitStack() as stack:
-        from pydsstools.heclib.dss import HecDss
-        handles = [stack.enter_context(HecDss.Open(str(filename))) for filename, _, _ in sources]
+        handles = [stack.enter_context(open_cached_run(filename, code)) for filename, code, _ in sources]
         groups = [output_groups(handle.getPathnameList('/*/*/*/*/*/*/'), source[1], all_members)
                   for handle, source in zip(handles, sources)]
         keys = set().union(*(set(group) for group in groups))
@@ -127,12 +144,15 @@ def plot_saved_runs(root, descriptors):
             label = ' vs '.join(item['label'] for item in descriptors)
             title = '{} — {} — {}'.format(location, parameter, label)
             rule = None
-            if parameter.upper() in ('ELEV', 'ELEVATION') and location.upper().endswith('-POOL'):
+            if parameter.upper() in ('ELEV', 'ELEVATION') and location.upper().endswith('-POOL') and location[:-5].upper() in RESERVOIRS:
                 try:
                     valid = frames[0].index
+                    for frame in frames[1:]:
+                        valid = valid.union(frame.index)
                     if len(valid):
                         rule, _ = load_rule_curve(handles[0], location, next(iter(units)), valid.min(), valid.max(),
-                                        Path(__file__).with_name('CON_SEASON_RULE_CURVES.csv'))
+                                        rule_csv, prefer_csv=True)
+                        rule.to_csv(destination / ('plot-{:03d}-rule-curve.csv'.format(number)), index_label='forecast_local_datetime')
                 except Exception as exc:
                     audit.append([descriptors[0]['id'], location, parameter, '', 'rule curve', str(exc)])
             if len(frames) == 1:
@@ -161,7 +181,7 @@ def plot_saved_runs(root, descriptors):
             filename = 'plot-{:03d}.html'.format(number)
             for index, (frame, source) in enumerate(zip(frames, sources), 1):
                 frame.to_csv(destination / ('plot-{:03d}-run-{}.csv'.format(number, index)), index_label='forecast_local_datetime')
-                for requirement, requirement_label in requirements(source[2], location, parameter, sorted(frame.columns)):
+                for requirement, requirement_label in requirements(source[2], location, parameter, sorted(frame.columns), prepared.get(source[2])):
                     add_requirements(figure, requirement, 'Run {} {}'.format(index, requirement_label))
                     requirement.to_csv(destination / ('plot-{:03d}-run-{}-requirements.csv'.format(number, index)), index_label='forecast_local_datetime')
             figure.write_html(str(destination / filename), include_plotlyjs='plotly.min.js')
@@ -183,9 +203,10 @@ def plot_saved_runs(root, descriptors):
     page = index_page(links, root.parent.name, sources[0][1])
     page = page.replace('<body>', '<body><p>' + '<br>'.join(html.escape(note) for note in notes) + '</p>', 1)
     (destination / 'index.html').write_text(page, encoding='utf-8')
-    atomic = {'runs': descriptors, 'note': 'Completed computes were confirmed by the operator, not verified from RTS logs.'}
+    atomic = {'rule_curve_source': 'CSV', 'rule_curve_sha256': digest_file(rule_csv), 'runs': descriptors, 'note': 'Completed computes were confirmed by the operator, not verified from RTS logs.'}
     (destination / 'selection.json').write_text(json.dumps(atomic, indent=2), encoding='utf-8')
     event(root, 'saved-runs-plotted', runs=[item['id'] for item in descriptors], directory=str(destination))
+    print('Saved-run plots completed:', len(links), 'plots in {:.2f}s'.format(perf_counter() - started), flush=True)
     print('Open:', destination / 'index.html', flush=True)
     return destination
 

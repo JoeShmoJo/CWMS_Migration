@@ -187,6 +187,14 @@ class SimpleWorkflowTests(unittest.TestCase):
         with patch.dict(sys.modules, {'pydsstools.heclib.dss': self.fake_module}):
             single = plot_saved_runs(self.root, [runs[1]])
             pair = plot_saved_runs(self.root, runs)
+        # Both sources are cached now: a different comparison must work with
+        # all DSS opens forbidden and must never request an absent rule curve.
+        no_dss = SimpleNamespace(HecDss=SimpleNamespace(Open=lambda *args: self.fail('Plot reopened DSS')) )
+        with patch.dict(sys.modules, {'pydsstools.heclib.dss': no_dss}):
+            reused = plot_saved_runs(self.root, runs)
+        self.assertEqual(json.loads((reused / 'selection.json').read_text())['rule_curve_source'], 'CSV')
+        self.assertTrue((reused / 'CON_SEASON_RULE_CURVES.csv').is_file())
+        self.assertTrue(list(reused.glob('plot-*-rule-curve.csv')))
         self.assertIn('alpha', (single / 'index.html').read_text())
         self.assertTrue(any('Prepared augmentation minimum release' in page.read_text() for page in single.glob('plot-*.html')))
         for difference in pair.glob('plot-*-paired-difference.csv'):

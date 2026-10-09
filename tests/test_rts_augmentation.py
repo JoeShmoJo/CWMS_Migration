@@ -80,6 +80,14 @@ class PreparationTests(unittest.TestCase):
                     return self
                 def __exit__(self, *args):
                     return False
+                def getPathnameList(self, pattern):
+                    paths = ['//{}-POOL/{}//1DAY/C:001981|C0/'.format(name, parameter)
+                             for name in ('LOOKOUT POINT', 'HILLS CREEK')
+                             for parameter in ('STOR', 'FLOW-IN', 'FLOW-OUT')]
+                    paths += ['//{}-COMBINED MIN TRIB/FLOW-SPEC//1DAY/C:001981|C0/'.format(name)
+                              for name in ('LOOKOUT POINT', 'HILLS CREEK')]
+                    paths += ['//WILLAMETTE_AT {}/FLOW//1DAY/C:001981|C0/'.format(name) for name in ('SALEM', 'ALBANY')]
+                    return paths + ['//WATERYEARTYPEVARIABLE/STOR-MAF//1DAY/C:001981|C0/']
                 def read_ts(self, path, **kwargs):
                     parameter = path.split('/')[3]
                     value = {'STOR': 500000, 'FLOW-IN': 1000, 'FLOW-OUT': 500,
@@ -110,6 +118,16 @@ class PreparationTests(unittest.TestCase):
             self.assertIn('50', (root / 'augmentation-archives/test/MinFlowSalemAlbanyConfig.csv').read_text())
             self.assertTrue(all(path != live for path, _ in writes))
             self.assertFalse((root / 'rts-augmentation-active.json').exists())
+            # Preparing the same configuration again must reuse the baseline
+            # arrays and produce exactly the same calculation, without DSS reads.
+            second_args = [value if value != 'test' else 'cached' for value in args]
+            with patch.object(preparation, '__file__', str(scripts / 'prepare_rts_augmentation.py')), \
+                    patch.object(sys, 'argv', second_args), patch.dict(sys.modules, modules), \
+                    patch.object(FakeDss, 'read_ts', side_effect=AssertionError('Baseline DSS reopened')):
+                preparation.main()
+            first = pd.read_csv(root / 'augmentation-archives/test/member-1981.csv')
+            second = pd.read_csv(root / 'augmentation-archives/cached/member-1981.csv')
+            pd.testing.assert_frame_equal(first, second, check_exact=True)
 
     def test_load_functions_does_not_execute_standalone_top_level(self):
         with tempfile.TemporaryDirectory() as directory:

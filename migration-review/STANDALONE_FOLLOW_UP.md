@@ -107,3 +107,13 @@ for each pairing. Reset disables augmentation without restoring an old DSS,
 then completed unaugmented results are explicitly accepted after manual compute.
 Consider this configuration/result separation for standalone later while
 retaining its existing trial workflow and keeping operation-set changes separate.
+
+
+### Optional plotting performance improvement
+
+The RTS workflow now keeps disposable compressed-array caches beside immutable
+DSS result archives, preserving units, times, gaps and provenance. A similar
+cache could be added to standalone trial plotting later. This is an optional
+standalone follow-up; the current implementation changes only the RTS workflow.
+RTS saved-run plots use the supplied annual rule-curve CSV instead of probing
+DSS curves with different coverage, and snapshot that CSV with each plot set.

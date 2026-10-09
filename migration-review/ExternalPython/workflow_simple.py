@@ -68,8 +68,13 @@ def save_configuration(config, destination):
 
 def inspect_run(filename, run_code=None):
     """Infer members and coverage from actual finite reservoir/river outputs."""
-    from pydsstools.heclib.dss import HecDss
-    with HecDss.Open(str(filename)) as dss:
+    from run_data_cache import is_archived, open_cached_run
+    if is_archived(filename) and run_code is not None:
+        reader = open_cached_run(filename, run_code)
+    else:
+        from pydsstools.heclib.dss import HecDss
+        reader = HecDss.Open(str(filename))
+    with reader as dss:
         paths = dss.getPathnameList('/*/*/*/*/*/*/')
         codes = set()
         members = set()
@@ -85,13 +90,17 @@ def inspect_run(filename, run_code=None):
                 raise ValueError('Cannot identify one output run code. Finish the selected RTS compute first.')
             run_code = next(iter(codes))
         groups = output_groups(paths, run_code, members)
-        coverage = {}
-        for key, member_paths in groups.items():
-            for member, path in member_paths.items():
-                series = clean_series(dss.read_ts(path, trim_missing=True)).dropna()
-                if series.empty:
-                    continue
-                coverage.setdefault(member, []).append((series.index[0], series.index[-1]))
+        if hasattr(dss, 'metadata'):
+            coverage = {int(member): [(pd.Timestamp(first), pd.Timestamp(last)) for first, last in spans]
+                        for member, spans in dss.metadata['coverage'].items()}
+        else:
+            coverage = {}
+            for key, member_paths in groups.items():
+                for member, path in member_paths.items():
+                    series = clean_series(dss.read_ts(path, trim_missing=True)).dropna()
+                    if series.empty:
+                        continue
+                    coverage.setdefault(member, []).append((series.index[0], series.index[-1]))
         if not coverage:
             raise ValueError('No finite computed outputs. Run the model in RTS before continuing.')
     first = max(pair[0] for pairs in coverage.values() for pair in pairs)
@@ -155,6 +164,15 @@ def accept_completed(root, context):
             atomic_json(root / 'augmentation-archives/baseline-edit-session.json',
                         {'baseline_id': data['current'], 'context': context, 'run_code': details['run_code']})
         save_baseline(root, context, details['run_code'])
+    # Warm the immutable archive once; future configuration/plots reuse arrays.
+    from run_data_cache import open_cached_run
+    if marker.exists():
+        source, code = directory / 'forecast.dss', manifest['run_code']
+    else:
+        source = baseline_directory(root) / 'forecast.dss'
+        code = registry(root)['versions'][registry(root)['current']]['run_code']
+    with open_cached_run(source, code):
+        pass
     pending = root / 'augmentation-archives/workflow-pending.json'
     if pending.exists():
         pending.unlink()

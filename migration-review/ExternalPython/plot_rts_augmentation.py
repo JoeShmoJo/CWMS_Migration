@@ -138,7 +138,7 @@ def main():
     destination = Path(tempfile.mkdtemp(prefix='plots-', dir=str(results)))
     from plotly.offline import get_plotlyjs
     (destination / 'plotly.min.js').write_text(get_plotlyjs(), encoding='utf-8')
-    from pydsstools.heclib.dss import HecDss
+    from run_data_cache import open_cached_run
     rows, links = [], []
     requirements = {}
     # Scheme CSVs hold exact release and mainstem target values by member.
@@ -146,7 +146,7 @@ def main():
     for member in sorted(historical | synthetic):
         requirements[member] = pd.read_csv(scheme / ('member-{}.csv'.format(member)), index_col=0, parse_dates=True)
     baseline_file = baseline_directory(root, manifest) / 'forecast.dss'
-    with HecDss.Open(str(baseline_file)) as baseline_dss, HecDss.Open(str(results / 'forecast.dss')) as augmented_dss:
+    with open_cached_run(baseline_file, manifest['run_code']) as baseline_dss, open_cached_run(results / 'forecast.dss', manifest['run_code']) as augmented_dss:
         bg = output_groups(baseline_dss.getPathnameList('/*/*/*/*/*/*/'), manifest['run_code'], historical | synthetic)
         ag = output_groups(augmented_dss.getPathnameList('/*/*/*/*/*/*/'), manifest['run_code'], historical | synthetic)
         for index, key in enumerate(sorted(set(bg) | set(ag))):
@@ -195,7 +195,7 @@ def main():
                 try:
                     valid_index = frames[0].index.union(frames[1].index)
                     rule, _ = load_rule_curve(baseline_dss, location, units, valid_index.min(), valid_index.max(),
-                                             Path(__file__).with_name('CON_SEASON_RULE_CURVES.csv'))
+                                             Path(__file__).with_name('CON_SEASON_RULE_CURVES.csv'), prefer_csv=True)
                 except Exception as exc:
                     rows.append([location, parameter, '', 'rule curve', 'missing/error', 0, str(exc)])
             filename = 'comparison-{:03d}.html'.format(index)
