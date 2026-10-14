@@ -20,7 +20,8 @@ class PatchTests(unittest.TestCase):
             output = pathlib.Path(tmp)/'patched.jar'
             patcher.build_patched_jar(APP, output, HERE/'isolated-compiler-helper.jar')
             with zipfile.ZipFile(APP) as before, zipfile.ZipFile(output) as after:
-                self.assertEqual(set(after.namelist())-set(before.namelist()), {patcher.HELPER+'.class'})
+                with zipfile.ZipFile(HERE/'isolated-compiler-helper.jar') as helper:
+                    self.assertEqual(set(after.namelist())-set(before.namelist()), set(helper.namelist()))
                 changed = [n for n in before.namelist() if before.read(n) != after.read(n)]
                 self.assertEqual(changed, [patcher.TARGET])
                 # Repatching must fail rather than alter a second allocation.
@@ -40,11 +41,15 @@ class PatchTests(unittest.TestCase):
             (source/'jar').mkdir(parents=True)
             (source/'jar/ResSimApp-4.1.0.jar').write_bytes(APP.read_bytes())
             (source/'untouched.txt').write_text('source sentinel')
+            (source/'HEC-ResSim.config').write_text('mainclass hec.rss.client.RSS\nvmparam -mx4000M\nvmparam -DResSim.ComputeThreadCount=32\n')
             dest = pathlib.Path(tmp)/'test-copy'
-            command = [sys.executable, str(HERE/'prepare_compiler_test.py'), '--installation',str(source),'--destination',str(dest)]
+            command = [sys.executable, str(HERE/'prepare_compiler_test.py'), '--installation',str(source),'--destination',str(dest),'--threads','8']
             first = subprocess.run(command,capture_output=True,text=True)
             self.assertEqual(first.returncode,0,first.stderr)
             self.assertTrue((dest/'compiler-isolation-test.json').exists())
+            self.assertIn('ComputeThreadCount=8',(dest/'HEC-ResSim.config').read_text())
+            self.assertNotIn('ComputeThreadCount=32',(dest/'HEC-ResSim.config').read_text())
+            self.assertIn('ComputeThreadCount=32',(source/'HEC-ResSim.config').read_text())
             self.assertEqual((source/'jar/ResSimApp-4.1.0.jar').read_bytes(),APP.read_bytes())
             self.assertEqual((dest/'untouched.txt').read_text(),'source sentinel')
             patched = (dest/'jar/ResSimApp-4.1.0.jar').read_bytes()

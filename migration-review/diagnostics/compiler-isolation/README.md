@@ -1,94 +1,104 @@
-# Experimental standalone 4.1.0 compiler isolation
+# Experimental standalone 4.1.0 compiler isolation — V2
 
-This is an unsupported diagnostic patch for a separate installation copy. It is
-not a validated ResSim fix and must not be used for operational results.
+Unsupported diagnostic patch for a separate installation copy. Not a validated
+ResSim fix or an authorization to use its results operationally.
 
-## Why
+## Change
 
-The inspected 4.1.0 compiler helper hec.rss.model.z.a(String, String) constructs a
-default PythonInterpreter, compiles code, and closes the interpreter on both
-success and exception paths. A default interpreter can share PySystemState with
-live rule interpreters. Closing it can close their files or run threading exit
-handlers while ensemble workers remain alive. Windows traces show both patterns.
+ResSim's hec.rss.model.z.a(String, String) constructs a default interpreter,
+compiles, and closes it. Default interpreters can share state with live model
+scripts. Windows traces and local reproductions show premature file cleanup and
+threading exit-handler waits. The patch changes only that compiler allocation.
 
-The patch substitutes only that compiler allocation with
-cwms.diagnostics.IsolatedCompilerInterpreter. This subclass constructs a private
-PySystemState and restores the caller state in finally after close. Model rule
-interpreters and compilation calls remain otherwise unchanged. The class prints
-EXPERIMENTAL COMPILER ISOLATION ACTIVE and its source JAR location when loaded.
+V1 created and cleaned up a separate runtime on every compilation. It completed
+15 Windows workers but suffered substantial initialization cost with more
+workers. V2 retains one private PySystemState per Java worker thread and creates
+a fresh lightweight interpreter wrapper for each compilation. Fresh globals and
+compiler flags prevent future-import settings leaking between scripts. close()
+restores the caller state without cleaning up the cached compiler environment.
+Nested use restores the enclosing state correctly. Model code still executes in
+its original interpreter, never in this compiler cache.
 
-## Scope and guards
+Cached module state remains until worker/JVM lifetime ends; it is bounded by the
+number of worker threads, not members or rule invocations. It deliberately avoids
+per-compilation cleanup. This is for the inspected native compile-only call path,
+not arbitrary Python execution or a general interpreter replacement. Additional
+shared module state and model script concurrency hazards may still exist.
 
-prepare_compiler_test.py takes --installation and --destination. It copies the
-entire installation into a new, nonexisting directory outside the source tree,
-then modifies only the copied jar/ResSimApp-4.1.0.jar. It retains an original JAR
-backup in the copy and writes compiler-isolation-test.json after preparation.
-It does not launch Java, compute, or modify model files or the original install.
-Do not launch an incomplete destination if preparation raises an error.
+Active console marker:
 
-The application JAR is pinned to SHA-256:
+    EXPERIMENTAL COMPILER ISOLATION V2 ACTIVE (cached per worker): <JAR location>
+
+## Preparation
+
+Use Python 3.9+ to run prepare_compiler_test.py with --installation ORIGINAL,
+--destination NEW_DIRECTORY and optionally --threads 8. Source must be the
+untouched standalone 4.1.0 installation, not V1 or an RTS installation. Destination
+must be new and outside the source tree. Space for a full installation is needed.
+
+The installer copies the entire installation and modifies only the copied
+application JAR and, if requested, copied launcher thread limit. The original
+application and launcher remain unchanged. With --threads it locates exactly
+one root .config whose mainclass is hec.rss.client.RSS, removes existing worker
+property lines in that file and appends the requested property after includes.
+It retains the copied original JAR as .jar.original and writes
+compiler-isolation-test.json with version 2 and the requested thread limit.
+No compute starts and no model file changes. Discard incomplete destinations if
+preparation raises an error; do not launch them.
+
+Application JAR SHA-256 is pinned to:
 6b18183e72d236940bf780655c816eca4ccc6939766b4e676446431db8359c3d
-Other versions and signed JARs are rejected. The class patch adds three constant
-pool entries and changes only NEW and its constructor call in the exact compiler
-method. Code size, branches, exception ranges, and stack maps stay unchanged.
-Only hec/rss/model/z.class changes; one new helper class is added. No other
-application JAR entries change. The bundled helper was compiled against Jython
-2.7.2 with Java 8 class format and tested on Java 21.
+Other versions and signed JARs are rejected. The bytecode edit changes only NEW
+and its constructor owner in the exact compiler method. Code length, branches,
+exception ranges and stack maps stay unchanged. Only hec/rss/model/z.class
+changes; the helper and its ThreadLocal implementation class are added. All
+other application entries are byte-for-byte unchanged.
 
-## Windows test
+## Windows comparison
 
-1. Close all standalone ResSim and RTS/ResSim processes.
-2. Run prepare_compiler_test.py using Python 3.9+; supply the original standalone
-   installation and a new destination outside it. This requires space for a full
-   installation copy. It does not alter RTS.
-3. Launch the ResSim executable from the copied directory directly, not from a
-   shortcut or CWMS. Open only a disposable test watershed/simulation.
-4. Confirm the active marker in the ResSim console names the copied application
-   JAR. If it does not, stop: the intended compiler patch has not been exercised.
-5. Keep current diagnostic scripts, members, inputs and time window fixed. Test
-   the same 2000-2003 members sequentially, then restart the copied application
-   and test those members in parallel. Preserve complete logs for both.
-6. Require all member completions and fresh full-window outputs, including CSV
-   cleanup. Existing DSS record presence or a few completion messages do not
-   establish overall success. Compare pool elevations/outflows to sequential
-   outputs before restoring additional rule families or expanding member count.
+1. Close standalone ResSim and RTS/ResSim. Prepare a new V2 copy from the original
+   installation; keep V1 for comparison. Launch V2 directly from its new folder.
+2. Open only the diagnostic model. Preserve the same script edits, removed rules,
+   input data, window and members. Do not restore operating rules in this test.
+3. Confirm the V2 active console marker names the new JAR and the compute launcher
+   uses eight workers. Stop if the intended patch is not active.
+4. First test 2000-2003, requiring every member completion and no errors. Then
+   test the same 1982-2024 one-month window at eight workers. V1 user-reported
+   reference is 526 seconds. Compare total elapsed time, not CPU utilization.
+5. Preserve complete logs and verify fresh full-window outputs. Old DSS record
+   presence and a few completion messages do not establish full success.
 
-Do not restore removed rule families in this first experiment: that changes
-multiple variables. A successful diagnostic compute still has invalid operating
-results when operating rules/diversions are absent. Validation with all intended
-scripts and identical serial/parallel outputs is a separate necessary step.
+A successful reduced model still lacks intended operating rules. Restoration of
+all rules and comparison of identical serial/parallel outputs are separate
+required validations before using results. To roll back, close V2 and launch V1
+or the untouched original executable. Never copy patched files into normal
+ResSim or RTS.
 
-Rollback: close the test application and use the untouched original executable.
-Do not copy the patched JAR into the original installation or RTS. Keep test model
-changes and outputs separate from normal work.
+## Verified locally, 2026-10-14
 
-## Local verification, 2026-10-14
+- Installer tests pass: unknown binary refused, existing destination refused,
+  source application/config unchanged, correct copied thread limit, exact JAR
+  entry scope (including nested helper class).
+- Java 21 / Jython 2.7.2: 50 concurrent cycles with distinct model states and
+  another 50 with shared caller state passed. Checks cover private per-worker
+  cache identity, nested compilation, executable compiled code, live config
+  files, syntax errors/recovery, fresh future flags, and caller restoration.
+- V2 adapter benchmark: 120 simple compilations over four workers in 0.998 sec.
+  V1 reference was 12.369 sec. Neither predicts native full-run speedup.
+- Native Windows ResSim startup, V2 compute, shutdown memory behavior and output
+  equivalence remain unverified. Original Windows evidence and local cleanup
+  reproductions are in ../jython-cleanup.
 
-- Three Python tests passed: unknown binary rejected, existing destination
-  rejected, source unchanged, and exact JAR entry scope preserved.
-- javap comparison shows only the compiler NEW and constructor owner change.
-- CompilerIsolationCheck passed 50 concurrent cycles on Java 21 / Jython 2.7.2:
-  live files remained readable, compiled PyCode executed in the caller, syntax
-  exceptions propagated, and caller state was restored. The final bundled
-  helper including its active marker was tested.
-- Minimal cleanup reproductions are in ../jython-cleanup.
-- Actual native ResSim compute cannot be executed in the Linux cloud environment.
-  Windows application startup, native compute and model output equivalence remain
-  unverified. Shared module globals, forced reloads and other concurrency hazards
-  may require additional fixes even if compiler teardown is addressed.
+## Rebuild/check
 
-## Rebuild and checks
+Compile IsolatedCompilerInterpreter.java against a local Jython 2.7.2 JAR using
+Java 8 bytecode target (-source 8 -target 8). Bundle both
+cwms/diagnostics/IsolatedCompilerInterpreter.class and its $1.class in
+isolated-compiler-helper.jar. No Java compiler is needed on Windows to install.
 
-From the repository root, with an existing Jython 2.7.2 standalone JAR:
-
-    javac -source 8 -target 8 -cp JYTHON_JAR -d BUILD_DIR migration-review/diagnostics/compiler-isolation/IsolatedCompilerInterpreter.java
-
-Package only cwms/diagnostics/IsolatedCompilerInterpreter.class into
-isolated-compiler-helper.jar. To compile the Java check, include that helper JAR
-and JYTHON_JAR; run CompilerIsolationCheck with both and the check class directory
-on the classpath. On Windows classpath entries use semicolons.
+Compile CompilerIsolationCheck.java with Jython and the helper on the classpath;
+run it once with no argument, then with shared. Compile/run CompilerCostCheck
+with the same dependencies for timing. Its bundled-adapter mode tests the
+currently bundled helper, and reuse-prototype is a separate exploratory variant.
 
     python migration-review/diagnostics/compiler-isolation/test_prepare_compiler_test.py
-
-No Java compiler is required on the Windows test machine to run the installer;
-it uses the bundled helper class. Do not bundle unrelated dependencies.

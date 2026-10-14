@@ -2,6 +2,7 @@
 import argparse
 import hashlib
 import json
+import re
 from pathlib import Path
 import shutil
 import struct
@@ -104,12 +105,17 @@ def build_patched_jar(source, destination, helper):
             raise ValueError('Signed JAR; refusing to invalidate signature')
         name = HELPER+'.class'
         if name in z.namelist(): raise ValueError('Helper already present')
-        helper_bytes = h.read(name)
+        helper_names = h.namelist()
+        if name not in helper_names or not all(n == name or (n.startswith(HELPER+'$') and n.endswith('.class')) for n in helper_names):
+            raise ValueError('Unexpected helper bundle contents')
+        if any(n in z.namelist() for n in helper_names): raise ValueError('Helper already present')
+        helper_bytes = {n: h.read(n) for n in helper_names}
         changed = patch_class(z.read(TARGET))
         with zipfile.ZipFile(destination, 'w') as out:
             for entry in z.infolist():
                 out.writestr(entry, changed if entry.filename == TARGET else z.read(entry.filename))
-            out.writestr(name, helper_bytes)
+            for helper_name, contents in helper_bytes.items():
+                out.writestr(helper_name, contents)
     return sha(original), sha(destination.read_bytes())
 
 
@@ -117,6 +123,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--installation', required=True, type=Path)
     parser.add_argument('--destination', required=True, type=Path)
+    parser.add_argument('--threads', type=int, help='Set the copied standalone launcher worker limit')
     args = parser.parse_args()
     source = args.installation.resolve()
     dest = args.destination.resolve()
@@ -125,6 +132,17 @@ def main():
         raise ValueError('Destination must be a new directory outside the source installation')
     if sha(app.read_bytes()) != EXPECTED_APP_SHA256:
         raise ValueError('Source JAR differs from inspected standalone 4.1.0; nothing copied')
+    launcher = None
+    launcher_text = None
+    if args.threads is not None:
+        if not 1 <= args.threads <= 32: raise ValueError('Threads must be between 1 and 32')
+        candidates = []
+        for config in source.glob('*.config'):
+            content = config.read_bytes().decode('latin-1')
+            if re.search(r'^\s*mainclass\s+hec\.rss\.client\.RSS\s*$', content, re.M):
+                candidates.append((config, content))
+        if len(candidates) != 1: raise ValueError('Cannot uniquely identify standalone launcher .config; nothing copied')
+        launcher, launcher_text = candidates[0]
     helper = Path(__file__).with_name('isolated-compiler-helper.jar')
     if not helper.is_file(): raise ValueError('Helper JAR missing')
     shutil.copytree(source, dest)
@@ -134,13 +152,20 @@ def main():
     temporary = target.with_suffix('.jar.pending')
     hashes = build_patched_jar(backup, temporary, helper)
     temporary.replace(target)
-    marker = {'experimental': True, 'source': str(source), 'destination': str(dest),
+    if launcher is not None:
+        copied_config = dest/launcher.relative_to(source)
+        setting = 'vmparam -DResSim.ComputeThreadCount='+str(args.threads)
+        content = re.sub(r'^\s*vmparam\s+-DResSim\.ComputeThreadCount=[^\r\n]*', '', launcher_text, flags=re.M)
+        content = content.rstrip()+'\r\n\r\n# Experimental V2 worker limit\r\n'+setting+'\r\n'
+        copied_config.write_bytes(content.encode('latin-1'))
+    marker = {'experimental': True, 'compiler_isolation_version': 2, 'source': str(source), 'destination': str(dest),
               'original_sha256': hashes[0], 'patched_sha256': hashes[1],
-              'change': 'Temporary script compiler only: private Jython state; restore caller on close',
-              'compute_started': False, 'model_files_changed': False}
+              'change': 'Temporary script compiler only: per-worker private cached Jython state; fresh compiler flags and caller restoration',
+              'threads': args.threads, 'compute_started': False, 'model_files_changed': False}
     (dest/'compiler-isolation-test.json').write_text(json.dumps(marker, indent=2))
     if sha(app.read_bytes()) != EXPECTED_APP_SHA256: raise RuntimeError('Source integrity check failed')
-    print('PREPARED ONLY:', dest)
+    print('PREPARED ONLY (compiler isolation V2):', dest)
+    if args.threads is not None: print('Copied launcher thread limit:', args.threads)
     print('Original installation unchanged. No compute started or model files changed.')
     print('Use the copied ResSim executable directly, with a separate test watershed.')
     print('If preparation fails, discard the incomplete destination; do not launch it.')
