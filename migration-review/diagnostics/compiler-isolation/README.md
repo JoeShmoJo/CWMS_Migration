@@ -3,6 +3,13 @@
 Unsupported diagnostic patch for a separate installation copy. Not a validated
 ResSim fix or an authorization to use its results operationally.
 
+Update 2026-10-15: the standalone V2 test completed with all intended rules,
+and the user reported exact agreement for 602/602 reservoir outflow/Salem series
+against serial. The separately requested RTS 4.1.2 trial now has a reversible
+JAR-only installer: see [RTS_TEST.md](RTS_TEST.md). Do not copy the standalone
+application JAR into RTS. The current vendor-facing evidence and limitations are
+in [HEC_COMPILER_ISOLATION_REPORT.md](HEC_COMPILER_ISOLATION_REPORT.md).
+
 ## Change
 
 ResSim's hec.rss.model.z.a(String, String) constructs a default interpreter,
@@ -59,7 +66,7 @@ other application entries are byte-for-byte unchanged.
 1. Close standalone ResSim and RTS/ResSim. Prepare a new V2 copy from the original
    installation; keep V1 for comparison. Launch V2 directly from its new folder.
 2. Open only the diagnostic model. Preserve the same script edits, removed rules,
-   input data, window and members. Do not restore operating rules in this test.
+   input data, window and members for a controlled comparison.
 3. Confirm the V2 active console marker names the new JAR and the compute launcher
    uses eight workers. Stop if the intended patch is not active.
 4. First test 2000-2003, requiring every member completion and no errors. Then
@@ -68,11 +75,11 @@ other application entries are byte-for-byte unchanged.
 5. Preserve complete logs and verify fresh full-window outputs. Old DSS record
    presence and a few completion messages do not establish full success.
 
-A successful reduced model still lacks intended operating rules. Restoration of
-all rules and comparison of identical serial/parallel outputs are separate
-required validations before using results. To roll back, close V2 and launch V1
-or the untouched original executable. Never copy patched files into normal
-ResSim or RTS.
+A successful reduced model still lacks intended operating rules. Restoring
+all rules and comparing identical serial/parallel outputs are separate
+validations (subsequently completed for the standalone scope noted above).
+To roll back standalone, close V2 and launch the untouched original executable.
+Use only the version-specific installer and restore procedure for the RTS trial.
 
 ## Verified locally, 2026-10-14
 
@@ -85,9 +92,10 @@ ResSim or RTS.
   files, syntax errors/recovery, fresh future flags, and caller restoration.
 - V2 adapter benchmark: 120 simple compilations over four workers in 0.998 sec.
   V1 reference was 12.369 sec. Neither predicts native full-run speedup.
-- Native Windows ResSim startup, V2 compute, shutdown memory behavior and output
-  equivalence remain unverified. Original Windows evidence and local cleanup
-  reproductions are in ../jython-cleanup.
+- Subsequent native Windows standalone V2 compute: user-reported 131-133 seconds
+  at eight workers versus 286 seconds serial; exact 602/602 flow-series match.
+  Native RTS validation and long-session/shutdown memory behavior remain pending.
+  Original Windows evidence and local cleanup reproductions are in ../jython-cleanup.
 
 ## Rebuild/check
 

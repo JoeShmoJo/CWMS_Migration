@@ -34,4 +34,6 @@ creates a new wrapper and compiler flags per script. The same benchmark using th
 bundled V2 adapter completed 120 compilations in 0.998 seconds. Later benchmark
 output labels this mode bundled-adapter rather than fresh. This remains a local
 microbenchmark. User-reported V1 reference for 1982-2024 one-month simulation at
-eight threads is 526 seconds; V2 native timing is not yet available.
+eight threads is 526 seconds. Subsequently the user reported 131-133 seconds for
+V2 and 286 seconds for original serial, with all intended operating rules present.
+See HEC_COMPILER_ISOLATION_REPORT.md for the native comparison scope and limitations.

@@ -9,6 +9,7 @@ import struct
 import zipfile
 
 EXPECTED_APP_SHA256 = '6b18183e72d236940bf780655c816eca4ccc6939766b4e676446431db8359c3d'
+RTS_APP_SHA256 = '5f2841092448f6afa547a7f3f0a83c0f5d06c3c6523dee579f41218be459ed28'
 HELPER = 'cwms/diagnostics/IsolatedCompilerInterpreter'
 TARGET = 'hec/rss/model/z.class'
 
@@ -96,10 +97,12 @@ def patch_class(data):
     return data[:8]+struct.pack('>H',count+3)+data[10:cp_end]+extra+body
 
 
-def build_patched_jar(source, destination, helper):
+def build_patched_jar(source, destination, helper, expected_app_sha256=EXPECTED_APP_SHA256):
     original = source.read_bytes()
-    if sha(original) != EXPECTED_APP_SHA256:
-        raise ValueError('Unsupported application JAR; SHA-256 differs from inspected 4.1.0')
+    if expected_app_sha256 not in (EXPECTED_APP_SHA256, RTS_APP_SHA256):
+        raise ValueError('Unsupported application version')
+    if sha(original) != expected_app_sha256:
+        raise ValueError('Unsupported application JAR; SHA-256 differs from inspected version')
     with zipfile.ZipFile(source) as z, zipfile.ZipFile(helper) as h:
         if any(n.upper().startswith('META-INF/') and n.upper().endswith(('.SF','.RSA','.DSA','.EC')) for n in z.namelist()):
             raise ValueError('Signed JAR; refusing to invalidate signature')
