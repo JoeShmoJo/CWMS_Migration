@@ -1,5 +1,10 @@
 # RTS 3.6.0 / ResSim 4.1.2 test
 
+Completed validation: the patched RTS-launched ResSim 4.1.2 computed members
+2000-2005 on six threads in 34 seconds. All 84 compared reservoir outflow/Salem
+series matched serial exactly. The instructions below remain available for
+additional tests and restoration.
+
 This is an experimental compiler-only patch. Reuse the existing RTS test forecast;
 no new watershed or installation copy is needed. The original JAR is automatically
 archived and verified before replacement. No forecast file, scripted rule, JRE,
@@ -66,5 +71,5 @@ tried after validation.
 
 For HEC, share `HEC_COMPILER_ISOLATION_REPORT.md`, the helper Java source, and the
 minimal reproduction sources in `../jython-cleanup/`. No patched vendor JAR needs
-to be sent. The report distinguishes completed standalone checks from pending
-native RTS validation.
+to be sent. The report records completed standalone and native RTS validation,
+with the tested scope and remaining long-session limitations.

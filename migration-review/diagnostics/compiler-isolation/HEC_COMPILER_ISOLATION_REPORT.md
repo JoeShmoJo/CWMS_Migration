@@ -2,6 +2,9 @@
 
 Prepared for HEC, 2026-10-15. This is an unsupported experimental workaround.
 
+Tested successfully in standalone ResSim 4.1.0 and RTS 3.6.0's ResSim 4.1.2;
+parallel/serial flow comparisons matched exactly in both tests (scope below).
+
 ## Observed behavior
 
 In our testing, native multithreaded ensemble compute worked without the scripted

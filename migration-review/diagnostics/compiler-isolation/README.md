@@ -94,7 +94,9 @@ Use only the version-specific installer and restore procedure for the RTS trial.
   V1 reference was 12.369 sec. Neither predicts native full-run speedup.
 - Subsequent native Windows standalone V2 compute: user-reported 131-133 seconds
   at eight workers versus 286 seconds serial; exact 602/602 flow-series match.
-  Native RTS validation and long-session/shutdown memory behavior remain pending.
+  Native RTS 3.6.0 / ResSim 4.1.2 validation also completed: six members
+  (2000-2005), six threads, 34 seconds, and all 84 compared flow series matched
+  serial exactly. Long-session/shutdown memory behavior remains unverified.
   Original Windows evidence and local cleanup reproductions are in ../jython-cleanup.
 
 ## Rebuild/check
