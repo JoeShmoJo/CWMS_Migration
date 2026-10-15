@@ -6,6 +6,7 @@ import argparse
 from datetime import datetime, timezone
 import json
 import os
+import re
 from pathlib import Path
 import shutil
 import subprocess
@@ -19,14 +20,34 @@ BACKUPS_RELATIVE = Path('HEC-ResSim/4.1/compiler-isolation-backups')
 HELPER_SHA256 = '1e6821997caa8a64b53f389ae3db0d6b715e3e4fec03573e6d09c43409605b8d'
 
 
+def blocks_replacement(process):
+    """Exclude confirmed HMS main classes, not arbitrary matching folder names."""
+    name = process.get('Name', '').lower()
+    if name in ('hec-rts.exe', 'hec-ressim.exe', 'cwms.exe'):
+        return True
+    if name not in ('java.exe', 'javaw.exe'):
+        return False
+    command = process.get('CommandLine')
+    if not command:
+        # Inaccessible metadata cannot establish that a Java process is unrelated.
+        return True
+    if re.search(r'(?:^|\s)hms\.Hms(?:\s|$)', command, re.I):
+        return False
+    return bool(re.search(r'ressim|hec\.rss|hec2?\.rts|cwms|HEC-RTS', command, re.I))
+
+
 def ensure_closed():
     """Read process metadata only; never stop an application automatically."""
     if os.name != 'nt':
         return
-    command = r'''$ErrorActionPreference = 'Stop'; @(Get-CimInstance Win32_Process | Where-Object { $_.Name -match '^(javaw?|HEC-RTS|HEC-ResSim|CWMS)\.exe$' -and ($_.Name -notmatch '^javaw?\.exe$' -or $_.CommandLine -match '(?i)ressim|hec\.rss|hec2?\.rts|cwms|HEC-RTS') } | Select-Object ProcessId,Name) | ConvertTo-Json -Compress'''
+    command = r'''$ErrorActionPreference = 'Stop'; @(Get-CimInstance Win32_Process | Where-Object { $_.Name -match '^(javaw?|HEC-RTS|HEC-ResSim|CWMS)\.exe$' } | Select-Object ProcessId,Name,CommandLine) | ConvertTo-Json -Compress'''
     result = subprocess.run(['powershell.exe', '-NoProfile', '-NonInteractive', '-Command', command],
                             capture_output=True, text=True, check=True, timeout=30)
-    active = json.loads(result.stdout.strip() or '[]')
+    processes = json.loads(result.stdout.strip() or '[]')
+    if isinstance(processes, dict):
+        processes = [processes]
+    active = [{'ProcessId': p.get('ProcessId'), 'Name': p.get('Name')}
+              for p in processes if blocks_replacement(p)]
     if active:
         raise RuntimeError('Close RTS/CWMS and ResSim first. Matching processes: '+json.dumps(active))
 

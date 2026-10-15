@@ -41,6 +41,8 @@ Set-Location "C:\Projects\A_REPOSITORIES\CWMS_Migration"; $install = "C:\Mobile_
 If a Java process is reported, close its owning application normally and retry.
 The tool never kills processes. If version validation fails, keep the original
 installation and provide the error; do not substitute a standalone application JAR.
+Confirmed `hms.Hms` command servers are excluded from this check; their location
+inside the RTS package does not mean they are running ResSim.
 
 ## Worker count for the first trial
 

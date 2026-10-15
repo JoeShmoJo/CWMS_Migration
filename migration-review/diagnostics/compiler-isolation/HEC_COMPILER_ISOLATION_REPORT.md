@@ -162,10 +162,12 @@ EXPERIMENTAL COMPILER ISOLATION V2 ACTIVE (cached per worker): <actual JAR URL>
 - Disassembly of original and patched 4.1.2 showed only the two changed compiler
   instructions described above. JAR entry comparison found only `z.class`
   modified and the two helper classes added.
-- Three standalone installer tests and four RTS installer/restore tests passed.
+- Three standalone installer tests and six RTS installer/restore tests passed.
   Tests cover untouched sources, archive integrity, repeated restore, unknown
   binaries, process-check refusal, failed atomic replacement, unchanged sentinel
   model/config files, and refusal of tampered backups or unknown current JARs.
+  Process detection excludes confirmed `hms.Hms` command servers even when their
+  installation paths contain HEC-RTS, while retaining RTS/ResSim detection.
 
 ### User-reported native Windows standalone results
 

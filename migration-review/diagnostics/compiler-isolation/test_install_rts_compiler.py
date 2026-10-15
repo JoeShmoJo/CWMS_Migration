@@ -15,6 +15,30 @@ APP = HERE.parents[2]/'Jars/ResSimApp-4.1.2.jar'
 
 
 class RtsInstallTests(unittest.TestCase):
+    def test_process_check_distinguishes_hms_from_rts_and_ressim(self):
+        root = r'C:\Mobile_Programs\rts-install-package-3.6.0\HEC-RTS-3.6.0'
+        hms = {'Name': 'javaw.exe', 'CommandLine': root +
+               r'\HEC-HMS\jre\bin\javaw -classpath "' + root +
+               r'\HEC-HMS\lib/*" hms.Hms "CommandServer" "port=3902"'}
+        self.assertFalse(installer.blocks_replacement(hms))
+        for main in ('hec.rss.client.RSS', 'hec.rss.server.RssRmiApp', 'hec2.rts.client.Main'):
+            self.assertTrue(installer.blocks_replacement({'Name': 'java.exe',
+                'CommandLine': root + r'\shared\java64\bin\java -classpath "hms.Hms" ' + main}))
+        self.assertFalse(installer.blocks_replacement({'Name': 'java.exe', 'CommandLine': 'java example.OtherApp'}))
+        self.assertTrue(installer.blocks_replacement({'Name': 'javaw.exe', 'CommandLine': None}))
+        self.assertTrue(installer.blocks_replacement({'Name': 'HEC-RTS.exe', 'CommandLine': None}))
+
+    def test_process_query_handles_single_process_and_filters_hms(self):
+        hms = {'ProcessId': 7868, 'Name': 'javaw.exe',
+               'CommandLine': r'C:\HEC-RTS\HEC-HMS\javaw hms.Hms CommandServer'}
+        response = type('Response', (), {'stdout': json.dumps(hms)})()
+        with patch.object(installer.os, 'name', 'nt'), patch.object(installer.subprocess, 'run', return_value=response):
+            installer.ensure_closed()
+            response.stdout = json.dumps([hms, {'ProcessId': 123, 'Name': 'java.exe',
+                'CommandLine': 'java hec.rss.client.RSS'}])
+            with self.assertRaisesRegex(RuntimeError, '123'):
+                installer.ensure_closed()
+
     def make_install(self, root):
         target = root/installer.APP_RELATIVE
         target.parent.mkdir(parents=True)
