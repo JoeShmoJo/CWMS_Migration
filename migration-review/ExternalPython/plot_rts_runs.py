@@ -1,4 +1,5 @@
 """Plot one saved RTS run or compare two; never reads live forecast outputs."""
+from run_archive import archive_digest
 import argparse
 from contextlib import ExitStack
 import csv
@@ -43,7 +44,7 @@ def validate_run(root, descriptor):
         raise ValueError('Unknown saved run type')
     if directory.resolve() != Path(descriptor['directory']).resolve():
         raise ValueError('Saved run selection directory mismatch')
-    if digest_file(directory / 'forecast.dss') != digest:
+    if archive_digest(directory / 'forecast.dss') != digest:
         raise ValueError('Saved run checksum mismatch')
     return directory / 'forecast.dss', code, scheme
 

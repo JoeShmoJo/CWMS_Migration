@@ -3,6 +3,7 @@
 Capturing records does not certify that RTS reported a successful compute.
 Historical comparisons use paired members; synthetic traces stay separate.
 """
+from run_archive import archive_digest
 import argparse
 import csv
 from datetime import datetime, timezone
@@ -28,15 +29,29 @@ def capture(root, scheme, manifest):
         raise ValueError('Current active scheme differs from selected comparison scheme')
     live = root / 'forecast.dss'
     directory = Path(tempfile.mkdtemp(prefix='results-', dir=str(scheme)))
-    target = directory / 'forecast.dss'
-    shutil.copy2(live, target)
-    digest = sha256(target)
-    if digest != sha256(live):
-        (directory / 'FAILED.txt').write_text('Live DSS changed during snapshot. Do not use this capture.')
-        raise ValueError('Live DSS changed during capture; finish compute and close forecast/DSSVue')
+    from run_archive import capture_run, archive_digest, metadata
+    try:
+        digest = capture_run(live, directory, manifest['run_code'])
+        content = metadata(directory / 'forecast.dss')['content_sha256']
+        for prior in scheme.glob('results-*/capture.json'):
+            if prior.parent == directory or (prior.parent / 'FAILED.txt').exists():
+                continue
+            saved = json.loads(prior.read_text())
+            if (saved.get('content_sha256') == content and saved['scheme'] == manifest['scheme']
+                    and saved['baseline_sha256'] == manifest['baseline_sha256']):
+                if archive_digest(prior.parent / 'forecast.dss') != saved['sha256']:
+                    raise ValueError('Previously archived result checksum mismatch')
+                shutil.rmtree(directory)
+                event(root, 'completed-result-reused', directory=str(prior.parent), archive_format='compact-arrays-v1')
+                print('Results unchanged; reusing compact archive:', prior.parent, flush=True)
+                return prior.parent
+    except Exception as exc:
+        (directory / 'FAILED.txt').write_text(str(exc))
+        raise
     (directory / 'capture.json').write_text(json.dumps({
         'status': 'captured-compute-status-unverified', 'scheme': manifest['scheme'],
         'captured_utc': datetime.now(timezone.utc).isoformat(), 'sha256': digest,
+        'content_sha256': content, 'archive_format': 'compact-arrays-v1',
         'baseline_sha256': manifest['baseline_sha256'],
         'baseline_id': baseline_identity(root, manifest),
         'note': 'Check RTS compute status/logs. Existing records can survive an unsuccessful recompute.'}, indent=2))
@@ -128,7 +143,7 @@ def main():
         if results.parent != scheme:
             raise ValueError('Selected result belongs to a different scheme')
         captured = json.loads((results / 'capture.json').read_text())
-        if sha256(results / 'forecast.dss') != captured['sha256']:
+        if archive_digest(results / 'forecast.dss') != captured['sha256']:
             raise ValueError('Archived result checksum mismatch')
     else:
         results = capture(root, scheme, manifest)

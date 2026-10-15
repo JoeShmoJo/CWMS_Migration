@@ -109,7 +109,9 @@ class PreparationTests(unittest.TestCase):
                     patch.object(sys, 'argv', args), patch.dict(sys.modules, modules):
                 preparation.main()
             self.assertEqual(live.read_bytes(), b'original baseline')
-            self.assertEqual((root / 'augmentation-archives/baseline/forecast.dss').read_bytes(), live.read_bytes())
+            self.assertFalse((root / 'augmentation-archives/baseline/forecast.dss').exists())
+            self.assertTrue((root / 'augmentation-archives/baseline/series.npz').is_file())
+            self.assertTrue((root / 'augmentation-archives/baseline/run-archive.json').is_file())
             manifest = json.loads((root / 'augmentation-archives/test/manifest.json').read_text())
             self.assertEqual(manifest['status'], 'prepared-not-computed')
             self.assertEqual(len(manifest['paths']), 3)

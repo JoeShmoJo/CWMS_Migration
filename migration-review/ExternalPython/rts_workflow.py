@@ -1,4 +1,5 @@
 """CLI backend for the RTS Swing workflow menu. Never launches model compute."""
+from run_archive import archive_digest
 import argparse
 from contextlib import contextmanager
 import json
@@ -12,7 +13,7 @@ import uuid
 from extraction_context import Context
 from prepare_rts_augmentation import sha256
 from baseline_versions import (baseline_directory, registry, load_baseline, save_baseline,
-                               write_archive_index, delete_result, result_directory, event)
+                               write_archive_index, delete_result, result_directory, event, promote_live_candidate)
 
 
 def same_forecast(left, right):
@@ -50,21 +51,19 @@ def promote_extract(context, folder):
         raise ValueError('This forecast already has an archived baseline. Use a new forecast for new extracted inputs.')
     token = uuid.uuid4().hex
     candidate = root / ('forecast.extract-pending-' + token + '.dss')
-    if live.exists():
-        backup = root / ('forecast.before-menu-extract-' + token + '.dss')
-        shutil.copy2(live, backup)
-        if sha256(live) != sha256(backup):
-            raise ValueError('Live DSS changed during backup; finish compute and close DSS views')
-        print('Backup:', backup, flush=True)
+    original = sha256(live) if live.exists() else None
+    backup = root / ('forecast.before-menu-extract-' + token + '.dss')
     shutil.copy2(source, candidate)
     if sha256(candidate) != complete['dss_sha256']:
         raise ValueError('Candidate extraction copy checksum mismatch')
-    if live.exists() and sha256(live) != sha256(backup):
+    if original is not None and sha256(live) != original:
         raise ValueError('Live DSS changed during staging; nothing replaced')
     marker = root / 'rts-augmentation-active.json'
     if marker.exists():
         marker.rename(root / ('rts-augmentation-disabled-' + token + '.json'))
-    os.replace(candidate, live)
+    promote_live_candidate(live, candidate, backup, original)
+    if original is not None:
+        print("Backup:", backup, flush=True)
     print('Loaded extract in baseline mode:', live, flush=True)
     print('Next: compute the baseline using the normal RTS Compute action.', flush=True)
 
@@ -128,7 +127,7 @@ def execute(args, context):
         manifest = json.loads((baseline / 'manifest.json').read_text())
         if manifest['run_code'] != settings['run_code'].strip() or Path(manifest['forecast_root']).resolve() != root.resolve():
             raise ValueError('Existing baseline belongs to a different forecast/run code')
-        if sha256(baseline / 'forecast.dss') != manifest['sha256']:
+        if archive_digest(baseline / 'forecast.dss') != manifest['sha256']:
             raise ValueError('Existing baseline checksum mismatch')
         destination = archive / 'baseline-context.json'
         if destination.exists():

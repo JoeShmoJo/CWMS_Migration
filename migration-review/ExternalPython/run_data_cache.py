@@ -1,7 +1,8 @@
-"""Disposable, verified arrays for immutable archived RTS DSS runs.
+"""Read primary compact run archives or disposable caches of legacy DSS snapshots.
 
-DSS remains the source archive. Cache only logical computed series used by
-plots and augmentation; never search for absent rule curves or fill data gaps.
+Only logical computed series used by plots and augmentation are included; never
+search for absent rule curves or fill data gaps. Compact archives cannot rebuild
+from an archived DSS; corrupt primary data must fail rather than use live data.
 """
 from datetime import datetime, timezone
 import json
@@ -84,6 +85,9 @@ def open_cached_run(filename, run_code, expected_sha256=None):
         raise ValueError('Invalid archived run code')
     if not is_archived(filename):
         raise ValueError('Data caches are restricted to archived runs')
+    from run_archive import is_compact, open_archive
+    if is_compact(filename):
+        return open_archive(filename, run_code, expected_sha256)
     started = perf_counter()
     source_hash = digest_file(filename)
     if expected_sha256 and source_hash != expected_sha256:

@@ -3,6 +3,7 @@
 No live DSS records or rule switches are changed. Calculation functions are
 loaded from the maintained legacy script without executing its top-level run.
 """
+from run_archive import archive_digest
 import argparse
 import ast
 import csv
@@ -235,18 +236,17 @@ def main():
         archives.mkdir(exist_ok=True)
         temporary = archives / ('baseline-pending-' + uuid.uuid4().hex)
         temporary.mkdir()
-        shutil.copy2(live, temporary / 'forecast.dss')
-        if sha256(live) != sha256(temporary / 'forecast.dss'):
-            raise ValueError('Baseline changed during copy; close RTS/DSSVue before retrying')
+        from run_archive import capture_run
+        snapshot_hash = capture_run(live, temporary, args.run_code)
         for path in config_paths:
             shutil.copy2(path, temporary / path.name)
-        (temporary / 'manifest.json').write_text(json.dumps({'sha256': sha256(live),
+        (temporary / 'manifest.json').write_text(json.dumps({'sha256': snapshot_hash,
             'forecast_root': str(root), 'run_code': args.run_code}, indent=2))
         temporary.rename(baseline)
     baseline_id = baseline_identity(root)
     base_manifest = json.loads((baseline / 'manifest.json').read_text())
     source = baseline / 'forecast.dss'
-    if base_manifest['run_code'] != args.run_code or sha256(source) != base_manifest['sha256']:
+    if base_manifest['run_code'] != args.run_code or archive_digest(source) != base_manifest['sha256']:
         raise ValueError('Baseline run code or checksum mismatch')
     scheme.mkdir()
     for path in config_paths:

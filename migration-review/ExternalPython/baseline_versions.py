@@ -47,7 +47,8 @@ def registry(root):
     if not legacy.exists():
         return {'current': None, 'versions': {}}
     manifest = json.loads((legacy / 'manifest.json').read_text())
-    if digest_file(legacy / 'forecast.dss') != manifest['sha256']:
+    from run_archive import archive_digest
+    if archive_digest(legacy / 'forecast.dss') != manifest['sha256']:
         raise ValueError('Existing baseline checksum mismatch')
     context_path = archive / 'baseline-context.json'
     version = {'directory': 'baseline', 'sha256': manifest['sha256'],
@@ -142,7 +143,9 @@ def semantic_fingerprint(filename, run_code):
     from plot_rts_forecast import unit_key
     keys = {}
     output_f = re.compile(r'^C:\d+\|' + re.escape(run_code) + '$', re.I)
-    with HecDss.Open(str(filename)) as dss:
+    from run_archive import is_compact, open_archive
+    reader = open_archive(filename, run_code) if is_compact(filename) else HecDss.Open(str(filename))
+    with reader as dss:
         for path in dss.getPathnameList('/*/*/*/*/*/*/'):
             # Preserve blank pathname parts, including the usually blank A part.
             parts = str(path).split('/')[1:-1]
@@ -159,7 +162,8 @@ def semantic_fingerprint(filename, run_code):
         records = {}
         has_elevation = has_outflow = False
         coverage = {}
-        print('Comparing reservoir pool elevation/outflow series:', len(keys), str(filename), flush=True)
+        print('Comparing reservoir pool elevation/outflow series:', len(keys),
+              ('compact arrays: ' + str(Path(filename).parent)) if is_compact(filename) else str(filename), flush=True)
         for number, (key, (logical, paths)) in enumerate(sorted(keys.items()), 1):
             if number % 100 == 0:
                 print('Compared series:', number, '/', len(keys), flush=True)
@@ -198,24 +202,37 @@ def disable(root, token):
         marker.rename(Path(root) / ('rts-augmentation-disabled-' + token + '.json'))
 
 
+def promote_live_candidate(live, candidate, backup, expected):
+    """Keep rollback via rename, avoiding an extra full-DSS backup copy."""
+    live, candidate, backup = Path(live), Path(candidate), Path(backup)
+    if expected is not None:
+        if digest_file(live) != expected:
+            raise ValueError('Live forecast changed during staging')
+        if backup.exists():
+            raise FileExistsError(backup)
+        os.replace(live, backup)
+    elif live.exists():
+        raise ValueError('Live forecast appeared during staging')
+    try:
+        os.replace(candidate, live)
+    except BaseException:
+        if expected is not None:
+            os.replace(backup, live)
+        raise
+
+
 def replace_live(root, source, reason):
     root = Path(root)
     live = root / 'forecast.dss'
     token = uuid.uuid4().hex
     backup = root / ('forecast.before-' + reason + '-' + token + '.dss')
     original = digest_file(live) if live.exists() else None
-    if original is not None:
-        shutil.copy2(live, backup)
-        if digest_file(backup) != original or digest_file(live) != original:
-            raise ValueError('Live forecast changed during backup')
     candidate = root / ('forecast.' + reason + '-pending-' + token + '.dss')
     shutil.copy2(source, candidate)
     if digest_file(candidate) != digest_file(source):
         raise ValueError('Baseline copy verification failed')
-    if original is not None and digest_file(live) != original:
-        raise ValueError('Live forecast changed during staging')
     disable(root, token)
-    os.replace(candidate, live)
+    promote_live_candidate(live, candidate, backup, original)
     return str(backup) if original is not None else None
 
 
@@ -232,9 +249,15 @@ def load_baseline(root, context, run_code):
     if saved_context is not None and any(saved_context.get(key) != context.get(key) for key in scope):
         raise ValueError('Forecast window differs from the saved baseline. Use a new forecast for different dates or extracted inputs.')
     source = baseline_directory(root) / 'forecast.dss'
-    if digest_file(source) != version['sha256']:
+    from run_archive import archive_digest, is_compact
+    if archive_digest(source) != version['sha256']:
         raise ValueError('Baseline checksum mismatch')
-    backup = replace_live(root, source, 'baseline')
+    if is_compact(source):
+        disable(root, uuid.uuid4().hex)
+        backup = None
+        print('Baseline mode: live DSS inputs retained; augmentation disabled. Recompute unaugmented.', flush=True)
+    else:
+        backup = replace_live(root, source, 'baseline')
     atomic_json(Path(root) / 'augmentation-archives/baseline-edit-session.json',
                 {'baseline_id': identity, 'context': context, 'run_code': run_code})
     event(root, 'baseline-loaded', baseline_id=identity, backup=backup)
@@ -242,7 +265,7 @@ def load_baseline(root, context, run_code):
     print('Make model changes and compute in RTS; then Save as baseline.', flush=True)
 
 
-def save_baseline(root, context, run_code, fingerprint=semantic_fingerprint):
+def save_baseline(root, context, run_code, fingerprint=semantic_fingerprint, snapshot=None):
     root = Path(root)
     archive = root / 'augmentation-archives'
     if (root / 'rts-augmentation-active.json').exists():
@@ -263,16 +286,17 @@ def save_baseline(root, context, run_code, fingerprint=semantic_fingerprint):
     pending.mkdir()
     live = root / 'forecast.dss'
     try:
-        shutil.copy2(live, pending / 'forecast.dss')
-        snapshot_hash = digest_file(pending / 'forecast.dss')
-        if snapshot_hash != digest_file(live):
+        from run_archive import archive_digest, capture_run, signature
+        before = signature(live)
+        snapshot_hash = (snapshot or capture_run)(live, pending, run_code)
+        if signature(live) != before:
             raise ValueError('Live forecast changed during capture')
         candidate_fp = fingerprint(pending / 'forecast.dss', run_code)
         changed_records = []
         if current:
             old = data['versions'][current]
             source = baseline_directory(root)
-            if digest_file(source / 'forecast.dss') != old['sha256']:
+            if archive_digest(source / 'forecast.dss') != old['sha256']:
                 raise ValueError('Saved baseline checksum mismatch')
             old_fp = old.get('fingerprint')
             if old_fp is None or old_fp.get('scope') != candidate_fp.get('scope'):
@@ -282,7 +306,7 @@ def save_baseline(root, context, run_code, fingerprint=semantic_fingerprint):
             missing = set(old_fp['records']) - set(candidate_fp['records'])
             if missing:
                 raise ValueError('Baseline capture lost {} previously archived series; inspect compute before saving'.format(len(missing)))
-            if snapshot_hash != digest_file(live):
+            if signature(live) != before:
                 raise ValueError('Live forecast changed during comparison; finish compute first')
             if old_fp['sha256'] == candidate_fp['sha256']:
                 atomic_json(archive / 'baseline-versions.json', data)
@@ -294,7 +318,7 @@ def save_baseline(root, context, run_code, fingerprint=semantic_fingerprint):
                                if old_fp['records'].get(key) != candidate_fp['records'].get(key)]
             # Preserve legacy ancillary files for existing CLI consumers.
             for path in source.iterdir():
-                if path.is_file() and path.name not in ('forecast.dss', 'manifest.json'):
+                if path.is_file() and path.name not in ('forecast.dss', 'manifest.json', 'run-archive.json', 'series.npz'):
                     shutil.copy2(path, pending / path.name)
         identity = 'baseline-{:04d}'.format(len(data['versions']) + 1)
         destination = archive / ('baseline' if current is None else identity)
@@ -305,7 +329,7 @@ def save_baseline(root, context, run_code, fingerprint=semantic_fingerprint):
                    'created_utc': datetime.now(timezone.utc).isoformat()}
         atomic_json(pending / 'manifest.json', {'sha256': snapshot_hash, 'forecast_root': str(root),
                     'run_code': run_code, 'baseline_id': identity})
-        if snapshot_hash != digest_file(live):
+        if signature(live) != before:
             raise ValueError('Live forecast changed during comparison; finish compute first')
         pending.rename(destination)
         data['versions'][identity] = version

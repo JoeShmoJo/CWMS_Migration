@@ -3,6 +3,7 @@
 Close RTS forecast/DSSVue views before loading. Live DSS is backed up and a
 complete candidate copy is prepared before replacement. No compute is started.
 """
+from run_archive import archive_digest
 import argparse
 import json
 import os
@@ -11,7 +12,7 @@ import shutil
 import uuid
 
 from prepare_rts_augmentation import sha256
-from baseline_versions import baseline_directory, baseline_identity, registry, event
+from baseline_versions import baseline_directory, baseline_identity, registry, event, promote_live_candidate
 
 
 def validate_manifest(root, scheme, manifest):
@@ -22,7 +23,7 @@ def validate_manifest(root, scheme, manifest):
     if sha256(scheme / 'augmentation.dss') != manifest['augmentation_sha256']:
         raise ValueError('Scheme DSS checksum mismatch')
     baseline = baseline_directory(root, manifest) / 'forecast.dss'
-    if sha256(baseline) != manifest['baseline_sha256']:
+    if archive_digest(baseline) != manifest['baseline_sha256']:
         raise ValueError('Baseline checksum mismatch')
     for name, digest in manifest['configuration_sha256'].items():
         if sha256(scheme / name) != digest:
@@ -56,10 +57,10 @@ def main():
     token = uuid.uuid4().hex
     backup = root / ('forecast.before-augmentation-' + token + '.dss')
     candidate = root / ('forecast.augmentation-pending-' + token + '.dss')
-    shutil.copy2(live, backup)
-    if sha256(live) != sha256(backup):
-        raise ValueError('Live DSS changed during backup; close the forecast and DSSVue')
-    shutil.copy2(backup, candidate)
+    original = sha256(live)
+    shutil.copy2(live, candidate)
+    if sha256(candidate) != original or sha256(live) != original:
+        raise ValueError('Live DSS changed during staging; finish compute and close DSS views')
     from pydsstools.heclib.dss import HecDss
     from pydsstools.core import TimeSeriesContainer
     import numpy as np
@@ -77,7 +78,7 @@ def main():
             target.put_ts(container)
     # Replace only after all DSS handles have closed. If Windows holds a lock,
     # replacement fails, preserving live DSS and leaving the backup/candidate.
-    if sha256(live) != sha256(backup):
+    if sha256(live) != original:
         raise ValueError('Live DSS changed during staging; nothing replaced')
     active = dict(manifest)
     active['scheme_directory'] = str(scheme)
@@ -87,7 +88,7 @@ def main():
     # remains baseline-only rather than silently using the previous scheme.
     if marker.exists():
         marker.rename(root / ('rts-augmentation-disabled-' + token + '.json'))
-    os.replace(candidate, live)
+    promote_live_candidate(live, candidate, backup, original)
     os.replace(marker_candidate, marker)
     session = root / 'augmentation-archives/baseline-edit-session.json'
     if session.exists():

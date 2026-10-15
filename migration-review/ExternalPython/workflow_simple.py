@@ -66,7 +66,7 @@ def save_configuration(config, destination):
     print('Saved reusable configuration:', destination, flush=True)
 
 
-def inspect_run(filename, run_code=None):
+def inspect_run(filename, run_code=None, catalog_only=False):
     """Infer members and coverage from computed pool elevation/outflow only.
 
     Do not build the broader plotting cache just to inspect a baseline.
@@ -74,7 +74,12 @@ def inspect_run(filename, run_code=None):
     from pydsstools.heclib.dss import HecDss
     from run_data_cache import is_archived, open_cached_run
     cache = Path(filename).parent / ('run-data-cache-' + run_code.upper()) if run_code else None
-    reader = open_cached_run(filename,run_code) if cache and cache.is_dir() and is_archived(filename) else HecDss.Open(str(filename))
+    from run_archive import is_compact
+    compact = is_compact(filename)
+    if compact and run_code is None:
+        from run_archive import metadata
+        run_code = metadata(filename)['run_code']
+    reader = open_cached_run(filename,run_code) if compact or (cache and cache.is_dir() and is_archived(filename)) else HecDss.Open(str(filename))
     with reader as dss:
         paths = [str(path) for path in dss.getPathnameList('/*/*/*/*/*/*/')
                  if len(str(path).split('/')) == 8
@@ -94,6 +99,12 @@ def inspect_run(filename, run_code=None):
                 raise ValueError('Cannot identify one output run code. Finish the selected RTS compute first.')
             run_code = next(iter(codes))
         groups = output_groups(paths, run_code, members)
+        if catalog_only:
+            selected = {member for group in groups.values() for member in group}
+            if not any(member < 3000 for member in selected):
+                raise ValueError('No historical-member outputs were found')
+            return {'run_code': run_code, 'members': sorted(m for m in selected if m < 3000),
+                    'synthetic_members': sorted(m for m in selected if m >= 3000)}
         coverage = {}
         for key, member_paths in groups.items():
             for member, path in member_paths.items():
@@ -141,17 +152,6 @@ def accept_completed(root, context):
         validate_manifest(root, scheme, manifest)
         if active['augmentation_sha256'] != manifest['augmentation_sha256'] or active['baseline_sha256'] != manifest['baseline_sha256']:
             raise ValueError('Active scheme provenance differs from its archived configuration')
-        live_hash = digest_file(root / 'forecast.dss')
-        for path in scheme.glob('results-*/capture.json'):
-            saved = json.loads(path.read_text())
-            if not (path.parent / 'FAILED.txt').exists() and saved['sha256'] == live_hash:
-                if saved['scheme'] != manifest['scheme'] or saved['baseline_sha256'] != manifest['baseline_sha256']:
-                    raise ValueError('Archived result provenance mismatch')
-                if digest_file(path.parent / 'forecast.dss') != live_hash:
-                    raise ValueError('Previously archived result checksum mismatch')
-                event(root, 'completed-result-reused', directory=str(path.parent))
-                print('Results already archived:', path.parent, flush=True)
-                return
         directory = capture(root, scheme, manifest)
         metadata = json.loads((directory / 'capture.json').read_text())
         metadata['compute_status'] = 'user-confirmed-success-not-verified'
@@ -160,7 +160,7 @@ def accept_completed(root, context):
     else:
         data = registry(root)
         code = data['versions'][data['current']]['run_code'] if data['current'] else None
-        details = inspect_run(root / 'forecast.dss', code)
+        details = inspect_run(root / 'forecast.dss', code, catalog_only=True)
         from baseline_configuration import check_initialization
         baseline_configuration_pointer = check_initialization(root, details)
         if data['current']:
@@ -175,7 +175,7 @@ def accept_completed(root, context):
         directory.mkdir(parents=True)
         archive_configuration(root, directory, baseline_configuration_pointer)
         atomic_json(directory / 'acceptance.json', {'baseline_id': registry(root)['current'],
-                    'forecast_dss_sha256': digest_file(root / 'forecast.dss'),
+                    'archive_sha256': registry(root)['versions'][registry(root)['current']]['sha256'],
                     'compute_status': 'user-confirmed-success-not-verified'})
         event(root, 'baseline-configuration-compute-accepted', directory=str(directory),
               configuration_id=baseline_configuration_pointer['id'], baseline_id=registry(root)['current'])

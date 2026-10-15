@@ -1,5 +1,6 @@
 import hashlib
 import json
+import shutil
 from pathlib import Path
 import sys
 import tempfile
@@ -22,6 +23,11 @@ def fake_fingerprint(path, code):
     return {'sha256': hashlib.sha256(json.dumps(records).encode()).hexdigest(), 'records': records}
 
 
+def legacy_snapshot(source, destination, code):
+    shutil.copy2(source, destination / 'forecast.dss')
+    return versions.digest_file(destination / 'forecast.dss')
+
+
 class BaselineTests(unittest.TestCase):
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
@@ -32,7 +38,7 @@ class BaselineTests(unittest.TestCase):
         self.context = {'forecast_name': 'test', 'run_name': 'ConSeason', 'end': ['01Oct2027', '2400']}
 
     def save(self):
-        return versions.save_baseline(self.root, self.context, 'C0', fake_fingerprint)
+        return versions.save_baseline(self.root, self.context, 'C0', fake_fingerprint, snapshot=legacy_snapshot)
 
     def archive(self):
         archive = self.root / 'augmentation-archives'
@@ -120,7 +126,7 @@ class BaselineTests(unittest.TestCase):
         def missing(path, code):
             return {'sha256': 'changed', 'records': {}}
         with self.assertRaisesRegex(ValueError, 'lost 2'):
-            versions.save_baseline(self.root, self.context, 'C0', missing)
+            versions.save_baseline(self.root, self.context, 'C0', missing, snapshot=legacy_snapshot)
         self.assertEqual(versions.registry(self.root)['current'], 'baseline-0001')
         self.assertFalse(list((self.root / 'augmentation-archives').glob('baseline-pending-*')))
 

@@ -1,4 +1,5 @@
 import json
+import shutil
 from pathlib import Path
 import subprocess
 import sys
@@ -27,6 +28,11 @@ def configuration(name='portable'):
 def fake_fingerprint(path, code):
     value = path.read_bytes().decode()
     return {'sha256': value, 'records': {'elevation': value, 'outflow': value}}
+
+
+def legacy_snapshot(source, destination, code):
+    shutil.copy2(source, destination / 'forecast.dss')
+    return versions.digest_file(destination / 'forecast.dss')
 
 
 class SimpleWorkflowTests(unittest.TestCase):
@@ -67,7 +73,7 @@ class SimpleWorkflowTests(unittest.TestCase):
         self.fake_module = SimpleNamespace(HecDss=SimpleNamespace(Open=FakeDSS))
 
     def baseline(self):
-        versions.save_baseline(self.root, self.context, 'C0', fake_fingerprint)
+        versions.save_baseline(self.root, self.context, 'C0', fake_fingerprint, snapshot=legacy_snapshot)
 
     def augmented(self, value=150, name='alpha'):
         archive = self.root / 'augmentation-archives'

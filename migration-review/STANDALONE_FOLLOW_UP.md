@@ -117,3 +117,12 @@ cache could be added to standalone trial plotting later. This is an optional
 standalone follow-up; the current implementation changes only the RTS workflow.
 RTS saved-run plots use the supplied annual rule-curve CSV instead of probing
 DSS curves with different coverage, and snapshot that CSV with each plot set.
+
+## Compact run archiving (RTS implementation)
+
+RTS completed-run capture now stores selected full time series in compressed NPZ
+plus a versioned manifest rather than copying the full DSS. See RTS_DATA_IO.md.
+Consider the same archive reader for standalone plotting/augmentation later.
+Keep peaks-only PostProcess_CSV behavior for large ensemble studies. Direct
+per-member in-memory time-series export, if needed, is a separate optimization;
+this RTS change does not alter the cleanup script or reduce native DSS output.
