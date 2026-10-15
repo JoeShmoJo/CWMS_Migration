@@ -1,0 +1,179 @@
+Java 21 / Jython 2.7.2; 2026-10-15
+
+FILE/PARSER CASES
+
+PASS configparser loaded shared: parsed value remains usable
+
+PASS configparser loaded isolated: parsed value remains usable
+
+Read failed: Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/tmp/ressim-cleanup-repro/jython-standalone-2.7.2.jar/Lib/ConfigParser$py.class", line 305, in read
+  File "/tmp/ressim-cleanup-repro/jython-standalone-2.7.2.jar/Lib/ConfigParser$py.class", line 479, in _read
+  File "<string>", line 18, in readline
+ValueError: I/O operation on closed file
+PASS configparser interrupted shared: shared cleanup interrupted open-file reading
+
+PASS configparser interrupted isolated: parsed value remains usable
+
+PASS csv loaded shared: parsed value remains usable
+
+PASS csv loaded isolated: parsed value remains usable
+
+Read failed: Traceback (most recent call last):
+  File "<string>", line 5, in <module>
+  File "<string>", line 19, in close
+java.lang.NullPointerException: Cannot invoke "org.python.core.PySystemState.unregisterCloser(java.util.concurrent.Callable)" because "this.sys" is null
+	at org.python.core.PyFile$Closer.close(PyFile.java:716)
+	at org.python.core.PyFile.file_close(PyFile.java:554)
+	at org.python.core.PyFile$file_close_exposer.__call__(Unknown Source)
+	at org.python.core.PyObject.__call__(PyObject.java:450)
+	at org.python.pycode._pyx0.close$7(<string>:19)
+	at org.python.pycode._pyx0.call_function(<string>)
+	at org.python.core.PyTableCode.call(PyTableCode.java:173)
+	at org.python.core.PyBaseCode.call(PyBaseCode.java:134)
+	at org.python.core.PyFunction.__call__(PyFunction.java:416)
+	at org.python.core.PyMethod.__call__(PyMethod.java:126)
+	at org.python.pycode._pyx2.f$0(<string>:6)
+	at org.python.pycode._pyx2.call_function(<string>)
+	at org.python.core.PyTableCode.call(PyTableCode.java:173)
+	at org.python.core.PyCode.call(PyCode.java:18)
+	at org.python.core.Py.runCode(Py.java:1687)
+	at org.python.core.Py.exec(Py.java:1731)
+	at org.python.util.PythonInterpreter.exec(PythonInterpreter.java:268)
+	at ConfigParserCleanupProbe.main(ConfigParserCleanupProbe.java:72)
+java.lang.NullPointerException: java.lang.NullPointerException: Cannot invoke "org.python.core.PySystemState.unregisterCloser(java.util.concurrent.Callable)" because "this.sys" is null
+PASS csv interrupted shared: shared cleanup interrupted open-file reading
+
+PASS csv interrupted isolated: parsed value remains usable
+
+THREADING ANALOGUE CASES
+Shared exit 2 is expected reproduced stall; isolated exit 0 is completion.
+
+configparser shared expected exit 2
+Parser read completed before threading test: configparser
+STALLED: temporary compiler close waits for idle pool worker
+pool-1-thread-2
+  java.base/java.lang.Object.wait0(Native Method)
+  java.base/java.lang.Object.wait(Object.java:366)
+  java.base/java.lang.Thread.join(Thread.java:2079)
+  java.base/java.lang.Thread.join(Thread.java:2155)
+  java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+  java.base/java.lang.reflect.Method.invoke(Method.java:580)
+  org.python.core.PyReflectedFunction.__call__(PyReflectedFunction.java:190)
+  org.python.core.PyReflectedFunction.__call__(PyReflectedFunction.java:208)
+  org.python.core.PyObject.__call__(PyObject.java:461)
+  org.python.core.PyObject.__call__(PyObject.java:465)
+  org.python.core.PyMethod.__call__(PyMethod.java:126)
+  threading$py.join$22(threading.py:137)
+  threading$py.call_function(threading.py)
+  org.python.core.PyTableCode.call(PyTableCode.java:173)
+  org.python.core.PyBaseCode.call(PyBaseCode.java:306)
+  org.python.core.PyBaseCode.call(PyBaseCode.java:126)
+  org.python.core.PyFunction.__call__(PyFunction.java:416)
+  org.python.core.PyMethod.__call__(PyMethod.java:126)
+  threading$py._MainThread__exitfunc$43(threading.py:291)
+  threading$py.call_function(threading.py)
+  org.python.core.PyTableCode.call(PyTableCode.java:173)
+  org.python.core.PyBaseCode.call(PyBaseCode.java:306)
+  org.python.core.PyBaseCode.call(PyBaseCode.java:197)
+  org.python.core.PyFunction.__call__(PyFunction.java:485)
+  org.python.core.PyMethod.instancemethod___call__(PyMethod.java:237)
+  org.python.core.PyMethod.__call__(PyMethod.java:228)
+  org.python.core.PyMethod.__call__(PyMethod.java:223)
+  org.python.core.PyObject._callextra(PyObject.java:589)
+  atexit$py._run_exitfuncs$1(atexit.py:34)
+  atexit$py.call_function(atexit.py)
+  org.python.core.PyTableCode.call(PyTableCode.java:173)
+  org.python.core.PyBaseCode.call(PyBaseCode.java:119)
+  org.python.core.PyFunction.__call__(PyFunction.java:406)
+  org.python.core.PyFunction.__call__(PyFunction.java:401)
+  org.python.core.PySystemState.callExitFunc(PySystemState.java:727)
+  org.python.util.PythonInterpreter.cleanup(PythonInterpreter.java:398)
+  org.python.util.PythonInterpreter.close(PythonInterpreter.java:417)
+  IdleCleanup.lambda$main$1(IdleCleanup.java:12)
+  java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:572)
+  java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+  java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+  java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+  java.base/java.lang.Thread.run(Thread.java:1583)
+pool-1-thread-1
+  java.base/jdk.internal.misc.Unsafe.park(Native Method)
+  java.base/java.util.concurrent.locks.LockSupport.park(LockSupport.java:371)
+  java.base/java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionNode.block(AbstractQueuedSynchronizer.java:519)
+  java.base/java.util.concurrent.ForkJoinPool.unmanagedBlock(ForkJoinPool.java:3780)
+  java.base/java.util.concurrent.ForkJoinPool.managedBlock(ForkJoinPool.java:3725)
+  java.base/java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:1746)
+  java.base/java.util.concurrent.LinkedBlockingQueue.take(LinkedBlockingQueue.java:435)
+  java.base/java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1070)
+  java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)
+  java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+  java.base/java.lang.Thread.run(Thread.java:1583)
+
+configparser isolated expected exit 0
+Parser read completed before threading test: configparser
+COMPLETED
+
+csv shared expected exit 2
+Parser read completed before threading test: csv
+STALLED: temporary compiler close waits for idle pool worker
+pool-1-thread-2
+  java.base/java.lang.Object.wait0(Native Method)
+  java.base/java.lang.Object.wait(Object.java:366)
+  java.base/java.lang.Thread.join(Thread.java:2079)
+  java.base/java.lang.Thread.join(Thread.java:2155)
+  java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+  java.base/java.lang.reflect.Method.invoke(Method.java:580)
+  org.python.core.PyReflectedFunction.__call__(PyReflectedFunction.java:190)
+  org.python.core.PyReflectedFunction.__call__(PyReflectedFunction.java:208)
+  org.python.core.PyObject.__call__(PyObject.java:461)
+  org.python.core.PyObject.__call__(PyObject.java:465)
+  org.python.core.PyMethod.__call__(PyMethod.java:126)
+  threading$py.join$22(threading.py:137)
+  threading$py.call_function(threading.py)
+  org.python.core.PyTableCode.call(PyTableCode.java:173)
+  org.python.core.PyBaseCode.call(PyBaseCode.java:306)
+  org.python.core.PyBaseCode.call(PyBaseCode.java:126)
+  org.python.core.PyFunction.__call__(PyFunction.java:416)
+  org.python.core.PyMethod.__call__(PyMethod.java:126)
+  threading$py._MainThread__exitfunc$43(threading.py:291)
+  threading$py.call_function(threading.py)
+  org.python.core.PyTableCode.call(PyTableCode.java:173)
+  org.python.core.PyBaseCode.call(PyBaseCode.java:306)
+  org.python.core.PyBaseCode.call(PyBaseCode.java:197)
+  org.python.core.PyFunction.__call__(PyFunction.java:485)
+  org.python.core.PyMethod.instancemethod___call__(PyMethod.java:237)
+  org.python.core.PyMethod.__call__(PyMethod.java:228)
+  org.python.core.PyMethod.__call__(PyMethod.java:223)
+  org.python.core.PyObject._callextra(PyObject.java:589)
+  atexit$py._run_exitfuncs$1(atexit.py:34)
+  atexit$py.call_function(atexit.py)
+  org.python.core.PyTableCode.call(PyTableCode.java:173)
+  org.python.core.PyBaseCode.call(PyBaseCode.java:119)
+  org.python.core.PyFunction.__call__(PyFunction.java:406)
+  org.python.core.PyFunction.__call__(PyFunction.java:401)
+  org.python.core.PySystemState.callExitFunc(PySystemState.java:727)
+  org.python.util.PythonInterpreter.cleanup(PythonInterpreter.java:398)
+  org.python.util.PythonInterpreter.close(PythonInterpreter.java:417)
+  IdleCleanup.lambda$main$1(IdleCleanup.java:12)
+  java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:572)
+  java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+  java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+  java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+  java.base/java.lang.Thread.run(Thread.java:1583)
+pool-1-thread-1
+  java.base/jdk.internal.misc.Unsafe.park(Native Method)
+  java.base/java.util.concurrent.locks.LockSupport.park(LockSupport.java:371)
+  java.base/java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionNode.block(AbstractQueuedSynchronizer.java:519)
+  java.base/java.util.concurrent.ForkJoinPool.unmanagedBlock(ForkJoinPool.java:3780)
+  java.base/java.util.concurrent.ForkJoinPool.managedBlock(ForkJoinPool.java:3725)
+  java.base/java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:1746)
+  java.base/java.util.concurrent.LinkedBlockingQueue.take(LinkedBlockingQueue.java:435)
+  java.base/java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1070)
+  java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)
+  java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+  java.base/java.lang.Thread.run(Thread.java:1583)
+
+csv isolated expected exit 0
+Parser read completed before threading test: csv
+COMPLETED
