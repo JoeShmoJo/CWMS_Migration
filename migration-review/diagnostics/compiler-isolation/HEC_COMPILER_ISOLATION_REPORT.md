@@ -192,15 +192,54 @@ investigation. This compiler patch does not serialize those writers or repair
 shared output-file ownership. A completed flow comparison is not a claim that
 all ancillary reports are correct.
 
-### Still to validate
+### Native RTS result and remaining validation
 
-Native Windows RTS/ResSim 4.1.2 compute with this patch has NOT yet been tested.
-Use the existing test forecast and first compare a small set of known-covered
-members against serial results, then the larger ensemble. Confirm every member,
-full time coverage, return status, output equivalence, and the marker's actual
-JAR path. Long-session/repeated-compute memory and resource use remain unverified.
-Do not infer that CWMS orchestration automatically switches to the native ResSim
-multithreaded ensemble launcher: those are separate execution paths.
+Native Windows RTS-launched ResSim 4.1.2 now completed a six-member native
+multithread computation (2000-2005, six threads) in a reported 34 seconds. The
+console marker identified the patched RTS ResSimApp-4.1.2.jar. A subsequent
+read-only comparison against serial matched 84/84 reservoir outflow and Salem
+series exactly (absolute tolerance 0.0), run suffix C0, timestamps 2026-10-14
+00:00 through 2026-11-01 00:00, with no missing/coverage failures reported.
+The report directory supplied by the user was
+`flow-comparison-16744c6e745e4fd28c31a084ba4eedb2` in the existing Ensemble_Test
+forecast. These results cover that test only; they do not prove freshness or
+endpoints absent from both files.
+
+### Subsequent compute: progress-dialog exception
+
+A subsequent compute in the same session failed during progress-window setup:
+
+```
+java.lang.NullPointerException: Cannot invoke "java.util.Map.get(Object)"
+because "this._progressMap" is null
+    hec.rss.client.EnsembleRmiProgressDialog.threadSelectionChanged
+    hec.rss.client.bN.itemStateChanged
+    javax.swing.JComboBox ... setSelectedIndex
+    hec.rss.client.EnsembleRmiProgressDialog.setThreadCount
+    hec.rss.client.EnsembleRmiProgressImpl.setThreadCount
+    hec.rss.compute.MultiRunUserInterface.setThreadCount
+    hec.rss.compute.MultithreadedComputeLauncher.compute
+```
+
+This trace is a different failure path from compiler/Jython cleanup, occurring
+while setting up progress display. It does not establish a compiler-cache failure
+or that all repeated parallel computes fail. The session included alternative
+edits and serial/parallel testing; exact reproduction conditions remain to be
+isolated.
+
+Disassembly of original 4.1.2 `EnsembleRmiProgressDialog` shows that
+`threadSelectionChanged()` dereferences `_progressMap` without a null check.
+`setThreadCount(int)` changes the combo model before initializing the map, and
+allocates the map only in the greater-than-one-thread branch. It also changes
+the selection at the end. A synchronous selection event can therefore encounter
+an uninitialized map. This class is untouched by the compiler patch. No UI
+workaround patch has been applied. Restarting the ResSim session before the next
+controlled test is a diagnostic step, not a validated fix.
+
+Larger ensembles, repeated-compute reliability, and long-session memory/resource
+behavior remain unverified. Do not infer that CWMS orchestration automatically
+switches to the native ResSim multithreaded ensemble launcher: those are separate
+execution paths.
 
 ## Requested HEC review
 
