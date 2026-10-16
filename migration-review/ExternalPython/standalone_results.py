@@ -105,7 +105,7 @@ def plot(root,identities):
     root=Path(root);saved={row['id']:row for row in catalog(root)}
     if len(identities) not in (1,2) or len(set(identities))!=len(identities):raise ValueError('Choose one or two distinct saved runs')
     selected=[saved[identity] for identity in identities]
-    frames={};units={}
+    frames={};units={};references={};reference_notes=[]
     for row in selected:
         directory=root/'standalone-results'/row['id']
         if digest_file(directory/'run-archive.json')!=row['archive_sha256']:raise ValueError('Archive manifest changed')
@@ -120,6 +120,25 @@ def plot(root,identities):
                         groups.setdefault((parts[1],parts[2],parts[3],parts[5]),{})['POR']=path
             else:
                 groups=output_groups(paths,row['run_code'],set(row['members']))
+            from run_data_cache import standalone_reference
+            for path in paths:
+                parts=path.split('/');target=standalone_reference(parts)
+                if not target:continue
+                if target[2].startswith('Prepared ') and row['kind']=='baseline':continue
+                match=re.fullmatch(r'C:(\d{6})\|'+re.escape(row['run_code']),parts[6],re.I) if row.get('run_type','ensemble')!='por' else None
+                if row.get('run_type','ensemble')=='por':
+                    if parts[6].upper()!=row['run_code'].upper():continue
+                    member='POR'
+                else:
+                    if not match or int(match[1]) not in row['members']:continue
+                    member=int(match[1])
+                try:record=handle.read_ts(path)
+                except ValueError as error:
+                    reference_notes.append(row['label']+' / '+target[2]+': '+str(error));continue
+                refkey=(row['id'],target[0],target[1],parts[5].upper(),target[2])
+                entry=references.setdefault(refkey,{'series':{},'units':record.units})
+                if entry['units']!=record.units:raise ValueError('Mixed reference units')
+                entry['series'][member]=clean_series(record)
             for key,members in groups.items():
                 data={};unit=None
                 for member,path in members.items():
@@ -138,6 +157,29 @@ def plot(root,identities):
         for row in selected:
             frame=frames.get((row['id'],key))
             if frame is None:continue
+            reference_parameter='ELEV' if parameter.upper()=='ELEVATION' else parameter.upper()
+            matched=False
+            for refkey,reference in references.items():
+                if refkey[:4]!=(row['id'],location.upper(),reference_parameter,key[3].upper()):continue
+                from plot_rts_forecast import unit_key
+                if unit_key(reference['units'])!=unit_key(units[key]):raise ValueError('Reference/output units differ')
+                ref=pd.DataFrame(reference['series']).reindex(frame.index)
+                # Synthetic traces never change the historical reference band.
+                synthetic_ids=set(row.get('synthetic_members',[2026,2027,2028,2029]))
+                if row.get('run_type','ensemble')!='por':ref=ref[[m for m in ref if m not in synthetic_ids]]
+                if ref.empty or not ref.notna().any().any():continue
+                matched=True
+                low,high=ref.min(axis=1),ref.max(axis=1)
+                label=row['label']+' / '+refkey[4]
+                if (low!=high).where(low.notna() & high.notna(),False).any():
+                    figure.add_trace(go.Scatter(x=low.index,y=low,name=label+' minimum across members',line=dict(width=1,dash='dot'),connectgaps=False))
+                    figure.add_trace(go.Scatter(x=high.index,y=high,name=label+' maximum across members',line=dict(width=1,dash='dot'),connectgaps=False))
+                    label+=' median across members'
+                figure.add_trace(go.Scatter(x=ref.index,y=ref.median(axis=1),name=label,
+                    line=dict(width=2,dash='dash',color='green' if reference_parameter=='ELEV' else 'red'),connectgaps=False))
+                ref.to_csv(destination/('reference-'+str(number)+'-'+row['id']+'-'+re.sub(r'[^A-Za-z0-9]+','-',refkey[4])+'.csv'),index_label='timestamp')
+            if not matched and location.upper().endswith('-POOL') and reference_parameter in ('ELEV','FLOW-OUT'):
+                reference_notes.append(row['label']+' / '+location+' '+parameter+': reference not archived. Capture completed native results again to include available rule curves/minimum limits; older archives are unchanged.')
             if row.get('run_type','ensemble')=='por':
                 figure.add_trace(go.Scatter(x=frame.index,y=frame['POR'],name=row['label']+' / POR',connectgaps=False))
                 frame.to_csv(destination/('plot-'+str(number)+'-'+row['id']+'.csv'),index_label='timestamp')
@@ -157,8 +199,8 @@ def plot(root,identities):
         filename='plot-'+str(number)+'.html';figure.write_html(destination/filename,include_plotlyjs='plotly.min.js')
         links.append('<li><a href="'+filename+'">'+escape(location+' '+parameter)+'</a></li>')
     paired=len(selected)==2 and selected[0]['baseline_id']==selected[1]['baseline_id']
-    (destination/'index.html').write_text('<!doctype html><meta charset="utf-8"><title>Saved standalone results</title><h1>Saved standalone results</h1><p>'+escape(' / '.join(row['label'] for row in selected))+'</p><p>'+('Same baseline pairing' if paired else 'One run, or different baseline pairings: differences may include baseline changes')+'</p><ul>'+''.join(links)+'</ul>',encoding='utf-8')
-    atomic_json(destination/'selection.json',{'runs':selected,'same_baseline':paired})
+    (destination/'index.html').write_text('<!doctype html><meta charset="utf-8"><title>Saved standalone results</title><h1>Saved standalone results</h1><p>'+escape(' / '.join(row['label'] for row in selected))+'</p><p>'+('Same baseline pairing' if paired else 'One run, or different baseline pairings: differences may include baseline changes')+'</p><ul>'+''.join('<li>'+escape(note)+'</li>' for note in reference_notes)+'</ul><ul>'+''.join(links)+'</ul>',encoding='utf-8')
+    atomic_json(destination/'selection.json',{'runs':selected,'same_baseline':paired,'reference_notes':reference_notes})
     return destination/'index.html'
 
 

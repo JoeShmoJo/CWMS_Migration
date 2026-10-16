@@ -15,7 +15,7 @@ class StandaloneResultTests(unittest.TestCase):
     def setUp(self):
         self.temp=tempfile.TemporaryDirectory();self.addCleanup(self.temp.cleanup)
         self.root=Path(self.temp.name);self.source=self.root/'simulation.dss';self.source.write_bytes(b'original')
-        self.value=100.;self.fail=False
+        self.value=100.;self.read_failure=False
         self.paths=['//Lookout Point-Pool/'+param+'/01Jan2027/1DAY/C:002000|CON_SEASON0/' for param in ('ELEV','FLOW-OUT','STOR')]
         self.paths+=['//Willamette_at Salem/FLOW/01Jan2027/1DAY/C:002000|CON_SEASON0/']
         outer=self
@@ -26,10 +26,10 @@ class StandaloneResultTests(unittest.TestCase):
             def __exit__(self,*args):pass
             def getPathnameList(self,pattern):return outer.paths
             def read_ts(self,path,**kwargs):
-                if outer.fail:raise ValueError('bad record')
+                if outer.read_failure:raise ValueError('bad record')
                 param=path.split('/')[3]
                 return SimpleNamespace(pytimes=pd.date_range('2027-04-01',periods=3),values=[outer.value]*3,
-                                       units='FT' if param=='ELEV' else 'AC-FT' if param=='STOR' else 'CFS',type='PER-AVER')
+                                       units='FT' if param in ('ELEV','ELEV-ZONE') else 'AC-FT' if param=='STOR' else 'CFS',type='PER-AVER')
         self.fake=SimpleNamespace(HecDss=SimpleNamespace(Open=DSS))
         patcher=patch.dict(sys.modules,{'pydsstools.heclib.dss':self.fake});patcher.start();self.addCleanup(patcher.stop)
 
@@ -82,11 +82,67 @@ class StandaloneResultTests(unittest.TestCase):
         self.assertNotIn('5–95%',figure)
         self.assertIn('POR',figure)
 
+    def test_saved_rule_curve_and_minimum_release_plot_without_live_dss(self):
+        self.paths+=['//Lookout Point-Rule Curve/ELEV-ZONE/01Jan2027/1DAY/C:002000|CON_SEASON0/',
+                     '//Lookout Point/FLOW-MINLIM/01Jan2027/1DAY/C:002000|CON_SEASON0/']
+        baseline=results.capture(self.root,'Con_Season','With references','CON_SEASON0','baseline',confirmed=True)
+        self.source.unlink()
+        with patch.object(self.fake.HecDss,'Open',side_effect=AssertionError('Read live DSS')):
+            path=results.plot(self.root,[baseline['id']])
+        figures=''.join(item.read_text() for item in path.parent.glob('plot-*.html'))
+        self.assertIn('Rule curve',figures)
+        self.assertIn('Applied minimum release (FLOW-MINLIM)',figures)
+        self.assertEqual(len(list(path.parent.glob('reference-*.csv'))),2)
+        self.assertEqual(json.loads((path.parent/'selection.json').read_text())['reference_notes'],[])
+
+    def test_prepared_augmentation_and_mainstem_targets_are_archived_and_plotted(self):
+        self.paths+=['//Lookout Point/FLOW-MIN-EXTERNALFLOWAUG/01Jan2027/1DAY/C:002000|CON_SEASON0/',
+                     '//Salem/FLOW-MIN-EXTERNALFLOWAUG/01Jan2027/1DAY/C:002000|CON_SEASON0/',
+                     '//Salem/FLOW-MIN-EXTERNALFLOWAUG/01Jan2027/1DAY/C:001981|CON_SEASON0/']
+        baseline=results.capture(self.root,'Con_Season','Baseline before scheme','CON_SEASON0','baseline',confirmed=True)
+        captured=results.capture(self.root,'Con_Season','Prepared scheme','CON_SEASON0','result',baseline['id'],True)
+        self.assertEqual(captured['members'],[2000])
+        self.source.unlink()
+        path=results.plot(self.root,[captured['id']])
+        figures=''.join(item.read_text() for item in path.parent.glob('plot-*.html'))
+        self.assertIn('Prepared augmentation minimum release',figures)
+        self.assertIn('Prepared mainstem flow target',figures)
+        self.assertEqual(len(list(path.parent.glob('reference-*.csv'))),2)
+        baseline_plot=results.plot(self.root,[baseline['id']])
+        baseline_figures=''.join(item.read_text() for item in baseline_plot.parent.glob('plot-*.html'))
+        self.assertNotIn('Prepared augmentation minimum release',baseline_figures)
+
+    def test_member_varying_minimums_show_range_and_median(self):
+        self.paths+=['//Lookout Point/FLOW-MINLIM/01Jan2027/1DAY/C:002000|CON_SEASON0/']
+        self.paths += [path.replace('002000','002001') for path in self.paths]
+        cls=self.fake.HecDss.Open;original=cls.read_ts
+        def read(handle,path,**kwargs):
+            record=original(handle,path,**kwargs)
+            if '/FLOW-MINLIM/' in path and '002001' in path:record.values=[200.]*3
+            return record
+        with patch.object(cls,'read_ts',read):
+            baseline=results.capture(self.root,'Con_Season','Varying limits','CON_SEASON0','baseline',confirmed=True)
+        self.source.unlink()
+        path=results.plot(self.root,[baseline['id']])
+        figures=''.join(item.read_text() for item in path.parent.glob('plot-*.html'))
+        self.assertIn('minimum across members',figures)
+        self.assertIn('maximum across members',figures)
+        self.assertIn('median across members',figures)
+        reference=pd.read_csv(next(path.parent.glob('reference-*.csv')))
+        self.assertEqual(reference['2000'].tolist(),[100.]*3)
+        self.assertEqual(reference['2001'].tolist(),[200.]*3)
+
+    def test_old_archive_explains_missing_references(self):
+        baseline=results.capture(self.root,'Con_Season','Old archive','CON_SEASON0','baseline',confirmed=True)
+        self.source.unlink()
+        path=results.plot(self.root,[baseline['id']])
+        self.assertIn('reference not archived',path.read_text())
+
     def test_capture_guards_confirmation_alternative_and_failed_archive(self):
         with self.assertRaisesRegex(ValueError,'Confirm'):results.capture(self.root,'Con_Season','x','CON_SEASON0','baseline')
         with self.assertRaisesRegex(ValueError,'alternative'):results.capture(self.root,'Other','x','CON_SEASON0','baseline',confirmed=True)
         with self.assertRaisesRegex(ValueError,'baseline'):results.capture(self.root,'Con_Season','x','CON_SEASON0','result',confirmed=True)
-        self.fail=True
+        self.read_failure=True
         with self.assertRaisesRegex(ValueError,'required series'):results.capture(self.root,'Con_Season','x','CON_SEASON0','baseline',confirmed=True)
         self.assertEqual(results.catalog(self.root),[])
         self.assertEqual(self.source.read_bytes(),b'original')

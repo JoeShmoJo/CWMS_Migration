@@ -148,3 +148,32 @@ named 'extraction_context'” indicates an incomplete script installation, not
 missing simulation records. Repackage/update the watershed and reopen its menu;
 existing native results need not be recomputed. Installed archive selection and
 capture are tested in a fresh isolated Python process without repository imports.
+
+## Plot references, consistent with RTS
+
+New standalone captures include selected computed rule-curve and minimum-release
+records alongside plot outputs. Elevation plots show the saved native
+`<reservoir>-Rule Curve / ELEV-ZONE` line. Outflow plots show available combined
+minimum tributary/withdrawal demands, the prepared augmentation minimum release
+(`FLOW-MIN-EXTERNALFLOWAUG`), and the actual applied minimum limit (`FLOW-MINLIM`)
+with separate labels. Prepared requirements are shown for result archives, not
+baseline archives, so leftover prepared inputs do not appear as baseline
+requirements. Salem/Albany flow plots show available prepared/native
+mainstem targets. Prepared inputs are included only for members with computed
+pool results, so preparing more members than were computed does not enlarge the
+archive's output-member selection.
+
+A shared reference appears as one dashed line. If historical members differ,
+their minimum, maximum and median are shown; synthetic members do not change
+these summaries. POR references are single traces. Comparison plots label each
+run's references separately. Missing points stay missing. Reference member data
+are exported as `reference-*.csv` beside the offline HTML plots.
+
+These are native records captured with that run, not current configuration values
+silently substituted later. Plotting uses compact archived arrays and works after
+live DSS deletion. Existing archives are unchanged and can lack these records;
+the plot index and `selection.json` report missing references. To add references,
+archive the still-available completed native results again under a new name.
+No new compute is needed if the required native records are already present.
+If the model did not save a required reference, its plot cannot show it; do not
+infer a rule curve or requirement from actual elevations/outflows.

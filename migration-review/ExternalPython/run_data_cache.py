@@ -36,6 +36,24 @@ def needed_record(parts):
     return location == 'WATERYEARTYPEVARIABLE' and parameter == 'STOR-MAF'
 
 
+def standalone_reference(parts):
+    """Saved native references; return the output location/parameter and label."""
+    location,parameter=parts[2].upper(),parts[3].upper()
+    if location.endswith('-RULE CURVE') and parameter in ('ELEV-ZONE','ELEV','ELEVATION'):
+        return location[:-len('-RULE CURVE')]+'-POOL','ELEV','Rule curve'
+    if parameter=='FLOW-MIN-EXTERNALFLOWAUG':
+        if location in ('SALEM','ALBANY'):
+            return 'WILLAMETTE_AT '+location,'FLOW','Prepared mainstem flow target'
+        return location+'-POOL','FLOW-OUT','Prepared augmentation minimum release'
+    if parameter=='FLOW-MINLIM':
+        return location+'-POOL','FLOW-OUT','Applied minimum release (FLOW-MINLIM)'
+    if parameter in ('FLOW-SPEC','FLOW-MIN') and ('COMBINED MIN TRIB' in location or 'BIOP MINTRIB' in location) and '-' in location:
+        return location.split('-',1)[0]+'-POOL','FLOW-OUT','Combined minimum tributary flow and withdrawals'
+    if location in ('MIN_FLOW_TARGET_SALEM','MIN_FLOW_TARGET_ALBANY') and parameter=='FLOW-MIN':
+        return 'WILLAMETTE_AT '+location.rsplit('_',1)[1],'FLOW','Minimum flow target'
+    return None
+
+
 def logical_path(path):
     parts = str(path).split('/')
     if len(parts) != 8:

@@ -57,7 +57,7 @@ def capture_run(source, destination, run_code, standalone=False, run_type="ensem
     """
     from pydsstools.heclib.dss import HecDss
     from baseline_versions import read_fingerprint_series
-    from run_data_cache import needed_record, logical_path
+    from run_data_cache import needed_record, logical_path, standalone_reference
     from plot_rts_forecast import target_record
     if not re.fullmatch(r'[A-Za-z][A-Za-z0-9_-]*' if standalone else r'[A-Za-z]\d+', run_code):
         raise ValueError('Invalid run code')
@@ -70,10 +70,14 @@ def capture_run(source, destination, run_code, standalone=False, run_type="ensem
     matcher = re.compile((r'C:\d{6}\|' if run_type=='ensemble' else '') + re.escape(run_code), re.I)
     reads = 0
     with HecDss.Open(str(source)) as dss:
-        for path in dss.getPathnameList('/*/*/*/*/*/*/'):
+        catalog=[str(path) for path in dss.getPathnameList('/*/*/*/*/*/*/')]
+        computed_fparts={path.split('/')[6].upper() for path in catalog
+                         if len(path.split('/'))==8 and path.split('/')[2].upper().endswith('-POOL')
+                         and path.split('/')[3].upper() in ('ELEV','ELEVATION','FLOW-OUT')}
+        for path in catalog:
             path = str(path)
             parts = path.split('/')
-            if len(parts) == 8 and needed_record(parts) and matcher.fullmatch(parts[6]):
+            if len(parts) == 8 and (needed_record(parts) or (standalone and parts[6].upper() in computed_fparts and standalone_reference(parts))) and matcher.fullmatch(parts[6]):
                 key = logical_path(path).upper()
                 selected.setdefault(key, set()).add(path)
         for number, (key, paths) in enumerate(sorted(selected.items())):
