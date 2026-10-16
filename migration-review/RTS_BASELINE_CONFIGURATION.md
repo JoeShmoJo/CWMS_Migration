@@ -1,4 +1,9 @@
-# RTS baseline configuration: first implementation
+# RTS baseline configuration: installation and implementation notes
+
+For the current operator procedure, use [RTS_OPERATOR_SOP.md](RTS_OPERATOR_SOP.md).
+For input/output locations and provenance, use [RTS_WORKFLOW_REFERENCE.md](RTS_WORKFLOW_REFERENCE.md).
+The installation and performance-diagnostic material below includes historical
+implementation notes; it is not a requirement to repeat those tests for each forecast.
 
 The workflow menu now opens **Baseline Configuration** in a browser. It imports the installed settings for the eleven scripted baseline rules. Augmentation remains separate. Save Configuration automatically stores a new named version in `scripts/baseline-configuration-library` in the imported watershed. Open Saved Configuration selects from that library without browsing folders. Saved sets embed validated CSV schedule values for reuse in other forecasts. Export JSON downloads a portable copy; readable HTML exports an inspection copy. The editor can also run independently with `baseline_configuration.py --editor`.
 
