@@ -126,6 +126,8 @@ class StandaloneTests(unittest.TestCase):
         self.assertIn('<pre><code>',html)
         self.assertNotIn('<script',html)
         self.assertTrue((kit/'documentation/STANDALONE_WORKFLOW_REFERENCE.html').is_file())
+        self.assertTrue((kit/'optional-diversion-postprocess/network.json').is_file())
+        self.assertTrue((kit/'documentation/optional-diversion-postprocess-README.html').is_file())
         inventory=json.loads((kit/'installation-inventory.json').read_text())
         self.assertEqual(inventory['watershed'],str(self.root))
         self.assertIn('Test_simulation',[item['folder'] for item in inventory['simulations']])

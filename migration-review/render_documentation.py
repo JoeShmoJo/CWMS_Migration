@@ -10,7 +10,7 @@ import re
 NAV=(('PROJECT_START_HERE','Start here'),('WORKFLOW_SOP','Operator SOP'),
      ('STANDALONE_WORKFLOW_REFERENCE','Standalone reference'),
      ('RTS_WORKFLOW_REFERENCE','RTS reference'),('WORKFLOW_PACKAGE','Import / packaging'),
-     ('RTS_DATA_IO','Data / archives'))
+     ('RTS_DATA_IO','Data / archives'),('DIVERSION_POSTPROCESS','Diversions (optional)'))
 STYLE='''body{font:17px/1.6 system-ui,sans-serif;color:#213346;margin:0;background:#f3f6fa}nav{background:#173d56;padding:14px;position:sticky;top:0}nav a{color:white;display:inline-block;margin:4px 12px}main{max-width:1100px;margin:auto;padding:28px;background:white}a{color:#0063a5}h1,h2,h3{line-height:1.25;scroll-margin-top:90px}h2{margin-top:2em;border-bottom:1px solid #cbd5df;padding-bottom:8px}pre{overflow:auto;padding:16px;background:#eef2f6;white-space:pre-wrap;overflow-wrap:anywhere}code{font-family:Consolas,monospace;font-size:.9em;background:#eef2f6}table{border-collapse:collapse;width:100%;font-size:.92em}th,td{border:1px solid #cad3dc;padding:9px;text-align:left;vertical-align:top;overflow-wrap:anywhere}th{background:#e5edf3}.table{overflow:auto}footer{margin-top:3em;color:#546579}@media print{nav{display:none}main{max-width:none;padding:0}body{background:white}pre{white-space:pre-wrap}a{color:inherit}}'''
 
 
@@ -23,7 +23,7 @@ def inline(value, sources):
     def link(match):
         label,target=match[1],match[2]
         path,sep,anchor=target.partition('#')
-        if path in sources:target=Path(path).with_suffix('.html').name+(sep+anchor if sep else '')
+        if path in sources:target=sources[path]+(sep+anchor if sep else '')
         elif path and not re.match(r'[a-zA-Z]+:',path) and not path.startswith('#'):
             target='../'+target
         if re.match(r'(?i)(javascript|data):',target):return label
@@ -76,10 +76,13 @@ def render(text,sources):
 
 def build(directory):
     directory=Path(directory);output=directory/'documentation';output.mkdir(exist_ok=True)
-    docs=sorted(directory.glob('*.md'));sources={p.name for p in docs}
+    docs=sorted(directory.glob('*.md'))
+    optional=directory/'optional-diversion-postprocess/README.md'
+    if optional.is_file():docs.append(optional)
+    sources={p.relative_to(directory).as_posix():p.relative_to(directory).with_suffix('.html').as_posix().replace('/','-') for p in docs}
     navigation='<nav>'+''.join('<a href="'+name+'.html">'+label+'</a>' for name,label in NAV)+'</nav>'
     for doc in docs:
         text=doc.read_text(encoding='utf-8');title=next((line.lstrip('# ') for line in text.splitlines() if line.startswith('# ')),doc.stem)
-        page='<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+html.escape(title)+'</title><style>'+STYLE+'</style><body>'+navigation+'<main>'+render(text,sources)+'<footer>Offline watershed documentation · <a href="../'+doc.name+'">Markdown source</a> · Use browser Print to save as PDF.</footer></main></body></html>'
-        (output/(doc.stem+'.html')).write_text(page,encoding='utf-8')
+        page='<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+html.escape(title)+'</title><style>'+STYLE+'</style><body>'+navigation+'<main>'+render(text,sources)+'<footer>Offline watershed documentation · <a href="../'+doc.relative_to(directory).as_posix()+'">Markdown source</a> · Use browser Print to save as PDF.</footer></main></body></html>'
+        (output/sources[doc.relative_to(directory).as_posix()]).write_text(page,encoding='utf-8')
     return output

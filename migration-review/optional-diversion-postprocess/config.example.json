@@ -1,0 +1,28 @@
+{
+  "method": "instantaneous-bookkeeping-stop-at-reservoir",
+  "source_diversions": "none",
+  "schedule_day": "period_start",
+  "run_code": "CON_SEASON0",
+  "members": [
+    2000
+  ],
+  "start": "2026-10-15 00:00:00",
+  "end": "2026-11-01 00:00:00",
+  "locations": [
+    "Willamette_at Salem",
+    "Willamette_at Wilsonville"
+  ],
+  "conditions": [
+    {
+      "enabled": false,
+      "reservoir": "Lookout Point",
+      "operator": "below",
+      "threshold_ft": 900,
+      "elements": [
+        "Diversion 1 up"
+      ],
+      "withdrawal_multiplier": 0.5
+    }
+  ],
+  "timestep_hours": 24
+}

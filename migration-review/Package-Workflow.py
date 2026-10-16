@@ -48,7 +48,7 @@ def package(watershed):
     destination=watershed/'scripts/workflow-kit'
     with tempfile.TemporaryDirectory(prefix='workflow-kit-') as temp:
         stage=Path(temp)/'kit';stage.mkdir()
-        for name in ('ExternalPython','baseline-runtime','baseline-editor-design','externalSVs'):
+        for name in ('ExternalPython','baseline-runtime','baseline-editor-design','externalSVs','optional-diversion-postprocess'):
             shutil.copytree(HERE/name,stage/name,ignore=shutil.ignore_patterns('__pycache__','*$py.class','*.pyc','logs'))
         for name in ('Install-StandaloneConfiguration.py','Package-Workflow.py','render_documentation.py',
                      'Install-ForecastExtraction.ps1','Install-BaselineConfiguration.ps1','Install-RunArchives.ps1',

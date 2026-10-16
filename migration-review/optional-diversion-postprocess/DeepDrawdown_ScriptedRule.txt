@@ -1,0 +1,10 @@
+# Attach through the native ResSim rule editor only after reviewing operation set/stack.
+# Existing model bootstrap must put watershed scripts on the Jython module path.
+def initRuleScript(currentRule, network):
+    from externalRules import DeepDrawdown
+    return DeepDrawdown.initRuleScript(currentRule, network)
+
+
+def runRuleScript(currentRule, network, currentRuntimestep):
+    from externalRules import DeepDrawdown
+    return DeepDrawdown.runRuleScript(currentRule, network, currentRuntimestep)

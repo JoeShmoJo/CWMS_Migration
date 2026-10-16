@@ -40,6 +40,22 @@ class ConfigurationTests(unittest.TestCase):
         run=SimpleNamespace(getDSSOutputFile=lambda:str(root/'EnsembleRuns'/str(member)/'forecast.dss'),getOutputFPart=lambda:'C:{:06d}|C0'.format(member))
         network=SimpleNamespace(getRssRun=lambda:run,makeAbsolutePathFromWatershed=lambda p:str(watershed/p) if not Path(p).is_absolute() else str(p),getStateVariable=lambda name:store,printMessage=lambda msg:None)
         return network,rule,store
+    def test_additional_irrm_reservoir_is_valid_but_disabled_by_default(self):
+        settings=self.configuration['rules']['irrm']['settings']
+        settings['active']['Dorena']=False
+        settings['target_elevation_ft']['Dorena']=800.
+        self.apply()
+        network,rule,store=self.network()
+        # A disabled attached rule must not call original target interpolation.
+        rule.getReservoirElement=lambda:SimpleNamespace(toString=lambda:'Dorena')
+        namespace={'_rts_original_initRuleScript':lambda *args:(_ for _ in ()).throw(AssertionError('Disabled target interpolated'))}
+        self.assertTrue(runtime.initialize_rule('IRRM',rule,network,namespace))
+        self.assertFalse(store.varGet('irrmActive')['Dorena'])
+        self.assertFalse(store.varGet('irrmActive')['Dexter'])
+        settings['active']['Dorena']=True
+        settings['target_elevation_ft'].pop('Dorena')
+        with self.assertRaisesRegex(ValueError,'requires target'):self.apply()
+
     def test_direct_adapter_preserves_original_timestep_function(self):
         path=self.scripts.parent/'_rts_baseline_originals/externalRules/DraftToRC.py'
         namespace={}

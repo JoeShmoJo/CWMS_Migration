@@ -90,6 +90,14 @@ scripts/documentation, not a complete model or reproducibility archive. Removing
 an unneeded checkout is different from deleting the only copy of study inputs,
 results, saved configuration libraries or the Python environment.
 
+## Optional follow-up experiment
+
+[Conditional diversion postprocessing](DIVERSION_POSTPROCESS.md) reads completed
+results and writes separate adjusted flows. It is opt-in, not part of the accepted
+baseline/augmentation workflow. Review its routing/barrier assumptions and test
+locally before use. The editor can also add inactive IRRM/Deep Drawdown reservoir
+settings; native rule attachment still requires the ResSim editor.
+
 ## Known issues to carry forward
 
 - RTS baseline identity compares pool elevation/outflow, not every input. An

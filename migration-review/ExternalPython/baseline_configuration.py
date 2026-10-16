@@ -116,7 +116,17 @@ def validate_settings(settings, defaults, prefix=''):
         raise ValueError('Unknown or missing rule settings: ' + prefix)
     for key, expected in defaults.items():
         value = settings[key]
-        if key == 'active' and isinstance(expected,bool) and isinstance(value,dict):
+        if prefix == 'irrm.' and key in ('active','target_elevation_ft'):
+            if not isinstance(value,dict) or any(name not in RESERVOIRS for name in value):
+                raise ValueError('Invalid IRRM reservoir map')
+            for name,item in value.items():
+                if key=='active':
+                    if not isinstance(item,bool):raise ValueError('Invalid IRRM activation')
+                elif isinstance(item,bool) or not isinstance(item,(int,float)) or not math.isfinite(item):
+                    raise ValueError('IRRM target must be finite feet')
+            if key=='active' and any(flag and name not in settings['target_elevation_ft'] for name,flag in value.items()):
+                raise ValueError('Enabled IRRM reservoir requires target elevation')
+        elif key == 'active' and isinstance(expected,bool) and isinstance(value,dict):
             if any(name not in RESERVOIRS or not isinstance(flag,bool) for name,flag in value.items()):
                 raise ValueError('Invalid reservoir activation map')
         elif isinstance(expected,dict):

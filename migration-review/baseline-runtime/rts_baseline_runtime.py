@@ -85,7 +85,8 @@ def alternative_overrides(network):
     source, data, pointer = found
     result = dict((key, os.path.join(source, relative)) for key, relative in data['table_paths'].items())
     result['draftToRCActive'] = copy.deepcopy(data['rules']['draft_to_rc']['settings']['active'])
-    result['irrmActive'] = copy.deepcopy(data['rules']['irrm']['settings']['active'])
+    result['irrmActive'] = dict((name, False) for name in ('Big Cliff','Blue River','Cottage Grove','Cougar','Detroit','Dexter','Dorena','Fall Creek','Fern Ridge','Foster','Green Peter','Hills Creek','Lookout Point'))
+    result['irrmActive'].update(copy.deepcopy(data['rules']['irrm']['settings']['active']))
     result['irrmTargetElevs'] = copy.deepcopy(data['rules']['irrm']['settings']['target_elevation_ft'])
     network.printMessage('RTS baseline configuration: %s [%s]' % (data['name'], pointer['id']))
     return result
@@ -154,7 +155,11 @@ def initialize_rule(module_name, rule, network, namespace=None):
         network.printMessage('RTS baseline init: %s [%s]' % (module_name, pointer['id']))
     if namespace is None:
         rule.varPut('_rts_baseline_module', module)
-    outcome = module.initRuleScript(rule, network)
+    if found and module_name == 'IRRM' and not network.getStateVariable('Alternative_Setup').varGet('irrmActive').get(str(rule.getReservoirElement().toString()), False):
+        # Disabled IRRM rules must not interpolate an unused target elevation.
+        outcome = True
+    else:
+        outcome = module.initRuleScript(rule, network)
     if found and outcome:
         source, data, pointer = found
         import re
