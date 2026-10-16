@@ -38,6 +38,7 @@ def run(root,alternative,code=None,run_type='por',member=None,label=None):
         paths=dss.getPathnameList('/*/*/*/*/*/*/')
         if not paths:paths=dss.getPathnameList('*')
     fpart=select_output(paths,alternative,run_type,member,code)
+    print('MODEL CHECK selected F-part: '+fpart,flush=True)
     folder=watershed/'scripts/model_check'
     if not (folder/'extract_dss.py').is_file():raise ValueError('Install the model-check scripts into this watershed first')
     report_name=str(label or alternative+' model check').strip()
@@ -46,6 +47,7 @@ def run(root,alternative,code=None,run_type='por',member=None,label=None):
     status={'status':'incomplete','source':str(source),'source_signature':before,'alternative':alternative,
             'label':report_name,'run_type':run_type,'member':member if run_type=='ensemble' else None,'f_part':fpart,
             'note':'Checks current configured expectations against selected live results; native compute freshness and operation-report freshness must be verified by operator.'}
+    atomic_json(destination/'check-context.json',status)
     try:
         extractor=load('workflow_check_extract',folder/'extract_dss.py')
         checker=load('workflow_check_report',folder/'check_model.py')
@@ -92,6 +94,7 @@ def run(root,alternative,code=None,run_type='por',member=None,label=None):
                         if column not in ('Month','Day','Notes','NOTES'):table[column]=0.
                     target=directory/(key+'-disabled.csv');table.to_csv(target,index=False);overrides[key]=str(target)
         checker.configPath=lambda configRoot,altConfig,key,default:overrides.get(key,original(configRoot,altConfig,key,default))
+        print('MODEL CHECK extracted data: '+str(directory),flush=True)
         checker.main(str(directory))
         if signature(source)!=before:raise ValueError('Simulation results changed during check')
         report=directory/'report.html'
@@ -102,3 +105,25 @@ def run(root,alternative,code=None,run_type='por',member=None,label=None):
         status['error']=str(error);raise
     finally:
         atomic_json(destination/'check-context.json',status)
+
+
+def run_request(request_path,response_path):
+    import traceback
+    try:
+        request=json.loads(Path(request_path).read_text(encoding='utf-8'))
+        report=run(**request)
+        atomic_json(Path(response_path),{'path':str(report)})
+        return 0
+    except BaseException as error:
+        traceback.print_exc()
+        atomic_json(Path(response_path),{'error':str(error) or type(error).__name__})
+        return 1
+
+
+if __name__=='__main__':
+    import argparse
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--request',type=Path,required=True)
+    parser.add_argument('--response',type=Path,required=True)
+    args=parser.parse_args()
+    raise SystemExit(run_request(args.request,args.response))

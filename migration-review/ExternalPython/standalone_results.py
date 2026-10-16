@@ -183,6 +183,26 @@ async function check(){let status=document.getElementById('status');try{let data
 async function closeEditor(){await call('/close',{});document.body.textContent='Closed'}</script>'''
 
 
+def model_check_job(root,alternative,run_type,member=None,label=None):
+    """A native reader crash or legacy sys.exit must not kill the HTTP request."""
+    import subprocess
+    import sys
+    import tempfile
+    request={'root':str(root),'alternative':alternative,'run_type':run_type,'member':member,'label':label}
+    print('MODEL CHECK START: '+json.dumps(request),flush=True)
+    with tempfile.TemporaryDirectory(prefix='model-check-job-') as directory:
+        request_path=Path(directory)/'request.json';response_path=Path(directory)/'response.json'
+        request_path.write_text(json.dumps(request),encoding='utf-8')
+        process=subprocess.run([sys.executable,'-u',str(Path(__file__).with_name('standalone_model_check.py')),
+                                '--request',str(request_path),'--response',str(response_path)],check=False)
+        response=json.loads(response_path.read_text(encoding='utf-8')) if response_path.is_file() else {}
+        if process.returncode or 'error' in response:
+            detail=response.get('error','The check process stopped without returning an error message (possible native reader failure).')
+            raise ValueError(detail+' [check process exit '+str(process.returncode)+']. See the latest standalone-workflow-logs/results-*.log for details.')
+        if not response.get('path'):raise ValueError('Model check returned no report path')
+        return Path(response['path'])
+
+
 def serve(root,alternative,run_type="ensemble",check_only=False):
     root=Path(root);token=secrets.token_urlsafe(32)
     template=CHECK_PAGE if check_only else PAGE
@@ -206,9 +226,8 @@ def serve(root,alternative,run_type="ensemble",check_only=False):
                     try:result=capture(root,alternative,run_type=run_type,**data)
                     finally:task_lock.release()
                 elif self.path=='/model_check':
-                    from standalone_model_check import run
                     if not task_lock.acquire(False):raise ValueError('Another result task is running')
-                    try:path=run(root,alternative,None,run_type,data.get('member'),data.get('label'))
+                    try:path=model_check_job(root,alternative,run_type,data.get('member'),data.get('label'))
                     finally:task_lock.release()
                     webbrowser.open(path.resolve().as_uri());result={'path':str(path)}
                 elif self.path=='/plot':

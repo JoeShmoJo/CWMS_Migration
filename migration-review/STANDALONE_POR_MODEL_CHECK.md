@@ -93,3 +93,14 @@ and its config file remain available; the GUI uses no shared config file.
 Start with one short known POR or one ensemble member, inspect its selected F-part
 in check-context.json/run_info.json and compare with a known report before using
 this for a large study. Local Windows/DSS execution remains necessary validation.
+
+## If the browser reports an error
+
+Model checks run in a separate Python process. Legacy checker exits and a native
+reader crash are reported back to the page without stopping the browser server.
+The detailed output/traceback is in the newest
+`standalone-workflow-logs/results-*.log` under the watershed. The log identifies
+the requested member and selected F-part before extraction. A missing operation
+report limits rule-stack checks; it does not establish that computed DSS rule
+records are absent. Check member/F-part and extraction messages before changing
+native output settings. A connection error alone cannot diagnose missing data.

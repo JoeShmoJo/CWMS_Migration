@@ -66,6 +66,20 @@ class ModelCheckLaunchTests(unittest.TestCase):
         self.assertNotIn('id="kind"',page)
         self.assertIn('Report name (optional)',page)
 
+    def test_legacy_system_exit_is_returned_to_browser_as_error(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            request=Path(temporary)/'request.json';response=Path(temporary)/'response.json'
+            request.write_text('{}')
+            with patch.object(checks,'run',side_effect=SystemExit('needs reservoirs.csv and limits.csv')),patch('traceback.print_exc'):
+                self.assertEqual(checks.run_request(request,response),1)
+            self.assertIn('needs reservoirs.csv',json.loads(response.read_text())['error'])
+
+    def test_native_process_failure_does_not_escape_as_lost_connection(self):
+        import standalone_results
+        with patch('subprocess.run',return_value=SimpleNamespace(returncode=3221225477)):
+            with self.assertRaisesRegex(ValueError,'possible native reader failure'):
+                standalone_results.model_check_job('/unused','Con_Season','ensemble',1985)
+
     def test_ensemble_requires_single_member_before_reading_data(self):
         with self.assertRaisesRegex(ValueError,'single ensemble member'):
             checks.run(Path('/unused/rss/Simulation'),'Con_Season','CON_SEASON0','ensemble')
