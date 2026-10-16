@@ -212,3 +212,9 @@ matched. Needs `rules.csv`.
 
 Tolerances, rule names and the start date are set at the top of
 `check_model.py`.
+
+DSS record-name selection is case-insensitive. Uppercase DSS 6 catalogs and
+mixed-case catalogs select the same output groups. Reservoir/parameter labels
+are normalized for reporting, while original native pathnames remain in
+`*_series.csv` and are used unchanged to read values. Rule/configuration matching
+also ignores capitalization; native DSS records are not renamed or rewritten.

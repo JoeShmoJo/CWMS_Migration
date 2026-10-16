@@ -231,9 +231,11 @@ def onDatesInterpolated(configSeries, dates):
 def col(groups, group, name):
     """A column from an extract group, or None."""
     table = groups.get(group)
-    if table is None or name not in table.columns:
+    if table is None:
         return None
-    return table[name]
+    matches=[column for column in table.columns if column.casefold()==name.casefold()]
+    if len(matches)>1:raise ValueError("Ambiguous case-insensitive result column: "+name)
+    return table[matches[0]] if matches else None
 
 
 def flowTol(values):
@@ -370,7 +372,7 @@ def checkMinFlow(groups, minFlowFile, withdrawalFile, dates):
 
         # Any other min-flow rule on this reservoir, compared to the same numbers
         other = [c for c in groups.get("rules", pd.DataFrame()).columns
-                 if c.startswith(name + "-") and MINFLOW_OTHER_RULE_PATTERN in c]
+                 if c.startswith(name + "-") and MINFLOW_OTHER_RULE_PATTERN.casefold() in c.casefold()]
         for c in other:
             both = req & groups["rules"][c].reindex(dates).notna()
             matches = both & ((groups["rules"][c].reindex(dates) - required).abs() <= RULE_TOL_CFS)
@@ -464,7 +466,7 @@ def reservoirRules(groups, name, dates):
                 if c.startswith(name + "-") and c.endswith(" " + suffix):
                     values = table[c].reindex(dates)
                     label = c[len(name) + 1:-len(suffix) - 1]
-                    zone = re.match(r"%s-(.+)-ZBOp Rule$" % re.escape(name), label)
+                    zone = re.match(r"%s-(.+)-ZBOp Rule$" % re.escape(name), label, re.I)
                     if zone:
                         found.append(("Guide release, %s zone" % zone.group(1), "guide", values))
                     else:
@@ -480,7 +482,7 @@ def reservoirRules(groups, name, dates):
                 seen.add(rule)
                 # Results name some rules with their outlet ("Dam-Max
                 # Evacuation Release"); the stack does not
-                match = [f for f in found if f[1] != "guide" and (f[0] == rule or f[0].endswith("-" + rule))]
+                match = [f for f in found if f[1] != "guide" and sameRule(f[0], rule)]
                 out.append(match[0] if match else (rule, "none", pd.Series(np.nan, index=dates)))
         # Guide releases last, as what the reservoir does when no rule acts
         out += [f for f in found if f[1] == "guide" and f[2].notna().any()]
@@ -513,6 +515,11 @@ def loadStack(runDir):
     return stack
 
 
+def sameRule(label,rule):
+    label,rule=label.casefold(),rule.casefold()
+    return label==rule or label.endswith('-'+rule)
+
+
 def stackPosition(zones, zone, label):
     """1-based place of a rule in a zone's stack, or None. Results name some
     rules with their outlet ("Dam-Max Evacuation Release"); the stack does not."""
@@ -520,7 +527,7 @@ def stackPosition(zones, zone, label):
         if name != zone:
             continue
         for i, rule in enumerate(rules):
-            if label == rule or label.endswith("-" + rule):
+            if sameRule(label, rule):
                 return i + 1
     return None
 
@@ -570,7 +577,7 @@ def ruleStack(groups, dates):
             for i, rule in enumerate(rules):
                 rows.append({"reservoir": name, "zone": zone, "pool_in_zone_pct": share,
                              "position": i + 1, "rule": rule,
-                             "in_results": "yes" if any(l == rule or l.endswith("-" + rule) for l in labels) else "no"})
+                             "in_results": "yes" if any(sameRule(l, rule) for l in labels) else "no"})
     return pd.DataFrame(rows)
 
 

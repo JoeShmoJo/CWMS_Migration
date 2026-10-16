@@ -104,3 +104,15 @@ the requested member and selected F-part before extraction. A missing operation
 report limits rule-stack checks; it does not establish that computed DSS rule
 records are absent. Check member/F-part and extraction messages before changing
 native output settings. A connection error alone cannot diagnose missing data.
+
+### Uppercase DSS catalogs
+
+DSS 6 can return uppercase B/C names even when earlier DSS 7 extracts preserved
+mixed case. The extractor normalizes reservoir/parameter report labels and uses
+case-insensitive selection, including exclusion of inactive guide rules. The
+checker also matches configuration columns and operation-stack rule labels
+without regard to case. Original full DSS pathnames remain in the series metadata
+and are used unchanged for reads; native records and values are not renamed or
+rewritten. A log showing many selected F-part series followed by “nothing
+matched” for every group indicates a selection failure, not missing ensemble
+rule outputs. Update the installed checker scripts before retrying.

@@ -123,11 +123,27 @@ def groupByseries(pathnames, fPart):
     Only B and C are kept as the key: within one F part they name a series.
     """
     series = OrderedDict()
+    # DSS 6 commonly returns uppercase names; DSS 7 may preserve their case.
+    # Keep original paths for reading, but use consistent report labels.
+    reservoirs={}
+    for pathname in pathnames:
+        parts=_splitPath(pathname)
+        if parts and parts[5].casefold()==fPart.casefold() and parts[1].upper().endswith('-POOL'):
+            name=parts[1][:-5]
+            reservoirs[name.upper()]=name.title() if name.isupper() else name
+    parameters={c.upper():c for rules in SELECTIONS.values() for rule in rules for c in rule['c']}
     for pathname in pathnames:
         parts = _splitPath(pathname)
-        if parts is None or parts[5] != fPart:
+        if parts is None or parts[5].casefold() != fPart.casefold():
             continue
-        key = (parts[1], parts[2])
+        b=parts[1]
+        for upper,name in sorted(reservoirs.items(),key=lambda item:-len(item[0])):
+            if b.upper()==upper or b.upper().startswith(upper+'-'):
+                b=name+b[len(upper):]
+                break
+        b=re.sub(r'-Pool$', '-Pool', b, flags=re.I)
+        b=re.sub(r'-Rule Curve$', '-Rule Curve', b, flags=re.I)
+        key = (b, parameters.get(parts[2].upper(),parts[2]))
         series.setdefault(key, []).append(pathname)
     return series
 
@@ -176,21 +192,22 @@ def selectSeries(seriesKeys, rules):
         cByB.setdefault(b, set()).add(c)
     chosen = []
     for rule in rules:
-        pattern = re.compile(rule["b"])
+        pattern = re.compile(rule["b"], re.I)
         for b in sorted(cByB, key=_naturalKey):
             if not pattern.fullmatch(b):
                 continue
-            if "only_if_has" in rule and rule["only_if_has"] not in cByB[b]:
+            if "only_if_has" in rule and rule["only_if_has"].casefold() not in {c.casefold() for c in cByB[b]}:
                 continue
             if rule.get("pool_exists") and (b + "-Pool") not in cByB:
                 continue
             if rule.get("rule_of_reservoir") and not _isReservoirRule(b, cByB):
                 continue
-            if "exclude" in rule and re.search(rule["exclude"], b):
+            if "exclude" in rule and re.search(rule["exclude"], b, re.I):
                 continue
             for c in rule["c"]:
-                if c in cByB[b] and (b, c) not in chosen:
-                    chosen.append((b, c))
+                for actual in sorted(cByB[b]):
+                    if actual.casefold()==c.casefold() and (b,actual) not in chosen:
+                        chosen.append((b,actual))
     return chosen
 
 
