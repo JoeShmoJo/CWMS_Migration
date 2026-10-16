@@ -204,8 +204,29 @@ def read_alternative_settings(path):
     return values
 
 
-def current_configuration(root, scripts):
-    marker = Path(root)/'rts-baseline-config-active.json'
+def legacy_values(watershed, alternative):
+    if not re.fullmatch(r'[A-Za-z0-9_ .-]+', alternative) or alternative in ('.','..'):
+        raise ValueError('Invalid alternative configuration name')
+    folder=Path(watershed)/'scripts/alt_config'
+    values=read_alternative_settings(folder/'_default.txt')
+    visited=set()
+    name=alternative
+    while True:
+        if name in visited: raise ValueError('Alternative configuration alias cycle')
+        visited.add(name)
+        path=folder/(name+'.txt')
+        lines=path.read_text(encoding='utf-8-sig').splitlines()
+        if lines and lines[0].startswith('@alias '):
+            name=lines[0].split(None,1)[1].strip()
+            if not re.fullmatch(r'[A-Za-z0-9_ .-]+',name) or name in ('.','..'):
+                raise ValueError('Invalid alternative configuration alias')
+            continue
+        values.update(read_alternative_settings(path))
+        return values
+
+
+def current_configuration(root, scripts, alternative='Con_Season', marker_name='rts-baseline-config-active.json', originals='_rts_baseline_originals'):
+    marker = Path(root)/marker_name
     if marker.exists():
         pointer=json.loads(marker.read_text());source=Path(root)/pointer['directory']/'resolved.json'
         if digest_file(source)!=pointer['resolved_sha256']: raise ValueError('Active configuration checksum mismatch')
@@ -219,9 +240,9 @@ def current_configuration(root, scripts):
     # Read installed CSVs, not the example schedules. Current Con_Season defaults
     # have flat Hjson key/value lines; refuse more complex syntax rather than guess.
     result=template(scripts);result['name']='Con_Season imported settings';result['description']='Settings read from the imported RTS model.';watershed=Path(scripts).parent.parent
-    values={}
-    for filename in ('_default.txt','Con_Season.txt'):
-        values.update(read_alternative_settings(watershed/'scripts/alt_config'/filename))
+    values=legacy_values(watershed,alternative)
+    result['name']=alternative+' imported settings'
+    result['description']='Settings imported from '+alternative+' and watershed defaults.'
     for alt_key,(rule,table_name) in TABLE_KEYS.items():
         table=result['rules'][rule]['tables'][table_name]
         path=Path(values.get(alt_key,table['csv_path']))
@@ -235,9 +256,12 @@ def current_configuration(root, scripts):
     import ast
     import sys
     sys.path.insert(0,str(Path(scripts).parent))
-    from rts_baseline_runtime import CONSTANTS
+    if originals=='_standalone_baseline_originals':
+        from standalone_baseline_runtime import CONSTANTS
+    else:
+        from rts_baseline_runtime import CONSTANTS
     for module,key in MODULE_KEYS.items():
-        path=watershed/'scripts/_rts_baseline_originals/externalRules'/(module+'.py')
+        path=watershed/'scripts'/originals/'externalRules'/(module+'.py')
         text=path.read_text()
         for setting,constant in CONSTANTS.items():
             if setting not in result['rules'][key]['settings']: continue
@@ -250,6 +274,8 @@ def apply_configuration(root, context, config, scripts):
     root=Path(root).resolve();scripts=Path(scripts).resolve();watershed=scripts.parent.parent
     if (root/'baseline-execution-test.json').exists():
         raise ValueError('Restore configured execution mode before applying settings.')
+    standalone=context.get('mode')=='standalone'
+    originals='_standalone_baseline_originals' if standalone else '_rts_baseline_originals'
     resolved,linked=resolve(config,scripts,watershed)
     identity=uuid.uuid4().hex
     sets=root/'baseline-configurations/sets';sets.mkdir(parents=True,exist_ok=True)
@@ -267,23 +293,32 @@ def apply_configuration(root, context, config, scripts):
     (directory/'scripts').mkdir()
     script_hashes={}
     for module in MODULE_KEYS:
-        original=watershed/'scripts/_rts_baseline_originals/externalRules'/(module+'.py')
+        original=watershed/'scripts'/originals/'externalRules'/(module+'.py')
         saved=directory/'scripts'/(module+'.py')
         shutil.copy2(original,saved)
         script_hashes[module]=digest_file(saved)
         if digest_file(original)!=script_hashes[module]: raise ValueError('Script changed during snapshot: '+module)
-    shutil.copy2(watershed/'scripts/rts_baseline_runtime.py',directory/'scripts/rts_baseline_runtime.py')
+    runtime='standalone_baseline_runtime.py' if standalone else 'rts_baseline_runtime.py'
+    shutil.copy2(watershed/'scripts'/runtime,directory/'scripts'/runtime)
     resolved.update(table_paths=table_paths,table_sha256=hashes,script_sha256=script_hashes)
     atomic_json(directory/'resolved.json',resolved);atomic_json(directory/'configuration.json',config)
     pointer={'id':identity,'directory':str(directory.relative_to(root)), 'resolved_sha256':digest_file(directory/'resolved.json'),
              'name':config['name'],'context':context,'status':'applied-awaiting-unaugmented-compute'}
     atomic_json(directory/'manifest.json',pointer)
-    atomic_json(root/'augmentation-archives/workflow-pending.json',{'mode':'baseline','baseline_configuration_id':identity})
-    disable(root,identity)
-    atomic_json(root/'rts-baseline-config-active.json',pointer)
-    event(root,'baseline-configuration-applied',configuration_id=identity,name=config['name'])
-    print('Applied baseline configuration:', config['name'],identity,flush=True)
-    print('Augmentation disabled. Reopen and compute in RTS; check RTS baseline init messages.',flush=True)
+    if standalone:
+        pointer['model_alternative']=context['model_alternative']
+        pointer['status']='applied-awaiting-manual-compute'
+        atomic_json(directory/'manifest.json',pointer)
+        atomic_json(root/'standalone-baseline-config-active.json',pointer)
+        print('Applied standalone settings: '+config['name']+' to '+context['model_alternative'],flush=True)
+        print('Compute manually in ResSim. Existing extraction/augmentation trial settings are unchanged.',flush=True)
+    else:
+        atomic_json(root/'augmentation-archives/workflow-pending.json',{'mode':'baseline','baseline_configuration_id':identity})
+        disable(root,identity)
+        atomic_json(root/'rts-baseline-config-active.json',pointer)
+        event(root,'baseline-configuration-applied',configuration_id=identity,name=config['name'])
+        print('Applied baseline configuration:', config['name'],identity,flush=True)
+        print('Augmentation disabled. Reopen and compute in RTS; check RTS baseline init messages.',flush=True)
     return pointer
 
 
@@ -338,8 +373,16 @@ def serve_editor(scripts, context=None):
     import webbrowser
     scripts=Path(scripts);root=Path(context['dss_path']).parent if context else None
     token=secrets.token_urlsafe(32)
-    config=current_configuration(root,scripts) if root else template(scripts)
+    standalone=bool(context and context.get('mode')=='standalone')
+    if standalone:
+        from standalone_configuration import current as standalone_current
+        config=standalone_current(root,scripts,context)
+    else:
+        config=current_configuration(root,scripts) if root else template(scripts)
     page=(scripts/'baseline-editor.html').read_text(encoding='utf-8')
+    if standalone:
+        # Adjust static help before injecting user configuration JSON.
+        page=page.replace('in RTS','in ResSim').replace('the RTS menu','the standalone menu').replace('the RTS adapter','the standalone adapter')
     start=page.index('<script id="example" type="application/json">')+len('<script id="example" type="application/json">');end=page.index('</script>',start)
     page=page[:start]+json.dumps(config).replace('</','<\\/')+page[end:]
     page=page.replace('Design mockup · No connection to RTS or model files', 'RTS baseline editor · Save and Apply are separate actions')
@@ -364,6 +407,20 @@ loadSet.onclick=async()=>{if(!savedSets.value)return;if(!confirm('Replace the se
     page=page.replace('</html>',library_bridge+'</html>')
     close_bridge="""<script>const closeEditor=document.createElement('button');closeEditor.textContent='Close Editor';document.querySelector('.toolbar').append(closeEditor);closeEditor.onclick=async()=>{await fetch('/close',{method:'POST',headers:{'X-Editor-Token':TOKEN}});document.body.textContent='Editor closed. You can close this browser tab.'};</script>""".replace('TOKEN',json.dumps(token))
     page=page.replace('</html>',close_bridge+'</html>')
+    if standalone:
+        page=page.replace('RTS baseline editor', 'Standalone baseline editor')
+        page=page.replace('Finish all computes and close the forecast in RTS before applying. Apply this set, disable augmentation, and require a new unaugmented compute?', 'Finish all computes before applying. Apply these settings to the displayed standalone simulation and alternative? Recompute affected trials afterward.')
+        page=page.replace('Augmentation is off. Reopen the forecast and compute in RTS; check RTS baseline init messages.', 'Settings will load at the next initialization. Compute manually in ResSim; retain earlier results separately.')
+        page=page.replace('Settings are staged. Reopen the forecast and compute in RTS. Then accept completed baseline results. Do not re-extract.', 'Standalone settings are staged. Recompute the baseline and affected augmentation trials manually. Do not re-extract for settings changes.')
+        page=page.replace('Apply for Baseline Compute', 'Apply to Standalone Alternative')
+        page=page.replace('Apply target: '+context['forecast_name']+' / '+context['run_name'], 'Standalone target: '+context['run_name']+' / '+context['model_alternative'])
+        page=page.replace('Baseline Configuration</', 'Standalone Baseline Configuration</')
+        legacy_bridge="""<script>
+const presets=document.createElement('select');const importPreset=document.createElement('button');importPreset.textContent='Import legacy alternative settings';document.querySelector('.toolbar').append(presets,importPreset);
+for(const name of LEGACY){const option=document.createElement('option');option.value=name;option.textContent=name;presets.append(option)}
+importPreset.onclick=async()=>{try{config=await libraryRequest('/legacy',{alternative:presets.value});selected='overview';render();status('Imported baseline rule settings only. Save and Apply separately; operation sets and augmentation mappings are unchanged.')}catch(e){alert(e.message)}};
+</script>""".replace('LEGACY',json.dumps(sorted(path.stem for path in (scripts.parent/'alt_config').glob('*.txt') if path.stem!='_default')))
+        page=page.replace('</html>',legacy_bridge+'</html>')
     class Handler(BaseHTTPRequestHandler):
         def log_message(self,*args): pass
         def do_GET(self):
@@ -373,7 +430,7 @@ loadSet.onclick=async()=>{if(!savedSets.value)return;if(!confirm('Replace the se
             if self.path=='/close' and self.headers.get('X-Editor-Token')==token:
                 self.send_response(200);self.end_headers();self.wfile.write(b'closed')
                 threading.Thread(target=server.shutdown,daemon=True).start();return
-            if self.path not in ('/apply','/save','/load','/library') or (self.path=='/apply' and not root) or self.headers.get('X-Editor-Token')!=token:
+            if self.path not in ('/apply','/save','/load','/library','/legacy') or (self.path=='/apply' and not root) or self.headers.get('X-Editor-Token')!=token:
                 self.send_error(403);return
             try:
                 length=int(self.headers.get('Content-Length','0'))
@@ -382,6 +439,9 @@ loadSet.onclick=async()=>{if(!savedSets.value)return;if(!confirm('Replace the se
                 if self.path=='/apply': result=apply_configuration(root,context,payload,scripts)
                 elif self.path=='/save': result=save_library_configuration(scripts,payload)
                 elif self.path=='/library': result=list_library_configurations(scripts)
+                elif self.path=='/legacy' and standalone:
+                    from standalone_configuration import import_legacy
+                    result=import_legacy(root,scripts,payload['alternative'])
                 else:
                     identity=payload.get('id','')
                     if not re.fullmatch('[a-f0-9]{32}',identity): raise ValueError('Invalid saved configuration identifier')

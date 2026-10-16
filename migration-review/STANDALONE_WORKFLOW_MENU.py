@@ -5,7 +5,7 @@ from java.io import File
 from java.util import ArrayList
 from java.awt import Desktop, GridLayout, BorderLayout
 from javax.swing import (JFrame, JPanel, JButton, JTextArea, JScrollPane,
-                         JOptionPane, SwingUtilities, WindowConstants)
+                         JOptionPane, SwingUtilities, WindowConstants, JLabel, JTextField)
 from hec.script import ClientAppWrapper
 
 root = str(ClientAppWrapper.getWatershed().getWkspDir())
@@ -31,8 +31,12 @@ class Menu:
         self.text.setEditable(False)
         self.text.setLineWrap(True)
         self.text.setWrapStyleWord(True)
-        self.text.setText('Loaded watershed: ' + root + '\n\nUses this watershed\'s ExternalPython/CONFIG.py. Set SIM_NAME and alternative/trial settings before running. Finish computes and close DSS views before file-writing steps. Compute manually in ResSim.\n')
+        self.text.setText('Baseline settings can be saved/loaded/applied through the shared editor. Use one model alternative; recompute after Apply.\nLoaded watershed: ' + root + '\n\nUses this watershed\'s ExternalPython/CONFIG.py. Set SIM_NAME and alternative/trial settings before running. Finish computes and close DSS views before file-writing steps. Compute manually in ResSim.\n')
         buttons = JPanel(GridLayout(0, 2, 5, 5))
+        buttons.add(JLabel('Single model alternative'))
+        self.alternative = JTextField('Con_Season')
+        buttons.add(self.alternative)
+        buttons.add(JButton('Baseline Configuration', actionPerformed=lambda e: self.open_baseline()))
         jobs = [
           ('Extract inputs (all four steps)', ['CWMS_Downloader_Module.py', 'RFC_Downloader_Module.py', 'Dummy_0_and_WY_Abundant_Module.py', 'OSI_Ensemble_Year.py']),
           ('Calculate augmentation', ['MainstemAugmentation.py']),
@@ -49,6 +53,25 @@ class Menu:
         self.frame.setVisible(True)
     def message(self, value):
         SwingUtilities.invokeLater(Call(lambda: self.text.append(value + '\n')))
+    def open_baseline(self):
+        if self.busy: return
+        filename = os.path.join(scripts, 'standalone_configuration.py')
+        if not os.path.isfile(filename):
+            JOptionPane.showMessageDialog(self.frame, 'Install the standalone configuration editor first.')
+            return
+        if JOptionPane.showConfirmDialog(self.frame, 'Finish all computes before Apply. Settings target the simulation in CONFIG.py and this alternative:\n' + self.alternative.getText(), 'Standalone configuration', JOptionPane.OK_CANCEL_OPTION) != JOptionPane.OK_OPTION:
+            return
+        directory = os.path.join(root, 'standalone-workflow-logs')
+        if not os.path.isdir(directory): os.makedirs(directory)
+        self.log = os.path.join(directory, 'configuration-' + str(System.currentTimeMillis()) + '.log')
+        command = ArrayList()
+        for arg in [python, '-u', filename, '--watershed', root, '--alternative', str(self.alternative.getText()).strip()]: command.add(arg)
+        builder = ProcessBuilder(command)
+        builder.directory(File(scripts))
+        builder.redirectErrorStream(True)
+        builder.redirectOutput(File(self.log))
+        builder.start()
+        self.message('Configuration editor starting. Browser opens after settings load. Log: ' + self.log)
     def open_config(self):
         if self.busy: return
         Desktop.getDesktop().open(File(os.path.join(scripts, 'CONFIG.py')))

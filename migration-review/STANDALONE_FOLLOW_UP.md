@@ -126,3 +126,11 @@ Consider the same archive reader for standalone plotting/augmentation later.
 Keep peaks-only PostProcess_CSV behavior for large ensemble studies. Direct
 per-member in-memory time-series export, if needed, is a separate optimization;
 this RTS change does not alter the cleanup script or reduce native DSS output.
+
+## Standalone configuration menu implemented
+
+See STANDALONE_CONFIGURATION.md and Install-StandaloneConfiguration.py. The shared
+baseline JSON editor now supports importing alternative-named presets and applying
+a named set to one standalone simulation/alternative. Existing standalone
+augmentation/trial and plot scripts remain separate; the full RTS archive workflow
+has not been ported. No application JAR changes are required.
