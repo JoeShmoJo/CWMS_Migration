@@ -88,6 +88,9 @@ def alternative_overrides(network):
     result['irrmActive'] = dict((name, False) for name in ('Big Cliff','Blue River','Cottage Grove','Cougar','Detroit','Dexter','Dorena','Fall Creek','Fern Ridge','Foster','Green Peter','Hills Creek','Lookout Point'))
     result['irrmActive'].update(copy.deepcopy(data['rules']['irrm']['settings']['active']))
     result['irrmTargetElevs'] = copy.deepcopy(data['rules']['irrm']['settings']['target_elevation_ft'])
+    for name in result['irrmActive']:
+        if result['irrmTargetElevs'].get(name) is None:
+            result['irrmActive'][name] = False
     network.printMessage('RTS baseline configuration: %s [%s]' % (data['name'], pointer['id']))
     return result
 

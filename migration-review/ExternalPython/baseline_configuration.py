@@ -95,7 +95,7 @@ def validate_table(rule, name, table, template):
             if reservoir not in RESERVOIRS: raise ValueError('Unknown reservoir: ' + str(reservoir))
             if rule=='deep_drawdown' and reservoir in seen:raise ValueError('Duplicate event reservoir: '+reservoir)
             seen.add(reservoir)
-            inactive_placeholder=rule=='deep_drawdown' and str(values.get('ACTIVE')).upper()=='FALSE'
+            inactive_placeholder=rule=='deep_drawdown'
             for key, value in values.items():
                 if key in ('Notes','NOTES','RESERVOIR','Project'): continue
                 if key == 'ACTIVE':
@@ -136,7 +136,19 @@ def event_rows_for_runtime(rule,table):
     if rule!='deep_drawdown':return table['rows']
     columns=table['columns']
     required=[i for i,key in enumerate(columns) if key not in ('Notes','NOTES')]
-    return [row for row in table['rows'] if all(row[i] not in (None,'') for i in required)]
+    return [row for row in table['rows'] if str(row[columns.index('ACTIVE')]).upper()=='TRUE' and all(row[i] not in (None,'') for i in required)]
+
+
+def operating_status(configuration):
+    rules=configuration['rules'];settings=rules['irrm']['settings'];statuses={}
+    statuses['irrm']={name:('off' if not settings['active'].get(name,False) else
+        'not configured' if settings['target_elevation_ft'].get(name) is None else 'on') for name in sorted(RESERVOIRS)}
+    table=rules['deep_drawdown']['tables']['configuration'];columns=table['columns']
+    required=[i for i,key in enumerate(columns) if key not in ('RESERVOIR','Notes','NOTES','ACTIVE')]
+    statuses['deep_drawdown']={row[columns.index('RESERVOIR')]:
+        ('off' if str(row[columns.index('ACTIVE')]).upper()!='TRUE' else
+         'not configured' if any(row[i] in (None,'') for i in required) else 'on') for row in table['rows']}
+    return statuses
 
 
 def template(scripts):
@@ -154,12 +166,10 @@ def validate_settings(settings, defaults, prefix=''):
             for name,item in value.items():
                 if key=='active':
                     if not isinstance(item,bool):raise ValueError('Invalid IRRM activation')
-                elif item is None and not settings['active'].get(name,False):
+                elif item is None:
                     continue
                 elif isinstance(item,bool) or not isinstance(item,(int,float)) or not math.isfinite(item):
                     raise ValueError('IRRM target must be finite feet')
-            if key=='active' and any(flag and settings['target_elevation_ft'].get(name) is None for name,flag in value.items()):
-                raise ValueError('Enabled IRRM reservoir requires target elevation')
         elif key == 'active' and isinstance(expected,bool) and isinstance(value,dict):
             if any(name not in RESERVOIRS or not isinstance(flag,bool) for name,flag in value.items()):
                 raise ValueError('Invalid reservoir activation map')
@@ -216,7 +226,9 @@ def resolve(config, scripts, watershed):
                 linked[key+'-'+name+'.csv'] = raw
             validate_table(key,name,table,reference['tables'][name])
             table['mode'] = 'inline'
-    return with_null_reservoirs(result), linked
+    result=with_null_reservoirs(result)
+    result['operating_status']=operating_status(result)
+    return result, linked
 
 
 def read_alternative_settings(path):
@@ -322,6 +334,10 @@ def apply_configuration(root, context, config, scripts):
     originals='_standalone_baseline_originals' if standalone else '_rts_baseline_originals'
     config=with_null_reservoirs(config)
     resolved,linked=resolve(config,scripts,watershed)
+    config['operating_status']=copy.deepcopy(resolved['operating_status'])
+    for rule,statuses in resolved['operating_status'].items():
+        for reservoir,state in statuses.items():
+            if state=='not configured':print(rule+' / '+reservoir+': not configured; no additional release requirement',flush=True)
     identity=uuid.uuid4().hex
     sets=root/'baseline-configurations/sets';sets.mkdir(parents=True,exist_ok=True)
     directory=sets/identity;directory.mkdir()

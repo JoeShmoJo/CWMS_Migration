@@ -16,5 +16,6 @@ into augmentation or existing plots.
 
 Baseline configurations now contain inactive null entries for unused IRRM and
 Deep Drawdown reservoirs, covering all 13 supported locations. Existing values are
-preserved; fill required fields before enabling. Null placeholders are kept out
+preserved. Off or incomplete entries are neutral, and the browser identifies
+their effective state. Null placeholders are kept out
 of legacy numeric CSV readers. Native rule attachment still requires ResSim.

@@ -101,10 +101,10 @@ or guarantee a speed improvement; benchmark a small serial/parallel test separat
 
 Baseline configurations include all 13 reservoirs for IRRM and Deep Drawdown.
 Existing operating entries are preserved. Additional entries are inactive with
-null/blank targets and seasonal fields. Blank entries are allowed only while
-inactive. Fill every required value before enabling; validation rejects an enabled
-incomplete entry. The browser displays numeric nulls as blank number fields.
-Inactive incomplete Deep Drawdown rows are omitted from runtime CSVs so legacy
+null/blank targets and seasonal fields. Off or incomplete entries impose no additional release requirement, even with
+the switch on. The browser shows Off, Not configured or On; malformed nonblank
+values still fail validation. Complete enabled entries operate normally. The browser displays numeric nulls as blank number fields.
+Off/incomplete Deep Drawdown rows are omitted from runtime CSVs so legacy
 readers never try to parse blank numbers. Disabled IRRM skips unused targets.
 Opening an older saved set adds missing slots in the editor without rewriting the
 old library file or active snapshot. Save/Apply creates a new version as usual.

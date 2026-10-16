@@ -86,9 +86,12 @@ historical simulations. The existing menu does not supply historical RFC archive
 IRRM and Deep Drawdown configurations include all 13 reservoirs. Existing values
 and activation flags are preserved; missing entries have false activation and
 null targets/seasonal fields. They display as blanks and do not add native rules.
-Enabled incomplete entries fail validation. Inactive incomplete Deep Drawdown
-rows are excluded from runtime CSVs; disabled IRRM never interpolates a null
-target. Opening older sets expands only the editable view; Save/Apply makes a new
+An off switch or missing required setting makes that reservoir's rule neutral,
+even if its switch is on. The browser shows Off, Not configured, or On and the
+resolved snapshot records operating_status. Complete enabled entries operate
+normally. Off/incomplete Deep Drawdown rows are excluded from runtime CSVs;
+IRRM masks an incomplete target inactive before interpolation. Invalid nonblank
+numbers/dates still fail validation. Opening older sets expands only the editable view; Save/Apply makes a new
 version without rewriting historical library/applied files. Linked CSV bytes stay
 unchanged; missing editable slots appear after resolving/saving them inline.
 

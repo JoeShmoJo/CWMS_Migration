@@ -157,9 +157,10 @@ snapshotted when applied; a saved library set embeds the schedule values.
 | Accepted configuration provenance | `F\baseline-configurations\accepted-computes\<id>\...` | Acceptance; copied configuration/script/table provenance plus `acceptance.json` |
 
 Unused IRRM and Deep Drawdown reservoirs have inactive null configuration slots.
-No native rule binding is added. Complete required fields before enabling; the
-backend excludes incomplete inactive Deep Drawdown rows from runtime CSVs and
-skips disabled IRRM targets. Existing values and older snapshots are preserved.
+No native rule binding is added. Off or incomplete entries impose no additional release requirement, even with
+the switch on. The browser and resolved operating_status distinguish Off, Not
+configured and On. The backend excludes off/incomplete Deep Drawdown rows from
+runtime CSVs and masks off/incomplete IRRM targets inactive. Existing values and older snapshots are preserved.
 
 Save does not apply. Apply disables augmentation and records a pending unaugmented
 compute; settings take effect at the next initialization, not halfway through a

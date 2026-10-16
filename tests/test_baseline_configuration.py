@@ -73,15 +73,36 @@ class ConfigurationTests(unittest.TestCase):
         reloaded=config.current_configuration(self.root,self.scripts)
         self.assertIsNone(reloaded['rules']['irrm']['settings']['target_elevation_ft']['Dorena'])
 
-    def test_incomplete_null_slots_must_not_be_enabled(self):
+    def test_incomplete_enabled_entries_are_neutral_and_reported(self):
         settings=self.configuration['rules']['irrm']['settings']
         settings['active']['Dorena']=True
-        with self.assertRaisesRegex(ValueError,'requires target'):self.apply()
-        settings['active']['Dorena']=False
         table=self.configuration['rules']['deep_drawdown']['tables']['configuration']
         row=next(row for row in table['rows'] if row[0]=='Dorena')
         row[table['columns'].index('ACTIVE')]='TRUE'
-        with self.assertRaisesRegex(ValueError,'event setting'):self.apply()
+        pointer=self.apply();directory=self.root/pointer['directory']
+        resolved=json.loads((directory/'resolved.json').read_text())
+        self.assertEqual(resolved['operating_status']['irrm']['Dorena'],'not configured')
+        self.assertEqual(resolved['operating_status']['deep_drawdown']['Dorena'],'not configured')
+        self.assertTrue(resolved['rules']['irrm']['settings']['active']['Dorena'])
+        self.assertNotIn('Dorena',(directory/resolved['table_paths']['DeepDrawdownConfigCSV']).read_text())
+        network,rule,store=self.network()
+        rule.getReservoirElement=lambda:SimpleNamespace(toString=lambda:'Dorena')
+        namespace={'_rts_original_initRuleScript':lambda *args:(_ for _ in ()).throw(AssertionError('Incomplete target interpolated'))}
+        self.assertTrue(runtime.initialize_rule('IRRM',rule,network,namespace))
+        self.assertFalse(store.varGet('irrmActive')['Dorena'])
+        self.assertEqual(resolved['operating_status']['irrm']['Detroit'],'on')
+        # A real malformed value is still an input error, not a blank setting.
+        settings['target_elevation_ft']['Dorena']='invalid'
+        with self.assertRaisesRegex(ValueError,'finite feet'):self.apply()
+
+    def test_off_complete_deep_drawdown_is_excluded_from_runtime(self):
+        table=self.configuration['rules']['deep_drawdown']['tables']['configuration']
+        enabled=next(row for row in table['rows'] if str(row[table['columns'].index('ACTIVE')]).upper()=='TRUE')
+        name=enabled[0];enabled[table['columns'].index('ACTIVE')]='FALSE'
+        pointer=self.apply();directory=self.root/pointer['directory']
+        resolved=json.loads((directory/'resolved.json').read_text())
+        self.assertEqual(resolved['operating_status']['deep_drawdown'][name],'off')
+        self.assertNotIn(name,(directory/resolved['table_paths']['DeepDrawdownConfigCSV']).read_text())
 
     def test_older_configuration_gets_only_missing_null_slots_without_mutating_input(self):
         legacy=json.loads(json.dumps(self.configuration))
@@ -108,7 +129,9 @@ class ConfigurationTests(unittest.TestCase):
         self.assertFalse(store.varGet('irrmActive')['Dexter'])
         settings['active']['Dorena']=True
         settings['target_elevation_ft'].pop('Dorena')
-        with self.assertRaisesRegex(ValueError,'requires target'):self.apply()
+        pointer=self.apply()
+        resolved=json.loads((self.root/pointer['directory']/'resolved.json').read_text())
+        self.assertEqual(resolved['operating_status']['irrm']['Dorena'],'not configured')
 
     def test_direct_adapter_preserves_original_timestep_function(self):
         path=self.scripts.parent/'_rts_baseline_originals/externalRules/DraftToRC.py'
