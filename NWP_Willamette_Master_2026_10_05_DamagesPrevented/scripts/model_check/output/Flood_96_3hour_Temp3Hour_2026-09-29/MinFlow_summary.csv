@@ -1,0 +1,11 @@
+reservoir,released_at,days_with_requirement,mean_required_cfs,days_short,short_max_limit_below,short_unexplained,shortfall_af,min_limit_below_required_days,rule_attached,rule_matches_config_pct
+Blue River,Blue River,365.0,77.0,0.12,0.12,0.0,7.0,3,yes,99.8
+Cottage Grove,Cottage Grove,365.0,69.2,13.12,13.12,0.0,578.0,107,yes,99.8
+Cougar,Cougar,365.0,355.1,0.12,0.12,0.0,34.0,1,yes,99.8
+Detroit,Detroit,365.0,1364.0,7.38,7.38,0.0,15651.0,60,yes,99.7
+Dorena,Dorena,365.0,157.2,5.38,5.38,0.0,504.0,45,yes,99.8
+Fall Creek,Fall Creek,365.0,114.3,0.25,0.25,0.0,27.0,4,yes,99.7
+Fern Ridge,Fern Ridge,365.0,82.0,0.12,0.12,0.0,8.0,3,yes,99.8
+Green Peter,Foster,365.0,1220.1,1.38,1.38,0.0,528.0,n/a (via Foster),yes,n/a (via Foster)
+Hills Creek,Hills Creek,365.0,462.1,0.0,0.0,0.0,0.0,0,yes,99.8
+Lookout Point,Lookout Point,365.0,1303.4,0.0,0.0,0.0,0.0,1,yes,99.8

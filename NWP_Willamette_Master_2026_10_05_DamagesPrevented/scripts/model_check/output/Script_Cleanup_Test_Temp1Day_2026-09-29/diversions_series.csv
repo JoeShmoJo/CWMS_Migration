@@ -1,0 +1,65 @@
+column,B,C,units,n_values,example_path
+Diversion 1 down Flow-DECISION,Diversion 1 down,Flow-DECISION,cfs,1461,//Diversion 1 down/Flow-DECISION/01Jan2012/1Day/Temp1Day--0/
+Diversion 1 up Flow-DECISION,Diversion 1 up,Flow-DECISION,cfs,1461,//Diversion 1 up/Flow-DECISION/01Jan2012/1Day/Temp1Day--0/
+Diversion 2 Flow-DECISION,Diversion 2,Flow-DECISION,cfs,1461,//Diversion 2/Flow-DECISION/01Jan2012/1Day/Temp1Day--0/
+Diversion 3 Flow-DECISION,Diversion 3,Flow-DECISION,cfs,1461,//Diversion 3/Flow-DECISION/01Jan2012/1Day/Temp1Day--0/
+Diversion 4 Flow-DECISION,Diversion 4,Flow-DECISION,cfs,1461,//Diversion 4/Flow-DECISION/01Jan2012/1Day/Temp1Day--0/
+Diversion 5 Flow-DECISION,Diversion 5,Flow-DECISION,cfs,1461,//Diversion 5/Flow-DECISION/01Jan2012/1Day/Temp1Day--0/
+Diversion 6 Flow-DECISION,Diversion 6,Flow-DECISION,cfs,1461,//Diversion 6/Flow-DECISION/01Jan2012/1Day/Temp1Day--0/
+Diversion 7 Flow-DECISION,Diversion 7,Flow-DECISION,cfs,1461,//Diversion 7/Flow-DECISION/01Jan2012/1Day/Temp1Day--0/
+Diversion 8 Flow-DECISION,Diversion 8,Flow-DECISION,cfs,1461,//Diversion 8/Flow-DECISION/01Jan2012/1Day/Temp1Day--0/
+Diversion 9 Flow-DECISION,Diversion 9,Flow-DECISION,cfs,1461,//Diversion 9/Flow-DECISION/01Jan2012/1Day/Temp1Day--0/
+Diversion 10 Flow-DECISION,Diversion 10,Flow-DECISION,cfs,1461,//Diversion 10/Flow-DECISION/01Jan2012/1Day/Temp1Day--0/
+Diversion 11 Flow-DECISION,Diversion 11,Flow-DECISION,cfs,1461,//Diversion 11/Flow-DECISION/01Jan2012/1Day/Temp1Day--0/
+Diversion 12 Flow-DECISION,Diversion 12,Flow-DECISION,cfs,1461,//Diversion 12/Flow-DECISION/01Jan2012/1Day/Temp1Day--0/
+Diversion 13 Flow-DECISION,Diversion 13,Flow-DECISION,cfs,1461,//Diversion 13/Flow-DECISION/01Jan2012/1Day/Temp1Day--0/
+Diversion 14 Flow-DECISION,Diversion 14,Flow-DECISION,cfs,1461,//Diversion 14/Flow-DECISION/01Jan2012/1Day/Temp1Day--0/
+Diversion 15 Flow-DECISION,Diversion 15,Flow-DECISION,cfs,1461,//Diversion 15/Flow-DECISION/01Jan2012/1Day/Temp1Day--0/
+Return 1 down Flow-DECISION,Return 1 down,Flow-DECISION,cfs,1461,//Return 1 down/Flow-DECISION/01Jan2012/1Day/Temp1Day--0/
+Return 1 up Flow-DECISION,Return 1 up,Flow-DECISION,cfs,1461,//Return 1 up/Flow-DECISION/01Jan2012/1Day/Temp1Day--0/
+Return 2 Flow-DECISION,Return 2,Flow-DECISION,cfs,1461,//Return 2/Flow-DECISION/01Jan2012/1Day/Temp1Day--0/
+Return 3 Flow-DECISION,Return 3,Flow-DECISION,cfs,1461,//Return 3/Flow-DECISION/01Jan2012/1Day/Temp1Day--0/
+Return 4 Flow-DECISION,Return 4,Flow-DECISION,cfs,1461,//Return 4/Flow-DECISION/01Jan2012/1Day/Temp1Day--0/
+Return 5 Flow-DECISION,Return 5,Flow-DECISION,cfs,1461,//Return 5/Flow-DECISION/01Jan2012/1Day/Temp1Day--0/
+Return 6 Flow-DECISION,Return 6,Flow-DECISION,cfs,1461,//Return 6/Flow-DECISION/01Jan2012/1Day/Temp1Day--0/
+Return 7 Flow-DECISION,Return 7,Flow-DECISION,cfs,1461,//Return 7/Flow-DECISION/01Jan2012/1Day/Temp1Day--0/
+Return 8 Flow-DECISION,Return 8,Flow-DECISION,cfs,1461,//Return 8/Flow-DECISION/01Jan2012/1Day/Temp1Day--0/
+Return 9 Flow-DECISION,Return 9,Flow-DECISION,cfs,1461,//Return 9/Flow-DECISION/01Jan2012/1Day/Temp1Day--0/
+Return 10 Flow-DECISION,Return 10,Flow-DECISION,cfs,1461,//Return 10/Flow-DECISION/01Jan2012/1Day/Temp1Day--0/
+Return 11 Flow-DECISION,Return 11,Flow-DECISION,cfs,1461,//Return 11/Flow-DECISION/01Jan2012/1Day/Temp1Day--0/
+Return 12 Flow-DECISION,Return 12,Flow-DECISION,cfs,1461,//Return 12/Flow-DECISION/01Jan2012/1Day/Temp1Day--0/
+Return 13 Flow-DECISION,Return 13,Flow-DECISION,cfs,1461,//Return 13/Flow-DECISION/01Jan2012/1Day/Temp1Day--0/
+Return 14 Flow-DECISION,Return 14,Flow-DECISION,cfs,1461,//Return 14/Flow-DECISION/01Jan2012/1Day/Temp1Day--0/
+Return 15 Flow-DECISION,Return 15,Flow-DECISION,cfs,1461,//Return 15/Flow-DECISION/01Jan2012/1Day/Temp1Day--0/
+Diversion 1 down-Diversion 1 down Flow-SPEC,Diversion 1 down-Diversion 1 down,Flow-SPEC,cfs,1461,//Diversion 1 down-Diversion 1 down/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Diversion 1 up-Diversion 1 up Flow-SPEC,Diversion 1 up-Diversion 1 up,Flow-SPEC,cfs,1461,//Diversion 1 up-Diversion 1 up/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Diversion 2-Diversion 2 Flow-SPEC,Diversion 2-Diversion 2,Flow-SPEC,cfs,1461,//Diversion 2-Diversion 2/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Diversion 3-Diversion 3 Flow-SPEC,Diversion 3-Diversion 3,Flow-SPEC,cfs,1461,//Diversion 3-Diversion 3/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Diversion 4-Diversion 4 Flow-SPEC,Diversion 4-Diversion 4,Flow-SPEC,cfs,1461,//Diversion 4-Diversion 4/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Diversion 5-Diversion 5 Flow-SPEC,Diversion 5-Diversion 5,Flow-SPEC,cfs,1461,//Diversion 5-Diversion 5/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Diversion 6-Diversion 6 Flow-SPEC,Diversion 6-Diversion 6,Flow-SPEC,cfs,1461,//Diversion 6-Diversion 6/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Diversion 7-Diversion 7 Flow-SPEC,Diversion 7-Diversion 7,Flow-SPEC,cfs,1461,//Diversion 7-Diversion 7/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Diversion 8-Diversion 8 Flow-SPEC,Diversion 8-Diversion 8,Flow-SPEC,cfs,1461,//Diversion 8-Diversion 8/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Diversion 9-Diversion 9 Flow-SPEC,Diversion 9-Diversion 9,Flow-SPEC,cfs,1461,//Diversion 9-Diversion 9/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Diversion 10-Diversion 10 Flow-SPEC,Diversion 10-Diversion 10,Flow-SPEC,cfs,1461,//Diversion 10-Diversion 10/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Diversion 11-Diversion 11 Flow-SPEC,Diversion 11-Diversion 11,Flow-SPEC,cfs,1461,//Diversion 11-Diversion 11/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Diversion 12-Diversion 12 Flow-SPEC,Diversion 12-Diversion 12,Flow-SPEC,cfs,1461,//Diversion 12-Diversion 12/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Diversion 13-Diversion 13 Flow-SPEC,Diversion 13-Diversion 13,Flow-SPEC,cfs,1461,//Diversion 13-Diversion 13/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Diversion 14-Diversion 14 Flow-SPEC,Diversion 14-Diversion 14,Flow-SPEC,cfs,1461,//Diversion 14-Diversion 14/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Diversion 15-Diversion 15 Flow-SPEC,Diversion 15-Diversion 15,Flow-SPEC,cfs,1461,//Diversion 15-Diversion 15/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Return 1 down-Return 1 down Flow-SPEC,Return 1 down-Return 1 down,Flow-SPEC,cfs,1461,//Return 1 down-Return 1 down/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Return 1 up-Return 1 up Flow-SPEC,Return 1 up-Return 1 up,Flow-SPEC,cfs,1461,//Return 1 up-Return 1 up/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Return 2-Return 2 Flow-SPEC,Return 2-Return 2,Flow-SPEC,cfs,1461,//Return 2-Return 2/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Return 3-Return 3 Flow-SPEC,Return 3-Return 3,Flow-SPEC,cfs,1461,//Return 3-Return 3/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Return 4-Return 4 Flow-SPEC,Return 4-Return 4,Flow-SPEC,cfs,1461,//Return 4-Return 4/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Return 5-Return 5 Flow-SPEC,Return 5-Return 5,Flow-SPEC,cfs,1461,//Return 5-Return 5/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Return 6-Return 6 Flow-SPEC,Return 6-Return 6,Flow-SPEC,cfs,1461,//Return 6-Return 6/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Return 7-Return 7 Flow-SPEC,Return 7-Return 7,Flow-SPEC,cfs,1461,//Return 7-Return 7/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Return 8-Return 8 Flow-SPEC,Return 8-Return 8,Flow-SPEC,cfs,1461,//Return 8-Return 8/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Return 9-Return 9 Flow-SPEC,Return 9-Return 9,Flow-SPEC,cfs,1461,//Return 9-Return 9/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Return 10-Return 10 Flow-SPEC,Return 10-Return 10,Flow-SPEC,cfs,1461,//Return 10-Return 10/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Return 11-Return 11 Flow-SPEC,Return 11-Return 11,Flow-SPEC,cfs,1461,//Return 11-Return 11/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Return 12-Return 12 Flow-SPEC,Return 12-Return 12,Flow-SPEC,cfs,1461,//Return 12-Return 12/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Return 13-Return 13 Flow-SPEC,Return 13-Return 13,Flow-SPEC,cfs,1461,//Return 13-Return 13/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Return 14-Return 14 Flow-SPEC,Return 14-Return 14,Flow-SPEC,cfs,1461,//Return 14-Return 14/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Return 15-Return 15 Flow-SPEC,Return 15-Return 15,Flow-SPEC,cfs,1461,//Return 15-Return 15/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/

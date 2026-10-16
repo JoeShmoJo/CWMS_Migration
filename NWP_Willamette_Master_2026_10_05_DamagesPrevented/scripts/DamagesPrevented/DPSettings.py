@@ -1,0 +1,72 @@
+"""
+Damages Prevented settings: where every input and output lives, and which
+reservoirs are paired with a re-regulating dam.
+
+Every path is relative to the watershed folder. The menu shows them, and each
+step writes one line to its log saying which files it used.
+
+Everything Damages Prevented uses lives under scripts/DamagesPrevented:
+    DP_Download/out/obsData.dss   downloaded USGS/CWMS data (DP_Download/DP_Download.py, desktop Python)
+    DPdata/DPcalc.dss             computed locals the alternatives read
+                                  (Willamette Falls + water-balance locals)
+    DPdata/MiniSimulations.dss    mini-simulation time series
+    DPdata/Results/*.csv          flow reduction tables
+    DPdata/logs/*.log             one log per step
+"""
+from NWDJyLib.ResSim import ResSimController
+
+################################################################################
+# USER INPUT
+DP_DIR = "scripts/DamagesPrevented"
+OBSDATA_DSS = DP_DIR + "/DP_Download/out/obsData.dss"    #downloaded USGS/CWMS data (DP_Download.py)
+DATA_DIR = DP_DIR + "/DPdata"                            #everything the ResSim steps write
+DPCALC_DSS = DATA_DIR + "/DPcalc.dss"                    #computed locals the Obs/Unreg alternatives read
+ZERO_FLOW_DSS = DATA_DIR + "/Zero_Flow_record.dss"       #dummy zero record; locals mapped here count as 0 in step 2
+MINISIM_DSS = DATA_DIR + "/MiniSimulations.dss"          #mini-simulation output time series
+RESULTS_DIR = DATA_DIR + "/Results"                      #mini-simulation CSV tables
+LOG_DIR = DATA_DIR + "/logs"                             #one log file per step
+
+CONFIG_DIR = DP_DIR + "/config"
+TRANSFORM_CSV = CONFIG_DIR + "/TransformedLocals.csv"    #gage transformations (Willamette Falls)
+CONTROL_POINTS_TXT = CONFIG_DIR + "/ControlPoints.txt"   #junctions to report flow reductions at
+RESERVOIRS_TXT = CONFIG_DIR + "/Reservoirs.txt"          #reservoirs to run with/without
+ADDED_POINTS_CSV = CONFIG_DIR + "/AddedFlowPoints.csv"   #control points beyond the network: junction + gage (Willamette+Clackamas)
+
+#Reservoirs that release into a re-regulating reservoir. The pair is treated as
+#one project in the mini-simulations, credited to the upstream reservoir.
+REREG = {"Detroit": "Big Cliff", "Lookout Point": "Dexter"}
+
+#Include diversions? False (normal): Damages Prevented ignores every diversion -
+#the water-balance locals don't deduct them and the mini-simulations don't take
+#them out. Keep the diversions inactive in the Observed and Unregulated
+#alternatives so the ResSim computes match. True deducts each diversion's flow
+#(from its rule if constant/seasonal/monthly/time series, else from the last
+#compute); scripted diversions then need compute -> step 2 -> compute.
+INCLUDE_DIVERSIONS = False
+
+#Allow negative water-balance locals? Normally yes, so the Observed
+#alternative reproduces the observed flows.
+NEGATIVE_LOCALS_ALLOWED = True
+
+#F part of the transformed gage records (must match the Timeseries tab)
+TRANSFORM_FPART = "COMPUTED"
+
+#The menu pre-selects the first alternative whose name contains these (any case)
+OBS_ALT_HINT = "OBS"
+UNREG_ALT_HINT = "UNR"
+
+################################################################################
+
+def absPath(relPath):
+    """
+    Absolute path of a file given relative to the watershed folder.
+
+    Uses the network of the open simulation, like the scripted rules do. In
+    ResSim 4.1 ClientApp.Workspace() is the user's AppData workspace
+    (...AppData/Roaming/HEC/HEC-ResSim/4.1/CWMS/<watershed>), not the
+    watershed folder, so it can't be used here.
+    """
+    simulation = ResSimController.getSimulation()
+    for run in simulation.getSimulationRuns():
+        return run.getRssSystem().makeAbsolutePathFromWatershed(relPath)
+    raise AssertionError("The open simulation has no alternatives. Open the simulation holding the Observed and Unregulated alternatives.")

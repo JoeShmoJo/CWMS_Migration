@@ -1,0 +1,11 @@
+reservoir,days_with_target,within_1.0ft_pct,mean_dev_ft,max_above_ft,max_below_ft,days_above,above_at_max_limit,above_unexplained,days_below,below_at_min_limit,below_unexplained,rule_attached,rule_followed_pct,rule_overridden_days
+Blue River,881,51.3,6.55,182.0,-16.34,130,116,14,299,157,142,yes,70.0,264.0
+Cottage Grove,881,61.2,0.3,48.57,-5.59,84,83,1,258,246,12,yes,58.1,369.0
+Cougar,881,9.1,-60.1,153.0,-161.4,44,44,0,757,736,21,yes,12.9,767.0
+Detroit,881,1.1,-27.73,101.76,-102.4,47,46,1,824,810,14,yes,3.7,848.0
+Dorena,881,66.2,1.95,80.46,-11.31,119,112,7,179,133,46,yes,69.6,268.0
+Fern Ridge,881,46.8,-0.1,24.13,-6.65,93,93,0,376,374,2,yes,35.5,568.0
+Foster,881,98.8,0.3,28.0,-0.6,11,11,0,0,0,0,no,,
+Green Peter,881,25.5,-21.84,67.44,-171.88,62,53,9,594,594,0,yes,27.4,640.0
+Hills Creek,881,19.3,-6.65,100.0,-40.83,132,130,2,579,560,19,yes,21.8,689.0
+Lookout Point,881,4.3,-14.85,106.78,-110.06,79,74,5,764,764,0,yes,5.4,833.0

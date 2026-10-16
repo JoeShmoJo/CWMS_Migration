@@ -1,0 +1,2 @@
+# Plots are several MB each and are rebuilt by check_model.py in seconds
+output/*/plots/

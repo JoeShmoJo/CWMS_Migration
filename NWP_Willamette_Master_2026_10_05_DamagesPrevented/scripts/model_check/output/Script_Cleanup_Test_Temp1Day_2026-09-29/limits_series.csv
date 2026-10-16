@@ -1,0 +1,29 @@
+column,B,C,units,n_values,example_path
+Big Cliff Flow-MINLIM,Big Cliff,Flow-MINLIM,cfs,1461,//Big Cliff/Flow-MINLIM/01Jan2012/1Day/Temp1Day--0/
+Big Cliff Flow-MAXLIM,Big Cliff,Flow-MAXLIM,cfs,1461,//Big Cliff/Flow-MAXLIM/01Jan2012/1Day/Temp1Day--0/
+Blue River Flow-MINLIM,Blue River,Flow-MINLIM,cfs,1461,//Blue River/Flow-MINLIM/01Jan2012/1Day/Temp1Day--0/
+Blue River Flow-MAXLIM,Blue River,Flow-MAXLIM,cfs,1461,//Blue River/Flow-MAXLIM/01Jan2012/1Day/Temp1Day--0/
+Cottage Grove Flow-MINLIM,Cottage Grove,Flow-MINLIM,cfs,1461,//Cottage Grove/Flow-MINLIM/01Jan2012/1Day/Temp1Day--0/
+Cottage Grove Flow-MAXLIM,Cottage Grove,Flow-MAXLIM,cfs,1461,//Cottage Grove/Flow-MAXLIM/01Jan2012/1Day/Temp1Day--0/
+Cougar Flow-MINLIM,Cougar,Flow-MINLIM,cfs,1461,//Cougar/Flow-MINLIM/01Jan2012/1Day/Temp1Day--0/
+Cougar Flow-MAXLIM,Cougar,Flow-MAXLIM,cfs,1461,//Cougar/Flow-MAXLIM/01Jan2012/1Day/Temp1Day--0/
+Detroit Flow-MINLIM,Detroit,Flow-MINLIM,cfs,1461,//Detroit/Flow-MINLIM/01Jan2012/1Day/Temp1Day--0/
+Detroit Flow-MAXLIM,Detroit,Flow-MAXLIM,cfs,1461,//Detroit/Flow-MAXLIM/01Jan2012/1Day/Temp1Day--0/
+Dexter Flow-MINLIM,Dexter,Flow-MINLIM,cfs,1461,//Dexter/Flow-MINLIM/01Jan2012/1Day/Temp1Day--0/
+Dexter Flow-MAXLIM,Dexter,Flow-MAXLIM,cfs,1461,//Dexter/Flow-MAXLIM/01Jan2012/1Day/Temp1Day--0/
+Dorena Flow-MINLIM,Dorena,Flow-MINLIM,cfs,1461,//Dorena/Flow-MINLIM/01Jan2012/1Day/Temp1Day--0/
+Dorena Flow-MAXLIM,Dorena,Flow-MAXLIM,cfs,1461,//Dorena/Flow-MAXLIM/01Jan2012/1Day/Temp1Day--0/
+Fall Creek Flow-MINLIM,Fall Creek,Flow-MINLIM,cfs,1461,//Fall Creek/Flow-MINLIM/01Jan2012/1Day/Temp1Day--0/
+Fall Creek Flow-MAXLIM,Fall Creek,Flow-MAXLIM,cfs,1461,//Fall Creek/Flow-MAXLIM/01Jan2012/1Day/Temp1Day--0/
+Fern Ridge Flow-MINLIM,Fern Ridge,Flow-MINLIM,cfs,1461,//Fern Ridge/Flow-MINLIM/01Jan2012/1Day/Temp1Day--0/
+Fern Ridge Flow-MAXLIM,Fern Ridge,Flow-MAXLIM,cfs,1461,//Fern Ridge/Flow-MAXLIM/01Jan2012/1Day/Temp1Day--0/
+Foster Flow-MINLIM,Foster,Flow-MINLIM,cfs,1461,//Foster/Flow-MINLIM/01Jan2012/1Day/Temp1Day--0/
+Foster Flow-MAXLIM,Foster,Flow-MAXLIM,cfs,1461,//Foster/Flow-MAXLIM/01Jan2012/1Day/Temp1Day--0/
+Green Peter Flow-MINLIM,Green Peter,Flow-MINLIM,cfs,1461,//Green Peter/Flow-MINLIM/01Jan2012/1Day/Temp1Day--0/
+Green Peter Flow-MAXLIM,Green Peter,Flow-MAXLIM,cfs,1461,//Green Peter/Flow-MAXLIM/01Jan2012/1Day/Temp1Day--0/
+Hills Creek Flow-MINLIM,Hills Creek,Flow-MINLIM,cfs,1461,//Hills Creek/Flow-MINLIM/01Jan2012/1Day/Temp1Day--0/
+Hills Creek Flow-MAXLIM,Hills Creek,Flow-MAXLIM,cfs,1461,//Hills Creek/Flow-MAXLIM/01Jan2012/1Day/Temp1Day--0/
+Lookout Point Flow-MINLIM,Lookout Point,Flow-MINLIM,cfs,1461,//Lookout Point/Flow-MINLIM/01Jan2012/1Day/Temp1Day--0/
+Lookout Point Flow-MAXLIM,Lookout Point,Flow-MAXLIM,cfs,1461,//Lookout Point/Flow-MAXLIM/01Jan2012/1Day/Temp1Day--0/
+Min_Flow_Target_Albany Flow-Min,Min_Flow_Target_Albany,Flow-Min,cfs,2,//Min_Flow_Target_Albany/Flow-Min/01Jan2012/1Day/Temp1Day--0/
+Min_Flow_Target_Salem Flow-Min,Min_Flow_Target_Salem,Flow-Min,cfs,2,//Min_Flow_Target_Salem/Flow-Min/01Jan2012/1Day/Temp1Day--0/

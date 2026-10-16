@@ -1,0 +1,8 @@
+{
+  "dss_path": "C:\\Projects\\FIRO\\watershed\\NWP_Willamette_Master_2026_09_24_ScriptCleanup\\rss\\Flood_96_3hour\\simulation.dss",
+  "simulation": "Flood_96_3hour",
+  "alternative": "Temp3Hour",
+  "f_part": "Temp3Hour-0",
+  "watershed_dir": "C:\\Projects\\FIRO\\watershed\\NWP_Willamette_Master_2026_09_24_ScriptCleanup",
+  "extracted": "2026-09-29"
+}
