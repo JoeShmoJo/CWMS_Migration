@@ -63,6 +63,9 @@ Set-Location "C:\Projects\A_Recent_Projects\CWMS_Migration"; git pull --ff-only;
 
 ## Import into RTS
 
+Use the [fresh-import validation checklist](RTS_IMPORT_VALIDATION.md) for the next
+local test. The latest end-to-end native import remains unverified.
+
 1. Import/copy the complete watershed using your normal RTS import procedure.
    Confirm scripts, workflow-kit, native alternatives and DSS mappings survived.
 2. Close RTS and ResSim. Activate RTS mode **in the imported watershed copy**,

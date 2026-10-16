@@ -256,13 +256,17 @@ assert source.read_bytes()==b'native results'
         notes.write_text('Keep my local findings')
         kit=builder.package(self.root)
         self.assertEqual(notes.read_text(),'Keep my local findings')
-        for name in ('WORKFLOW_PACKAGE.md','PROJECT_START_HERE.md','WORKFLOW_SOP.md','STANDALONE_WORKFLOW_REFERENCE.md','RTS_WORKFLOW_REFERENCE.md','Package-Workflow.py'):
+        for name in ('WORKFLOW_PACKAGE.md','PROJECT_START_HERE.md','WORKFLOW_SOP.md','STANDALONE_WORKFLOW_REFERENCE.md','RTS_WORKFLOW_REFERENCE.md','RTS_IMPORT_VALIDATION.md','Package-Workflow.py'):
             self.assertTrue((kit/name).is_file(),name)
         self.assertTrue((self.root/'WORKFLOW_README.md').is_file())
         self.assertTrue((self.root/'WORKFLOW_README.html').is_file())
         html=(kit/'documentation/WORKFLOW_SOP.html').read_text()
         self.assertIn('href="RTS_WORKFLOW_REFERENCE.html"',html)
         self.assertIn('<table>',html)
+        self.assertIn('href="RTS_IMPORT_VALIDATION.html"',html)
+        handoff=(kit/'documentation/RTS_IMPORT_VALIDATION.html').read_text()
+        self.assertIn('Unresolved; inspect actual values',handoff)
+        self.assertIn('Not yet tested',handoff)
         self.assertIn('<pre><code>',html)
         self.assertNotIn('<script',html)
         self.assertTrue((kit/'documentation/STANDALONE_WORKFLOW_REFERENCE.html').is_file())

@@ -87,8 +87,9 @@ without that field retain the legacy 2026–2029 interpretation; they are not
 rewritten. Two-run
 plots are labelled when pairings differ, since differences may include baseline
 changes. These are overlays, not a full causal attribution or validation report.
-The initial standalone saved-run plotter does not add prepared augmentation
-requirements or rule-curve overlays; archived source arrays remain available.
+New captures and plots include available native rule curves, minimum limits and
+prepared augmentation requirements, as described below. Older archives can lack
+these reference records.
 
 ## CONFIG.py and older settings
 
@@ -185,3 +186,8 @@ including location, member, original pathname and error, is retained in
 `reference-read-report.csv`. A missing minimum-limit record does not imply a zero
 minimum. It is not replaced with observed outflow; available prepared demand and
 combined-minimum traces remain separately labeled.
+
+Open diagnostic at the 16 October 2026 handoff: FLOW-MINLIM catalog records exist,
+but it is not yet established whether their native values are missing or the
+archive reader failed to retrieve them. See [next-session validation](RTS_IMPORT_VALIDATION.md).
+Warning grouping improves reporting; it does not resolve that data-read question.

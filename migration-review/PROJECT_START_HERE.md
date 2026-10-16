@@ -8,6 +8,13 @@ Double-click **WORKFLOW_README.html** at the watershed root for the offline brow
 version of these guides. Use the navigation bar to move between standalone and RTS
 instructions. Browser Print can save a PDF. Markdown sources remain available.
 
+## Next task
+
+[Fresh RTS import and validation checklist](RTS_IMPORT_VALIDATION.md) is the next
+session's work. The latest native import has not yet been tested. The open
+FLOW-MINLIM issue is recorded there; catalog presence has been confirmed, actual
+values have not. Preserve the current simulation DSS, archives and read reports.
+
 ## Read in this order
 
 1. [Operator SOP: standalone and RTS](WORKFLOW_SOP.md).
@@ -112,6 +119,9 @@ locally before use. The editor can also add inactive IRRM/Deep Drawdown reservoi
 settings; native rule attachment still requires the ResSim editor.
 
 ## Known issues to carry forward
+
+- Some optional FLOW-MINLIM archive reads contain no usable values. Actual native
+  values versus reader behavior remain unresolved; see the next-session checklist.
 
 - RTS baseline identity compares pool elevation/outflow, not every input. An
   input-only edit can retain an old archive when compared outputs are unchanged.
