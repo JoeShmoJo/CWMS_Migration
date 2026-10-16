@@ -26,7 +26,7 @@ use the [standalone/shared reference](STANDALONE_WORKFLOW_REFERENCE.md) and
 from hec.script import ClientAppWrapper; import os; execfile(os.path.join(str(ClientAppWrapper.getWatershed().getWkspDir()), 'scripts', 'STANDALONE_WORKFLOW_MENU.py'))
 ```
 
-3. **For extraction, augmentation and plotting:** Open CONFIG.py in the menu and
+3. **For extraction, augmentation and plotting:** Open `scripts/ExternalPython/CONFIG.py` in a text editor and
    check SIM_NAME, ALTERNATIVE_NAME_STEP1, TRIAL, TRIAL_SUFFIXES and OSI member
    selection. Save it. These jobs use CONFIG.py independently of baseline selectors.
    Check downloader dates/mappings and rule-curve coverage in installed scripts/model.

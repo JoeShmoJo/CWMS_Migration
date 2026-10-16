@@ -53,7 +53,6 @@ class Menu:
           ('Plot alternative/trial comparison', ['ALT_COMPARISON_PLOTS.py'])]
         for title, files in jobs:
             buttons.add(JButton(title, actionPerformed=lambda e, t=title, f=files: self.start(t, f)))
-        buttons.add(JButton('Open CONFIG.py', actionPerformed=lambda e: self.open_config()))
         buttons.add(JButton('Open last job log', actionPerformed=lambda e: self.open_log()))
         self.frame.add(buttons, BorderLayout.NORTH)
         self.frame.add(JScrollPane(self.text), BorderLayout.CENTER)
@@ -86,9 +85,6 @@ class Menu:
         builder.redirectOutput(File(self.log))
         builder.start()
         self.message('Configuration editor starting. Browser opens after settings load. Log: ' + self.log)
-    def open_config(self):
-        if self.busy: return
-        Desktop.getDesktop().open(File(os.path.join(scripts, 'CONFIG.py')))
     def open_log(self):
         if self.log: Desktop.getDesktop().open(File(self.log))
     def start(self, title, files):

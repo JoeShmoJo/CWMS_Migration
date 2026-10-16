@@ -84,8 +84,10 @@ augmentation as it does in RTS. The Apply message explicitly states that the
 existing standalone augmentation/trial settings remain unchanged.
 
 The menu retains Extract inputs, Calculate augmentation, Plot ensemble,
-Plot alternative/trial comparison, Open CONFIG.py and Open last job log. These
-still use the current watershed's existing external Python scripts. In particular,
+Plot alternative/trial comparison and Open last job log. These
+still use the current watershed's existing external Python scripts. CONFIG.py
+remains an input to those jobs; edit scripts/ExternalPython/CONFIG.py directly
+when their simulation/alternative/trial settings need changing. In particular,
 Calculate augmentation still uses the existing standalone MainstemAugmentation.py
 and its inputs; this feature does not add RTS's separate augmentation JSON editor.
 
