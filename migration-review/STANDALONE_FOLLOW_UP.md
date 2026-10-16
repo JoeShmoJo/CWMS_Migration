@@ -42,7 +42,7 @@ augmentation schemes.
   Do not replace missing inputs with zero silently.
 - **Configurable member IDs:** avoid synthetic percentile member IDs overlapping
   real RFC ensemble years. RTS uses 3000/3001/3002 for 25/50/75% daily inflow
-  traces and 3003 for the OSI copy. Standalone currently retains legacy IDs;
+  traces and 3003 for the OSI copy. Standalone now uses the same IDs; native selections/mappings need migration, while old results remain unchanged;
   coordinate any future change with its alternatives, scripts, and plotting.
 - **Plotting:** include Salem/Albany targets and the augmentation minimum-release
   series used by each scheme. Distinguish model results from daily percentile

@@ -24,6 +24,7 @@ def validate(settings):
         raise ValueError('Invalid standalone workflow settings')
     value=settings['osi_source_member']
     if isinstance(value,bool) or not isinstance(value,int) or value<0:raise ValueError('Expected nonnegative whole number: osi_source_member')
+    if value==3003:raise ValueError('OSI source member cannot be destination member 3003')
     return settings
 
 

@@ -277,7 +277,7 @@ def write_rfc_to_dss(
                     df1d = df1d.dropna(how="all")
                     
                                         # Add daily row-wise percentile members across the original ensemble years
-                    # 2026 = 25th percentile, 2027 = 50th percentile, 2028 = 75th percentile
+                    # Shared standalone/RTS IDs: 3000 = 25%, 3001 = 50%, 3002 = 75%.
                     base_cols = list(df1d.columns)
                     if base_cols:
                         pct = df1d[base_cols].apply(pd.to_numeric, errors="coerce")

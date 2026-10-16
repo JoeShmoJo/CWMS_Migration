@@ -78,6 +78,7 @@ def capture(root,alternative,label,code,kind,baseline_id=None,confirmed=False):
         data={'format':'standalone-saved-result','label':label.strip(),'kind':kind,
               'baseline_id':identity if kind=='baseline' else baseline_id,'run_code':code.upper(),
               'alternative':alternative,'simulation':root.name,'members':members,
+              'synthetic_members':[m for m in members if m in (3000,3001,3002,3003)],
               'created_utc':datetime.now(timezone.utc).isoformat(),
               'archive_sha256':digest_file(pending/'run-archive.json'),
               'configuration_id':applied['id'] if applied else None,
@@ -125,13 +126,15 @@ def plot(root,identities):
             frame=frames.get((row['id'],key))
             if frame is None:continue
             # Keep standalone synthetic members out of historical bands.
-            synthetic=frame[[m for m in frame if m in (2026,2027,2028,2029)]]
-            historical=frame[[m for m in frame if m not in (2026,2027,2028,2029)]]
+            synthetic_ids=set(row.get('synthetic_members',[2026,2027,2028,2029]))
+            synthetic=frame[[m for m in frame if m in synthetic_ids]]
+            historical=frame[[m for m in frame if m not in synthetic_ids]]
             figure_part=make_figure(historical,location+' '+parameter,units[key]) if len(historical.columns) else go.Figure()
             for trace in figure_part.data:
                 trace.name=row['label']+' / '+str(trace.name);figure.add_trace(trace)
             for member in synthetic:
-                figure.add_trace(go.Scatter(x=synthetic.index,y=synthetic[member],name=row['label']+' / synthetic '+str(member),connectgaps=False))
+                label={3000:'Daily 25% inflow trace',3001:'Daily 50% inflow trace',3002:'Daily 75% inflow trace',3003:'OSI',2026:'Legacy daily 25% trace',2027:'Legacy daily 50% trace',2028:'Legacy daily 75% trace',2029:'Legacy OSI'}.get(member,'Synthetic '+str(member))
+                figure.add_trace(go.Scatter(x=synthetic.index,y=synthetic[member],name=row['label']+' / '+label,connectgaps=False))
             frame.to_csv(destination/('plot-'+str(number)+'-'+row['id']+'.csv'),index_label='timestamp')
         figure.update_layout(title=location+' '+parameter,yaxis_title=str(units[key]))
         filename='plot-'+str(number)+'.html';figure.write_html(destination/filename,include_plotlyjs='plotly.min.js')

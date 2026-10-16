@@ -50,6 +50,14 @@ class StandaloneResultTests(unittest.TestCase):
         self.assertTrue(json.loads((plot.parent/'selection.json').read_text())['same_baseline'])
         self.assertEqual(len(list(plot.parent.glob('*.csv'))),6)
 
+    def test_capture_records_common_synthetic_ids_without_relabeling_legacy_archives(self):
+        self.paths += [path.replace('002000','003003') for path in self.paths]
+        captured=results.capture(self.root,'Con_Season','OSI included','CON_SEASON0','baseline',confirmed=True)
+        self.assertEqual(captured['synthetic_members'],[3003])
+        self.assertEqual(captured['members'],[2000,3003])
+        self.source.unlink()
+        self.assertTrue(results.plot(self.root,[captured['id']]).is_file())
+
     def test_capture_guards_confirmation_alternative_and_failed_archive(self):
         with self.assertRaisesRegex(ValueError,'Confirm'):results.capture(self.root,'Con_Season','x','CON_SEASON0','baseline')
         with self.assertRaisesRegex(ValueError,'alternative'):results.capture(self.root,'Other','x','CON_SEASON0','baseline',confirmed=True)

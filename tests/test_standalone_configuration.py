@@ -83,6 +83,16 @@ class StandaloneTests(unittest.TestCase):
                 urllib.request.urlopen(request).close();thread.join(timeout=10)
             self.assertFalse(thread.is_alive());self.assertEqual(errors,[])
 
+    def test_legacy_windows_crlf_member_scripts_are_migrated_without_replacing_mappings(self):
+        for name in ('RFC_Downloader_Module.py','OSI_Ensemble_Year.py','MainstemAugmentation.py'):
+            source=(ROOT/'standalone-review/scripts/ExternalPython'/name).read_text()
+            (self.scripts/name).write_bytes(source.replace('\n','\r\n').encode())
+        installer.install(self.root)
+        self.assertIn('TARGET_ENSEMBLE_YEAR = 3003',(self.scripts/'OSI_Ensemble_Year.py').read_text())
+        self.assertIn('computed_standalone_members',(self.scripts/'MainstemAugmentation.py').read_text())
+        self.assertIn('GROUP_TO_SITES',(self.scripts/'RFC_Downloader_Module.py').read_text())
+        self.assertNotIn('df1d[2026] = pct.quantile',(self.scripts/'RFC_Downloader_Module.py').read_text())
+
     def test_normal_workflow_installs_and_opens_without_config_py(self):
         (self.scripts/'CONFIG.py').unlink()
         installer.install(self.root)
@@ -162,6 +172,9 @@ class StandaloneTests(unittest.TestCase):
         original_sv=sv.read_bytes()
         downloader=self.scripts/'RFC_Downloader_Module.py'
         original_downloader=downloader.read_bytes()
+        self.assertIn(b'add_percentile_members',original_downloader)
+        self.assertIn('TARGET_ENSEMBLE_YEAR = 3003',(self.scripts/'OSI_Ensemble_Year.py').read_text())
+        self.assertIn('computed_standalone_members',(self.scripts/'MainstemAugmentation.py').read_text())
         installer.install(self.root,'rts')
         active=self.root/'scripts/externalRules/DraftToRC.py'
         self.assertIn(b'from rts_baseline_runtime import',active.read_bytes())

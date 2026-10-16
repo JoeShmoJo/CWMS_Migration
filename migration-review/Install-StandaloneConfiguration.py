@@ -62,7 +62,7 @@ def install(watershed, mode="standalone"):
     source=source.replace(needle,needle+'\n        from '+runtime+' import alternative_overrides\n        configDict.update(alternative_overrides(network))')
     writes[setup]=source.encode('utf-8')
     writes[scripts/(runtime+'.py')]=runtime_source() if mode=='standalone' else (HERE/'baseline-runtime/rts_baseline_runtime.py').read_bytes()
-    for name in ('baseline_configuration.py','baseline_versions.py','standalone_configuration.py','standalone_jobs.py','standalone_results.py','run_archive.py','run_data_cache.py','plot_rts_forecast.py','write_rule_curves.py','augmentation_mapping.py'):
+    for name in ('baseline_configuration.py','baseline_versions.py','standalone_configuration.py','standalone_jobs.py','standalone_results.py','run_archive.py','run_data_cache.py','plot_rts_forecast.py','write_rule_curves.py','augmentation_mapping.py','ensemble_ids.py'):
         writes[scripts/'ExternalPython'/name]=(HERE/'ExternalPython'/name).read_bytes()
     for name,sourcefile in [('baseline-editor.html','editor-mockup.html'),('baseline-configuration.example.json','baseline-configuration.example.json')]:
         writes[scripts/'ExternalPython'/name]=(HERE/'baseline-editor-design'/sourcefile).read_bytes()
@@ -89,6 +89,31 @@ def install(watershed, mode="standalone"):
         for saved in (scripts/'_workflow_originals/ExternalPython').glob('*'):
             target=scripts/'ExternalPython'/saved.name
             if target not in writes:writes[target]=saved.read_bytes()
+    if mode=='standalone':
+        # Patch the actual installed scripts rather than replacing their local
+        # mappings/date controls with a repository snapshot. Guards are checked
+        # before backup/write, like the native rule adapters above.
+        import re
+        for filename in ('RFC_Downloader_Module.py','OSI_Ensemble_Year.py','MainstemAugmentation.py'):
+            target=scripts/'ExternalPython'/filename
+            source=writes.get(target,target.read_bytes()).decode('utf-8-sig').replace('\r\n','\n')
+            if filename=='RFC_Downloader_Module.py':
+                legacy=all('df1d['+str(member)+'] = pct.quantile' in source for member in (2026,2027,2028))
+                if legacy:
+                    start=source.index('                        df1d[2026] = pct.quantile')
+                    end=source.index('\n',source.index('                        df1d[2028] = pct.quantile',start))
+                    source=source[:start]+"                        from ensemble_ids import add_percentile_members\n                        df1d = add_percentile_members(pct)"+source[end:]
+                    source=source.replace('# 2026 = 25th percentile, 2027 = 50th percentile, 2028 = 75th percentile','# Shared IDs: 3000 = 25%, 3001 = 50%, 3002 = 75%.')
+                elif 'add_percentile_members' not in source:raise ValueError('Unknown RFC member creation code; no files changed')
+            elif filename=='OSI_Ensemble_Year.py':
+                if not re.search(r'^TARGET_ENSEMBLE_YEAR = (2029|3003)$',source,re.M):raise ValueError('Unknown OSI destination code; no files changed')
+                source=re.sub(r'^TARGET_ENSEMBLE_YEAR = 2029$', 'TARGET_ENSEMBLE_YEAR = 3003',source,flags=re.M)
+            else:
+                needle='enesemble_years = list(range(1981, 2029))'
+                replacement='from ensemble_ids import computed_standalone_members\nenesemble_years = computed_standalone_members(DSS_FILE_IN, ALTERNATIVE_NAME_STEP1)'
+                if source.count(needle)==1:source=source.replace(needle,replacement)
+                elif 'enesemble_years = computed_standalone_members(' not in source:raise ValueError('Unknown augmentation member selection; no files changed')
+            writes[target]=source.encode('utf-8')
     writes[scripts/'workflow-mode.json']=(json.dumps({'mode':mode},indent=2)+'\n').encode()
     # Every source/guard above is checked before the first mutation.
     backup=watershed/'standalone-configuration-backups'/(datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')+'-'+uuid.uuid4().hex[:8])

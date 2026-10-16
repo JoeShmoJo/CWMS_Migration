@@ -27,7 +27,9 @@ a local edit makes behavior differ from these documents.
 - Standalone menu jobs use the browser’s applied job settings and selected target;
   The shared CONFIG.py is not needed by the normal menu. Plot trials are retired.
   Use [named saved results](STANDALONE_SAVED_RESULTS.md) to retain changing baselines
-  and plot one or two archived runs later.
+  and plot one or two archived runs later. Standalone synthetic IDs now match RTS:
+  3000/3001/3002 percentiles and 3003 OSI. Re-extraction and native member/mapping
+  review are required; old DSS/archives are not renamed.
 - A shared browser baseline editor supports eleven scripted-rule groups and
   reusable named JSON sets, with separate Save and Apply actions.
 - Standalone targeting now explicitly asks for simulation and alternative. The

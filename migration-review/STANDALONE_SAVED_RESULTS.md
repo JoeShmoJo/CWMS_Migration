@@ -75,9 +75,11 @@ Source catalog presence and a 100% progress bar do not prove freshness. The tool
 selects all cataloged members for that suffix, including potentially stale members
 from older computes; use a clean test output when establishing reference results.
 
-Historical member bands and individual traces are separate from standalone
-synthetic members 2026–2029. That convention follows the current extraction scripts;
-review it before extending historical ensemble years into those IDs. Two-run
+Historical member bands and individual traces are separate from common standalone/
+RTS synthetic IDs: 3000 (daily 25%), 3001 (daily 50%), 3002 (daily 75%) and 3003
+(OSI). New captures record synthetic member identity explicitly. Old archives
+without that field retain the legacy 2026–2029 interpretation; they are not
+rewritten. Two-run
 plots are labelled when pairings differ, since differences may include baseline
 changes. These are overlays, not a full causal attribution or validation report.
 The initial standalone saved-run plotter does not add prepared augmentation
@@ -99,3 +101,27 @@ feature does not enable multithreading, modify native rule bindings or replace
 the standalone augmentation calculator with RTS's scheme system. Test a small
 serial case, archive/plot it, change/recompute/archive and verify the first archive
 still plots the original values before a large study.
+
+
+## OSI source member and migration to RTS IDs
+
+The browser's osi_source_member selects the downloaded historical/percentile trace
+to copy; destination is always 3003. For example, 2011 copies member 2011 inputs
+into member 3003, retaining simulation timestamps and the original member. 3001
+can be chosen to seed OSI from the daily median trace. 3003 itself is rejected as
+a source. The source setting takes effect when extraction/copy runs, not on Apply.
+
+Updated standalone extraction writes percentile IDs 3000–3002 and OSI ID 3003,
+matching RTS. Re-extract into a clean test simulation/output after updating, then
+select the new IDs in the native ensemble configuration. Change any explicit
+standard/OSI input mapping from C:002029| to C:003003|. Generic member-substitution
+paths need no per-record remapping. The installer changes scripts only; it does
+not change native member selections, DSS mappings, existing DSS or archives.
+Do not assume old 2026–2029 records were deleted, renamed or refreshed.
+
+Standalone augmentation now discovers actual baseline pool-outflow members for
+its native alternative's trial-0 suffix rather than a hardcoded 1981–2028 loop,
+so computed 3000–3003 members can be processed. This does not certify freshness;
+verify the native compute selection and remove stale records only through your
+normal deliberate test-data preparation. Dates/constants outside member selection
+are preserved from the actual installed scripts.
