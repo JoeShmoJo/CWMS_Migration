@@ -81,6 +81,17 @@ Do not assume standalone download windows are the RTS forecast window: legacy
 CWMS scripts use current-date-based logic unless locally adapted. Review them for
 historical simulations. The existing menu does not supply historical RFC archives.
 
+## Inactive reservoir slots
+
+IRRM and Deep Drawdown configurations include all 13 reservoirs. Existing values
+and activation flags are preserved; missing entries have false activation and
+null targets/seasonal fields. They display as blanks and do not add native rules.
+Enabled incomplete entries fail validation. Inactive incomplete Deep Drawdown
+rows are excluded from runtime CSVs; disabled IRRM never interpolates a null
+target. Opening older sets expands only the editable view; Save/Apply makes a new
+version without rewriting historical library/applied files. Linked CSV bytes stay
+unchanged; missing editable slots appear after resolving/saving them inline.
+
 ## Baseline settings: outputs and consumers
 
 The shared editor covers DeepDrawdown, SpringSpill, NoDraft,

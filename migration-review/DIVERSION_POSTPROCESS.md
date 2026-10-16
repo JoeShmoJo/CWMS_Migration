@@ -14,7 +14,7 @@ not reproduce Muskingum routing or reservoir feedback. Example conditions are
 disabled until configured. The tool does not automatically feed adjusted results
 into augmentation or existing plots.
 
-The baseline editor also supports adding inactive IRRM and Deep Drawdown entries
-for any of the 13 reservoirs. A real target elevation and native rule binding
-are still needed. Existing operating settings are not automatically expanded or
-activated; new Deep Drawdown seasonal fields must be reviewed.
+Baseline configurations now contain inactive null entries for unused IRRM and
+Deep Drawdown reservoirs, covering all 13 supported locations. Existing values are
+preserved; fill required fields before enabling. Null placeholders are kept out
+of legacy numeric CSV readers. Native rule attachment still requires ResSim.

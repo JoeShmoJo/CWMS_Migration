@@ -1,7 +1,7 @@
 {
   "format": "rts-baseline-configuration",
   "schema_version": 1,
-  "name": "Con_Season current settings — design example",
+  "name": "Con_Season current settings \u2014 design example",
   "description": "Proposed format populated from the standalone review snapshot. Requires an RTS adapter before use.",
   "rules": {
     "deep_drawdown": {
@@ -86,6 +86,102 @@
               "30",
               "1505",
               "TRUE"
+            ],
+            [
+              "Big Cliff",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              "FALSE"
+            ],
+            [
+              "Blue River",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              "FALSE"
+            ],
+            [
+              "Cottage Grove",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              "FALSE"
+            ],
+            [
+              "Dexter",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              "FALSE"
+            ],
+            [
+              "Dorena",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              "FALSE"
+            ],
+            [
+              "Fern Ridge",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              "FALSE"
+            ],
+            [
+              "Foster",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              "FALSE"
+            ],
+            [
+              "Hills Creek",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              "FALSE"
             ]
           ]
         }
@@ -237,7 +333,7 @@
       },
       "help": {
         "purpose": "Protect a reservoir from further drafting when its pool is below a seasonal elevation threshold.",
-        "how_it_works": "Interpolates the reservoir’s dated elevation schedule. Below that elevation, maximum release is limited to current inflow; above it, this rule imposes no effective release limit."
+        "how_it_works": "Interpolates the reservoir\u2019s dated elevation schedule. Below that elevation, maximum release is limited to current inflow; above it, this rule imposes no effective release limit."
       }
     },
     "secondary_flood_draft": {
@@ -16464,7 +16560,7 @@
       },
       "help": {
         "purpose": "Meet tributary minimum flows while accounting for scheduled withdrawals.",
-        "how_it_works": "Adds the daily minimum-flow and withdrawal schedules to propose a minimum reservoir release. Green Peter has special logic to meet the target at Foster, accounting for local inflow and Foster’s storage needs."
+        "how_it_works": "Adds the daily minimum-flow and withdrawal schedules to propose a minimum reservoir release. Green Peter has special logic to meet the target at Foster, accounting for local inflow and Foster\u2019s storage needs."
       }
     },
     "diversions": {
@@ -29656,7 +29752,7 @@
       },
       "help": {
         "purpose": "Set seasonal diversion and return flows using one shared schedule.",
-        "how_it_works": "Each diversion or return reads the column matching its model element name and uses that day’s scheduled flow. Element names must match the model; a missing column is an error."
+        "how_it_works": "Each diversion or return reads the column matching its model element name and uses that day\u2019s scheduled flow. Element names must match the model; a missing column is an error."
       }
     },
     "irrm": {
@@ -29666,19 +29762,37 @@
           "Detroit": true,
           "Hills Creek": true,
           "Lookout Point": true,
-          "Cougar": true
+          "Cougar": true,
+          "Big Cliff": false,
+          "Blue River": false,
+          "Cottage Grove": false,
+          "Dexter": false,
+          "Dorena": false,
+          "Fall Creek": false,
+          "Fern Ridge": false,
+          "Foster": false,
+          "Green Peter": false
         },
         "target_elevation_ft": {
           "Detroit": 1558.5,
           "Hills Creek": 1531,
           "Lookout Point": 921,
-          "Cougar": 1685
+          "Cougar": 1685,
+          "Big Cliff": null,
+          "Blue River": null,
+          "Cottage Grove": null,
+          "Dexter": null,
+          "Dorena": null,
+          "Fall Creek": null,
+          "Fern Ridge": null,
+          "Foster": null,
+          "Green Peter": null
         },
         "glide_days": 1
       },
       "tables": {},
       "help": {
-        "purpose": "Reduce a reservoir’s allowable operating pool through an Interim Risk Reduction Measure target.",
+        "purpose": "Reduce a reservoir\u2019s allowable operating pool through an Interim Risk Reduction Measure target.",
         "how_it_works": "Converts the target elevation to storage and proposes a minimum release to reduce excess storage over the glide period. Activation and target elevation can differ by reservoir."
       }
     },
@@ -29709,7 +29823,7 @@
       "tables": {},
       "help": {
         "purpose": "Help Lookout Point fill by requesting additional upstream release during the spring window.",
-        "how_it_works": "Uses Lookout Point’s previous elevation and rule curve, capped by the spillway elevation, to choose a minimum release between the configured flow levels. This script explicitly names Lookout Point; using a different target reservoir would require a script change."
+        "how_it_works": "Uses Lookout Point\u2019s previous elevation and rule curve, capped by the spillway elevation, to choose a minimum release between the configured flow levels. This script explicitly names Lookout Point; using a different target reservoir would require a script change."
       }
     },
     "hcr_lop_balance": {
@@ -29734,7 +29848,7 @@
       "tables": {},
       "help": {
         "purpose": "Keep Hills Creek and Lookout Point at similar fractions of their conservation storage during the balancing season.",
-        "how_it_works": "Uses their combined previous storage to calculate a target for Hills Creek, then proposes a minimum release subject to flow limits. Balancing stands down when Lookout Point’s Deep Drawdown rule is operating. These two reservoirs are explicitly named in the script."
+        "how_it_works": "Uses their combined previous storage to calculate a target for Hills Creek, then proposes a minimum release subject to flow limits. Balancing stands down when Lookout Point\u2019s Deep Drawdown rule is operating. These two reservoirs are explicitly named in the script."
       }
     }
   }

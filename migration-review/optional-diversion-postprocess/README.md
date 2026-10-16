@@ -99,12 +99,15 @@ or guarantee a speed improvement; benchmark a small serial/parallel test separat
 
 ## Additional reservoir configuration
 
-The baseline editor now offers **Add inactive reservoir** for IRRM and Deep
-Drawdown, covering the 13 supported reservoirs. It requires a target elevation;
-Deep Drawdown explicitly copies the first row's season/duration, which must be
-reviewed before enabling. No synthetic operating elevation is invented.
-Existing settings remain unchanged until you add/save/apply a new set. Disabled
-IRRM at a newly configured reservoir skips unused target interpolation.
+Baseline configurations include all 13 reservoirs for IRRM and Deep Drawdown.
+Existing operating entries are preserved. Additional entries are inactive with
+null/blank targets and seasonal fields. Blank entries are allowed only while
+inactive. Fill every required value before enabling; validation rejects an enabled
+incomplete entry. The browser displays numeric nulls as blank number fields.
+Inactive incomplete Deep Drawdown rows are omitted from runtime CSVs so legacy
+readers never try to parse blank numbers. Disabled IRRM skips unused targets.
+Opening an older saved set adds missing slots in the editor without rewriting the
+old library file or active snapshot. Save/Apply creates a new version as usual.
 
 This adds configuration readiness, not native rule bindings. In the test native
 alternative, attach the appropriate rule through ResSim's editor at the intended

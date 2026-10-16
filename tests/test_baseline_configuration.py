@@ -40,6 +40,60 @@ class ConfigurationTests(unittest.TestCase):
         run=SimpleNamespace(getDSSOutputFile=lambda:str(root/'EnsembleRuns'/str(member)/'forecast.dss'),getOutputFPart=lambda:'C:{:06d}|C0'.format(member))
         network=SimpleNamespace(getRssRun=lambda:run,makeAbsolutePathFromWatershed=lambda p:str(watershed/p) if not Path(p).is_absolute() else str(p),getStateVariable=lambda name:store,printMessage=lambda msg:None)
         return network,rule,store
+    def test_null_slots_preserve_legacy_values_and_never_reach_deep_drawdown_csv_reader(self):
+        original=self.configuration['rules']['irrm']['settings']
+        self.assertTrue(original['active']['Detroit'])
+        self.assertFalse(original['active']['Dorena'])
+        self.assertIsNone(original['target_elevation_ft']['Dorena'])
+        self.assertEqual(set(original['active']),config.RESERVOIRS)
+        deep=self.configuration['rules']['deep_drawdown']['tables']['configuration']
+        names={row[deep['columns'].index('RESERVOIR')] for row in deep['rows']}
+        self.assertEqual(names,config.RESERVOIRS)
+        pointer=self.apply()
+        directory=self.root/pointer['directory']
+        resolved=json.loads((directory/'resolved.json').read_text())
+        csv_path=directory/resolved['table_paths']['DeepDrawdownConfigCSV']
+        # Exercise the actual legacy parser against the emitted CSV; it normally
+        # parses every numeric cell, including cells on disabled rows.
+        import ast,csv
+        source=ROOT/'standalone-review/scripts/externalRules/DeepDrawdown.py'
+        functions=[node for node in ast.parse(source.read_text()).body if isinstance(node,ast.FunctionDef) and node.name=='loadConfig']
+        namespace={'fileOpenReadClose':lambda path:Path(path).read_text().splitlines(True),
+                   'stripOutCommentLines':lambda lines:[line for line in lines if not line.startswith('#')],
+                   'getCSVDictReader':csv.DictReader,'convertCSVDictReaderToListDict':list}
+        exec(compile(ast.Module(body=functions,type_ignores=[]),str(source),'exec'),namespace)
+        loaded=namespace['loadConfig'](csv_path)
+        self.assertNotIn('Dorena',loaded)
+        self.assertIn('Detroit',loaded)
+        saved=json.loads((directory/'configuration.json').read_text())
+        self.assertIsNone(saved['rules']['irrm']['settings']['target_elevation_ft']['Dorena'])
+        self.assertEqual(len(saved['rules']['deep_drawdown']['tables']['configuration']['rows']),13)
+        # The absence of an attached native rule does not impose an init receipt
+        # for that reservoir; initialization is only invoked by native bindings.
+        reloaded=config.current_configuration(self.root,self.scripts)
+        self.assertIsNone(reloaded['rules']['irrm']['settings']['target_elevation_ft']['Dorena'])
+
+    def test_incomplete_null_slots_must_not_be_enabled(self):
+        settings=self.configuration['rules']['irrm']['settings']
+        settings['active']['Dorena']=True
+        with self.assertRaisesRegex(ValueError,'requires target'):self.apply()
+        settings['active']['Dorena']=False
+        table=self.configuration['rules']['deep_drawdown']['tables']['configuration']
+        row=next(row for row in table['rows'] if row[0]=='Dorena')
+        row[table['columns'].index('ACTIVE')]='TRUE'
+        with self.assertRaisesRegex(ValueError,'event setting'):self.apply()
+
+    def test_older_configuration_gets_only_missing_null_slots_without_mutating_input(self):
+        legacy=json.loads(json.dumps(self.configuration))
+        settings=legacy['rules']['irrm']['settings']
+        settings['active'].pop('Dorena');settings['target_elevation_ft'].pop('Dorena')
+        table=legacy['rules']['deep_drawdown']['tables']['configuration']
+        table['rows']=[row for row in table['rows'] if row[0]!='Dorena']
+        expanded=config.with_null_reservoirs(legacy)
+        self.assertNotIn('Dorena',settings['active'])
+        self.assertIsNone(expanded['rules']['irrm']['settings']['target_elevation_ft']['Dorena'])
+        self.assertEqual(expanded['rules']['irrm']['settings']['target_elevation_ft']['Detroit'],settings['target_elevation_ft']['Detroit'])
+
     def test_additional_irrm_reservoir_is_valid_but_disabled_by_default(self):
         settings=self.configuration['rules']['irrm']['settings']
         settings['active']['Dorena']=False

@@ -88,27 +88,59 @@ def validate_table(rule, name, table, template):
     else:
         required = set(template['columns']) - {'Notes','NOTES'}
         if not required <= set(columns): raise ValueError('Missing event table columns: ' + rule)
+        seen=set()
         for row in rows:
             values = dict(zip(columns,row))
             reservoir = values.get('RESERVOIR',values.get('Project'))
             if reservoir not in RESERVOIRS: raise ValueError('Unknown reservoir: ' + str(reservoir))
+            if rule=='deep_drawdown' and reservoir in seen:raise ValueError('Duplicate event reservoir: '+reservoir)
+            seen.add(reservoir)
+            inactive_placeholder=rule=='deep_drawdown' and str(values.get('ACTIVE')).upper()=='FALSE'
             for key, value in values.items():
                 if key in ('Notes','NOTES','RESERVOIR','Project'): continue
                 if key == 'ACTIVE':
                     if str(value).upper() not in ('TRUE','FALSE'): raise ValueError('Invalid ACTIVE flag')
+                elif value in (None,'') and inactive_placeholder:
+                    continue
                 elif value is None or not math.isfinite(float(value)):
                     raise ValueError('Invalid event setting: ' + key)
             for prefix in ('START_','TARGET_','END_',''):
                 month_key, day_key = prefix+'MONTH',prefix+'DAY'
                 if not prefix: month_key, day_key='Month','Day'
-                if month_key in values and day_key in values:
+                if month_key in values and day_key in values and not (inactive_placeholder and (values[month_key] in (None,'') or values[day_key] in (None,''))):
                     date(2001,int(str(values[month_key])),int(str(values[day_key])))
-            if 'DURATION_DAYS' in values and (float(values['DURATION_DAYS']) < 0 or float(values['DURATION_DAYS']) != int(float(values['DURATION_DAYS']))):
+            if 'DURATION_DAYS' in values and values['DURATION_DAYS'] not in (None,'') and (float(values['DURATION_DAYS']) < 0 or float(values['DURATION_DAYS']) != int(float(values['DURATION_DAYS']))):
                 raise ValueError('Duration must be a nonnegative whole number')
 
 
+def with_null_reservoirs(configuration):
+    """Expand editable IRRM/Deep Drawdown slots without inventing operating values."""
+    result=copy.deepcopy(configuration)
+    rules=result.get('rules',{})
+    irrm=rules.get('irrm',{}).get('settings',{})
+    for name in sorted(RESERVOIRS):
+        irrm.setdefault('active',{}).setdefault(name,False)
+        irrm.setdefault('target_elevation_ft',{}).setdefault(name,None)
+    table=rules.get('deep_drawdown',{}).get('tables',{}).get('configuration')
+    if table and table.get('mode')=='inline' and 'RESERVOIR' in table['columns'] and 'ACTIVE' in table['columns']:
+        columns=table['columns'];name_index=columns.index('RESERVOIR');active_index=columns.index('ACTIVE')
+        existing={row[name_index] for row in table['rows']}
+        for name in sorted(RESERVOIRS-existing):
+            row=[None]*len(columns);row[name_index]=name;row[active_index]='FALSE';table['rows'].append(row)
+    return result
+
+
+def event_rows_for_runtime(rule,table):
+    # Legacy Deep Drawdown readers parse every row, even inactive rows. Do not
+    # send blank placeholder rows to them; a missing reservoir is a neutral rule.
+    if rule!='deep_drawdown':return table['rows']
+    columns=table['columns']
+    required=[i for i,key in enumerate(columns) if key not in ('Notes','NOTES')]
+    return [row for row in table['rows'] if all(row[i] not in (None,'') for i in required)]
+
+
 def template(scripts):
-    return json.loads((Path(scripts) / 'baseline-configuration.example.json').read_text(encoding='utf-8'))
+    return with_null_reservoirs(json.loads((Path(scripts) / 'baseline-configuration.example.json').read_text(encoding='utf-8')))
 
 
 def validate_settings(settings, defaults, prefix=''):
@@ -122,9 +154,11 @@ def validate_settings(settings, defaults, prefix=''):
             for name,item in value.items():
                 if key=='active':
                     if not isinstance(item,bool):raise ValueError('Invalid IRRM activation')
+                elif item is None and not settings['active'].get(name,False):
+                    continue
                 elif isinstance(item,bool) or not isinstance(item,(int,float)) or not math.isfinite(item):
                     raise ValueError('IRRM target must be finite feet')
-            if key=='active' and any(flag and name not in settings['target_elevation_ft'] for name,flag in value.items()):
+            if key=='active' and any(flag and settings['target_elevation_ft'].get(name) is None for name,flag in value.items()):
                 raise ValueError('Enabled IRRM reservoir requires target elevation')
         elif key == 'active' and isinstance(expected,bool) and isinstance(value,dict):
             if any(name not in RESERVOIRS or not isinstance(flag,bool) for name,flag in value.items()):
@@ -165,7 +199,7 @@ def resolve(config, scripts, watershed):
         raise ValueError('Invalid baseline configuration header')
     if set(config['rules']) != set(defaults['rules']):
         raise ValueError('The baseline configuration must contain all eleven rule groups')
-    result, linked = copy.deepcopy(config), {}
+    result, linked = with_null_reservoirs(config), {}
     for key, rule in result['rules'].items():
         reference = defaults['rules'][key]
         validate_settings(rule['settings'],reference['settings'],key+'.')
@@ -182,7 +216,7 @@ def resolve(config, scripts, watershed):
                 linked[key+'-'+name+'.csv'] = raw
             validate_table(key,name,table,reference['tables'][name])
             table['mode'] = 'inline'
-    return result, linked
+    return with_null_reservoirs(result), linked
 
 
 def read_alternative_settings(path):
@@ -246,7 +280,7 @@ def current_configuration(root, scripts, alternative='Con_Season', marker_name='
             for name, table in rule['tables'].items():
                 table['rows']=data['rules'][key]['tables'][name]['rows']
                 table['columns']=data['rules'][key]['tables'][name]['columns']
-        return saved
+        return with_null_reservoirs(saved)
     # Read installed CSVs, not the example schedules. Current Con_Season defaults
     # have flat Hjson key/value lines; refuse more complex syntax rather than guess.
     result=template(scripts);result['name']='Con_Season imported settings';result['description']='Settings read from the imported RTS model.';watershed=Path(scripts).parent.parent
@@ -277,7 +311,7 @@ def current_configuration(root, scripts, alternative='Con_Season', marker_name='
             if setting not in result['rules'][key]['settings']: continue
             match=re.search(r'^'+re.escape(constant)+r'\s*=\s*(.+)$',text,re.M)
             if match: result['rules'][key]['settings'][setting]=ast.literal_eval(match[1].split('#',1)[0].strip())
-    return result
+    return with_null_reservoirs(result)
 
 
 def apply_configuration(root, context, config, scripts):
@@ -286,6 +320,7 @@ def apply_configuration(root, context, config, scripts):
         raise ValueError('Restore configured execution mode before applying settings.')
     standalone=context.get('mode')=='standalone'
     originals='_standalone_baseline_originals' if standalone else '_rts_baseline_originals'
+    config=with_null_reservoirs(config)
     resolved,linked=resolve(config,scripts,watershed)
     identity=uuid.uuid4().hex
     sets=root/'baseline-configurations/sets';sets.mkdir(parents=True,exist_ok=True)
@@ -297,7 +332,7 @@ def apply_configuration(root, context, config, scripts):
         table=resolved['rules'][rule]['tables'][name]
         with path.open('w',newline='',encoding='utf-8') as handle:
             writer=csv.writer(handle);writer.writerow(table['columns'])
-            writer.writerows([['' if v is None else ('TRUE' if v else 'FALSE') if isinstance(v,bool) else v for v in row] for row in table['rows']])
+            writer.writerows([['' if v is None else ('TRUE' if v else 'FALSE') if isinstance(v,bool) else v for v in row] for row in event_rows_for_runtime(rule,table)])
         table_paths[alt_key]=relative;hashes[relative]=digest_file(path)
     for name,raw in linked.items(): (directory/'linked-sources'/name).write_bytes(raw)
     (directory/'scripts').mkdir()
