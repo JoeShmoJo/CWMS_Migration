@@ -126,7 +126,11 @@ during compute is invalid. Source alt_config and CSVs are not rewritten by Apply
 An unsaved browser edit can be applied, but Save first if it needs to be reusable.
 Standalone Apply leaves augmentation method and omitted trials unchanged.
 
-## Standalone extraction, augmentation and plots
+## Standalone extraction, augmentation and legacy plots
+
+Current archive-based plot instructions and file locations are in
+[Standalone saved results](STANDALONE_SAVED_RESULTS.md). Legacy plot folders and
+scripts below remain only for older manual launches; they are not menu actions.
 
 The menu's four extraction scripts run sequentially: CWMS_Downloader_Module.py,
 RFC_Downloader_Module.py, Dummy_0_and_WY_Abundant_Module.py, OSI_Ensemble_Year.py.

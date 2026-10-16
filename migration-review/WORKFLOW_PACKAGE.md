@@ -37,7 +37,8 @@ the editable source; rerunning the embedded packager regenerates HTML.
 4. Use existing native standalone augmentation conventions, then archive/plot
    named results using [saved-run instructions](STANDALONE_SAVED_RESULTS.md). The other
    menu jobs use the selected target and applied **Standalone job settings** in the
-   baseline editor. Apply before extraction/augmentation/plotting. Verify additional
+   baseline editor. Apply before extraction/calculation jobs. Plotting existing archives needs no
+   new Apply. Verify additional
    downloader/date constants and native mappings separately. Apply does not turn
    off standalone augmentation automatically.
 5. See [standalone instructions](STANDALONE_CONFIGURATION.md) for validation,

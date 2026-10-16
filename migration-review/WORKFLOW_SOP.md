@@ -42,13 +42,14 @@ from hec.script import ClientAppWrapper; import os; execfile(os.path.join(str(Cl
    Save alone does not activate settings. Verify your model's baseline trial has
    augmentation disabled through its existing conventions; Apply does not do this.
 7. Compute the baseline trial manually. Verify current log completion, ensemble
-   coverage and initialization receipts. Preserve the baseline results if needed.
+   coverage and initialization receipts. Use **Archive / Plot Results** to save a
+   named **New baseline** before calculating augmentation or overwriting outputs.
 8. Configure the existing standalone augmentation reservoir/target CSVs and trials.
    **Calculate augmentation** reads the selected target’s baseline outputs and writes
    release requirements into that simulation DSS. Verify the log and paths.
-9. Before overwriting baseline outputs, use **Archive / Plot Results** to archive
-   a named **New baseline**. Compute augmentation and archive it as a named result
-   paired with that baseline. Select one or two archived runs for plotting.
+9. Compute the augmented case, verify completion, and archive it as a named
+   result paired with the baseline saved in step 7. Select one or two archived
+   runs for plotting. Plotting does not require a new Apply or the live DSS file.
 10. For another baseline, edit/save/apply settings and repeat compute/archive;
     retain old baselines and result pairings. See [saved-run instructions](STANDALONE_SAVED_RESULTS.md)
     for ordering, exact capture selection and input/output locations.
