@@ -1,0 +1,7688 @@
+<html><head><meta charset='utf-8'><title>Model check: Flood_64 Temp1Day</title>
+<style>body{font-family:sans-serif;margin:24px}table{border-collapse:collapse;font-size:13px}td,th{border:1px solid #ccc;padding:3px 6px;text-align:right}th{background:#f0f0f0}td:first-child{text-align:left}</style></head><body>
+<h1>Model check: Flood_64 / Temp1Day</h1>
+<p>DSS: C:\Projects\FIRO\watershed\NWP_Willamette_Master_2026_09_24_ScriptCleanup\rss\Flood_64\simulation.dss<br>Config files read from: C:\Projects\FIRO\watershed\NWP_Willamette_Master_2026_09_24_ScriptCleanup</p><ul>
+<li>FIRO_SPACE: C:\Projects\FIRO\watershed\NWP_Willamette_Master_2026_09_24_ScriptCleanup\scripts\externalRules\FIRO_SPACEConfig.csv</li>
+<li>Minimum flow: C:\Projects\FIRO\watershed\NWP_Willamette_Master_2026_09_24_ScriptCleanup\scripts\externalRules\MinFlowConfig.csv</li>
+<li>Withdrawal: C:\Projects\FIRO\watershed\NWP_Willamette_Master_2026_09_24_ScriptCleanup\scripts\externalRules\WithdrawalConfig.csv</li>
+<li>Diversions: C:\Projects\FIRO\watershed\NWP_Willamette_Master_2026_09_24_ScriptCleanup\scripts\externalRules\DiversionConfig_ALT.csv</li>
+<li>Salem min flow: C:\Projects\FIRO\watershed\NWP_Willamette_Master_2026_09_24_ScriptCleanup\scripts\externalSVs\MinFlowSalem_2008BiOp.csv</li>
+<li>Albany min flow: C:\Projects\FIRO\watershed\NWP_Willamette_Master_2026_09_24_ScriptCleanup\scripts\externalSVs\MinFlowAlbany_2008BiOp.csv</li>
+</ul><h2>Plots</h2><ul>
+<li><a href='plots/Control points.html'>Control points: status, limits and releases</a></li>
+<li><a href='plots/Reservoir - Big Cliff.html'>Reservoir: Big Cliff</a></li>
+<li><a href='plots/Reservoir - Blue River.html'>Reservoir: Blue River</a></li>
+<li><a href='plots/Reservoir - Cottage Grove.html'>Reservoir: Cottage Grove</a></li>
+<li><a href='plots/Reservoir - Cougar.html'>Reservoir: Cougar</a></li>
+<li><a href='plots/Reservoir - Detroit.html'>Reservoir: Detroit</a></li>
+<li><a href='plots/Reservoir - Dexter.html'>Reservoir: Dexter</a></li>
+<li><a href='plots/Reservoir - Dorena.html'>Reservoir: Dorena</a></li>
+<li><a href='plots/Reservoir - Fall Creek.html'>Reservoir: Fall Creek</a></li>
+<li><a href='plots/Reservoir - Fern Ridge.html'>Reservoir: Fern Ridge</a></li>
+<li><a href='plots/Reservoir - Foster.html'>Reservoir: Foster</a></li>
+<li><a href='plots/Reservoir - Green Peter.html'>Reservoir: Green Peter</a></li>
+<li><a href='plots/Reservoir - Hills Creek.html'>Reservoir: Hills Creek</a></li>
+<li><a href='plots/Reservoir - Lookout Point.html'>Reservoir: Lookout Point</a></li>
+</ul>
+<h2>Rule stack</h2><p>Each reservoir's rules in each zone, top of the stack first, from the active operation set in modelReport.json (written by Alternative_Setup on every compute). pool_in_zone_pct: share of the run the pool spent in the zone, from the zone-top elevations. in_results: whether the rule's values are in the results; a rule marked no is in the operation set but saved nothing.</p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>reservoir</th>
+      <th>zone</th>
+      <th>pool_in_zone_pct</th>
+      <th>position</th>
+      <th>rule</th>
+      <th>in_results</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Blue River</td>
+      <td>Top of Dam</td>
+      <td>29.7</td>
+      <td>1</td>
+      <td>Special Curves</td>
+      <td>no</td>
+    </tr>
+    <tr>
+      <td>Blue River</td>
+      <td>Top of Dam</td>
+      <td>29.7</td>
+      <td>2</td>
+      <td>Max Evacuation Release</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Blue River</td>
+      <td>Top of Dam</td>
+      <td>29.7</td>
+      <td>3</td>
+      <td>Flood Min</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Blue River</td>
+      <td>Top of Dam</td>
+      <td>29.7</td>
+      <td>4</td>
+      <td>Vida Flood Max</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Blue River</td>
+      <td>Top of Dam</td>
+      <td>29.7</td>
+      <td>5</td>
+      <td>BiOp MinTrib and Withdrawals by WY</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Blue River</td>
+      <td>Top of Dam</td>
+      <td>29.7</td>
+      <td>6</td>
+      <td>MainstemFlowAug</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Blue River</td>
+      <td>Top of Dam</td>
+      <td>29.7</td>
+      <td>7</td>
+      <td>Draft to RC</td>
+      <td>no</td>
+    </tr>
+    <tr>
+      <td>Blue River</td>
+      <td>Top of Dam</td>
+      <td>29.7</td>
+      <td>8</td>
+      <td>FIRO_SPACE</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Blue River</td>
+      <td>Rule Curve</td>
+      <td>70.3</td>
+      <td>1</td>
+      <td>Special Curves</td>
+      <td>no</td>
+    </tr>
+    <tr>
+      <td>Blue River</td>
+      <td>Rule Curve</td>
+      <td>70.3</td>
+      <td>2</td>
+      <td>Max Evacuation Release</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Blue River</td>
+      <td>Rule Curve</td>
+      <td>70.3</td>
+      <td>3</td>
+      <td>Flood Min</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Blue River</td>
+      <td>Rule Curve</td>
+      <td>70.3</td>
+      <td>4</td>
+      <td>Vida Flood Max</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Blue River</td>
+      <td>Rule Curve</td>
+      <td>70.3</td>
+      <td>5</td>
+      <td>BiOp MinTrib and Withdrawals by WY</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Blue River</td>
+      <td>Rule Curve</td>
+      <td>70.3</td>
+      <td>6</td>
+      <td>MainstemFlowAug</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Blue River</td>
+      <td>Rule Curve</td>
+      <td>70.3</td>
+      <td>7</td>
+      <td>FIRO_SPACE</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Cottage Grove</td>
+      <td>Top of Dam</td>
+      <td>23.5</td>
+      <td>1</td>
+      <td>Uncontrolled Spill</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Cottage Grove</td>
+      <td>Top of Dam</td>
+      <td>23.5</td>
+      <td>2</td>
+      <td>Special Curves</td>
+      <td>no</td>
+    </tr>
+    <tr>
+      <td>Cottage Grove</td>
+      <td>Top of Dam</td>
+      <td>23.5</td>
+      <td>3</td>
+      <td>Max Evacuation Release</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Cottage Grove</td>
+      <td>Top of Dam</td>
+      <td>23.5</td>
+      <td>4</td>
+      <td>Flood Min</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Cottage Grove</td>
+      <td>Top of Dam</td>
+      <td>23.5</td>
+      <td>5</td>
+      <td>Goshen Bankfull Max</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Cottage Grove</td>
+      <td>Top of Dam</td>
+      <td>23.5</td>
+      <td>6</td>
+      <td>Harrisburg Regulation Goal Simplified</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Cottage Grove</td>
+      <td>Top of Dam</td>
+      <td>23.5</td>
+      <td>7</td>
+      <td>MainstemFlowAug</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Cottage Grove</td>
+      <td>Top of Dam</td>
+      <td>23.5</td>
+      <td>8</td>
+      <td>Draft to RC</td>
+      <td>no</td>
+    </tr>
+    <tr>
+      <td>Cottage Grove</td>
+      <td>Top of Dam</td>
+      <td>23.5</td>
+      <td>9</td>
+      <td>FIRO_SPACE</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Cottage Grove</td>
+      <td>Rule Curve</td>
+      <td>76.5</td>
+      <td>1</td>
+      <td>Uncontrolled Spill</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Cottage Grove</td>
+      <td>Rule Curve</td>
+      <td>76.5</td>
+      <td>2</td>
+      <td>Special Curves</td>
+      <td>no</td>
+    </tr>
+    <tr>
+      <td>Cottage Grove</td>
+      <td>Rule Curve</td>
+      <td>76.5</td>
+      <td>3</td>
+      <td>Max Evacuation Release</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Cottage Grove</td>
+      <td>Rule Curve</td>
+      <td>76.5</td>
+      <td>4</td>
+      <td>Flood Min</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Cottage Grove</td>
+      <td>Rule Curve</td>
+      <td>76.5</td>
+      <td>5</td>
+      <td>Goshen Bankfull Max</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Cottage Grove</td>
+      <td>Rule Curve</td>
+      <td>76.5</td>
+      <td>6</td>
+      <td>Harrisburg Bankfull Simplified Max</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Cottage Grove</td>
+      <td>Rule Curve</td>
+      <td>76.5</td>
+      <td>7</td>
+      <td>BiOp MinTrib and Withdrawals by WY</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Cottage Grove</td>
+      <td>Rule Curve</td>
+      <td>76.5</td>
+      <td>8</td>
+      <td>MainstemFlowAug</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Cottage Grove</td>
+      <td>Rule Curve</td>
+      <td>76.5</td>
+      <td>9</td>
+      <td>FIRO_SPACE</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>Top of Dam</td>
+      <td>7.7</td>
+      <td>1</td>
+      <td>Special Curves</td>
+      <td>no</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>Top of Dam</td>
+      <td>7.7</td>
+      <td>2</td>
+      <td>IRRM</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>Top of Dam</td>
+      <td>7.7</td>
+      <td>3</td>
+      <td>Max Evacuation Release</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>Top of Dam</td>
+      <td>7.7</td>
+      <td>4</td>
+      <td>Flood Min</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>Top of Dam</td>
+      <td>7.7</td>
+      <td>5</td>
+      <td>Vida Flood Max</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>Top of Dam</td>
+      <td>7.7</td>
+      <td>6</td>
+      <td>Deep Drawdown</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>Top of Dam</td>
+      <td>7.7</td>
+      <td>7</td>
+      <td>Spring Spill</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>Top of Dam</td>
+      <td>7.7</td>
+      <td>8</td>
+      <td>BiOp MinTrib and Withdrawals by WY</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>Top of Dam</td>
+      <td>7.7</td>
+      <td>9</td>
+      <td>MainstemFlowAug</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>Top of Dam</td>
+      <td>7.7</td>
+      <td>10</td>
+      <td>Draft to RC</td>
+      <td>no</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>Top of Dam</td>
+      <td>7.7</td>
+      <td>11</td>
+      <td>FIRO_SPACE</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>Rule Curve</td>
+      <td>92.3</td>
+      <td>1</td>
+      <td>No Draft</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>Rule Curve</td>
+      <td>92.3</td>
+      <td>2</td>
+      <td>Special Curves</td>
+      <td>no</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>Rule Curve</td>
+      <td>92.3</td>
+      <td>3</td>
+      <td>IRRM</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>Rule Curve</td>
+      <td>92.3</td>
+      <td>4</td>
+      <td>Max Evacuation Release</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>Rule Curve</td>
+      <td>92.3</td>
+      <td>5</td>
+      <td>Flood Min</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>Rule Curve</td>
+      <td>92.3</td>
+      <td>6</td>
+      <td>Vida Flood Max</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>Rule Curve</td>
+      <td>92.3</td>
+      <td>7</td>
+      <td>Deep Drawdown</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>Rule Curve</td>
+      <td>92.3</td>
+      <td>8</td>
+      <td>Spring Spill</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>Rule Curve</td>
+      <td>92.3</td>
+      <td>9</td>
+      <td>BiOp MinTrib and Withdrawals by WY</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>Rule Curve</td>
+      <td>92.3</td>
+      <td>10</td>
+      <td>MainstemFlowAug</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>Rule Curve</td>
+      <td>92.3</td>
+      <td>11</td>
+      <td>FIRO_SPACE</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Top of Dam</td>
+      <td>12.0</td>
+      <td>1</td>
+      <td>No Lower RO Flow</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Top of Dam</td>
+      <td>12.0</td>
+      <td>2</td>
+      <td>Upper RO use 1400 to 1542 ft</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Top of Dam</td>
+      <td>12.0</td>
+      <td>3</td>
+      <td>Special Curves</td>
+      <td>no</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Top of Dam</td>
+      <td>12.0</td>
+      <td>4</td>
+      <td>Max Evacuation Release</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Top of Dam</td>
+      <td>12.0</td>
+      <td>5</td>
+      <td>Secondary Flood Draft Limit</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Top of Dam</td>
+      <td>12.0</td>
+      <td>6</td>
+      <td>Min for BCL</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Top of Dam</td>
+      <td>12.0</td>
+      <td>7</td>
+      <td>Mehama Winter Ops Max</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Top of Dam</td>
+      <td>12.0</td>
+      <td>8</td>
+      <td>Jefferson Winter Ops Max</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Top of Dam</td>
+      <td>12.0</td>
+      <td>9</td>
+      <td>IRRM</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Top of Dam</td>
+      <td>12.0</td>
+      <td>10</td>
+      <td>Deep Drawdown</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Top of Dam</td>
+      <td>12.0</td>
+      <td>11</td>
+      <td>Combined Min Trib</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Top of Dam</td>
+      <td>12.0</td>
+      <td>12</td>
+      <td>MainstemFlowAug</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Top of Dam</td>
+      <td>12.0</td>
+      <td>13</td>
+      <td>Draft to RC</td>
+      <td>no</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Top of Dam</td>
+      <td>12.0</td>
+      <td>14</td>
+      <td>FIRO_SPACE</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Rule Curve</td>
+      <td>88.0</td>
+      <td>1</td>
+      <td>No Draft</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Rule Curve</td>
+      <td>88.0</td>
+      <td>2</td>
+      <td>Upper RO use 1400 to 1542 ft</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Rule Curve</td>
+      <td>88.0</td>
+      <td>3</td>
+      <td>No Lower RO Flow</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Rule Curve</td>
+      <td>88.0</td>
+      <td>4</td>
+      <td>Special Curves</td>
+      <td>no</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Rule Curve</td>
+      <td>88.0</td>
+      <td>5</td>
+      <td>Max Evacuation Release</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Rule Curve</td>
+      <td>88.0</td>
+      <td>6</td>
+      <td>Secondary Flood Draft Limit</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Rule Curve</td>
+      <td>88.0</td>
+      <td>7</td>
+      <td>Min for BCL</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Rule Curve</td>
+      <td>88.0</td>
+      <td>8</td>
+      <td>Mehama Winter Ops Max</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Rule Curve</td>
+      <td>88.0</td>
+      <td>9</td>
+      <td>Jefferson Winter Ops Max</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Rule Curve</td>
+      <td>88.0</td>
+      <td>10</td>
+      <td>Deep Drawdown</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Rule Curve</td>
+      <td>88.0</td>
+      <td>11</td>
+      <td>IRRM</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Rule Curve</td>
+      <td>88.0</td>
+      <td>12</td>
+      <td>Combined Min Trib</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Rule Curve</td>
+      <td>88.0</td>
+      <td>13</td>
+      <td>MainstemFlowAug</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Rule Curve</td>
+      <td>88.0</td>
+      <td>14</td>
+      <td>FIRO_SPACE</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>Top of Dam</td>
+      <td>26.4</td>
+      <td>1</td>
+      <td>Uncontrolled Spill</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>Top of Dam</td>
+      <td>26.4</td>
+      <td>2</td>
+      <td>Special Curves</td>
+      <td>no</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>Top of Dam</td>
+      <td>26.4</td>
+      <td>3</td>
+      <td>Max Evacuation Release</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>Top of Dam</td>
+      <td>26.4</td>
+      <td>4</td>
+      <td>Flood Min</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>Top of Dam</td>
+      <td>26.4</td>
+      <td>5</td>
+      <td>Goshen Bankfull Max</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>Top of Dam</td>
+      <td>26.4</td>
+      <td>6</td>
+      <td>Harrisburg Regulation Goal Simplified</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>Top of Dam</td>
+      <td>26.4</td>
+      <td>7</td>
+      <td>MainstemFlowAug</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>Top of Dam</td>
+      <td>26.4</td>
+      <td>8</td>
+      <td>Draft to RC</td>
+      <td>no</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>Top of Dam</td>
+      <td>26.4</td>
+      <td>9</td>
+      <td>FIRO_SPACE</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>Rule Curve</td>
+      <td>73.6</td>
+      <td>1</td>
+      <td>Uncontrolled Spill</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>Rule Curve</td>
+      <td>73.6</td>
+      <td>2</td>
+      <td>Special Curves</td>
+      <td>no</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>Rule Curve</td>
+      <td>73.6</td>
+      <td>3</td>
+      <td>Max Evacuation Release</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>Rule Curve</td>
+      <td>73.6</td>
+      <td>4</td>
+      <td>Flood Min</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>Rule Curve</td>
+      <td>73.6</td>
+      <td>5</td>
+      <td>Goshen Bankfull Max</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>Rule Curve</td>
+      <td>73.6</td>
+      <td>6</td>
+      <td>Harrisburg Bankfull Simplified Max</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>Rule Curve</td>
+      <td>73.6</td>
+      <td>7</td>
+      <td>BiOp MinTrib and Withdrawals by WY</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>Rule Curve</td>
+      <td>73.6</td>
+      <td>8</td>
+      <td>MainstemFlowAug</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>Rule Curve</td>
+      <td>73.6</td>
+      <td>9</td>
+      <td>FIRO_SPACE</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Fall Creek</td>
+      <td>Top of Dam</td>
+      <td>14.6</td>
+      <td>1</td>
+      <td>Special Curves</td>
+      <td>no</td>
+    </tr>
+    <tr>
+      <td>Fall Creek</td>
+      <td>Top of Dam</td>
+      <td>14.6</td>
+      <td>2</td>
+      <td>Max Evacuation Release</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Fall Creek</td>
+      <td>Top of Dam</td>
+      <td>14.6</td>
+      <td>3</td>
+      <td>Flood Min</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Fall Creek</td>
+      <td>Top of Dam</td>
+      <td>14.6</td>
+      <td>4</td>
+      <td>Harrisburg Regulation Goal Simplified Max</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Fall Creek</td>
+      <td>Top of Dam</td>
+      <td>14.6</td>
+      <td>5</td>
+      <td>Medium Fish Horn Min</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Fall Creek</td>
+      <td>Top of Dam</td>
+      <td>14.6</td>
+      <td>6</td>
+      <td>BiOp MinTrib and Withdrawals by WY</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Fall Creek</td>
+      <td>Top of Dam</td>
+      <td>14.6</td>
+      <td>7</td>
+      <td>Drawdown Max</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Fall Creek</td>
+      <td>Top of Dam</td>
+      <td>14.6</td>
+      <td>8</td>
+      <td>MainstemFlowAug</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Fall Creek</td>
+      <td>Top of Dam</td>
+      <td>14.6</td>
+      <td>9</td>
+      <td>Deep Drawdown</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Fall Creek</td>
+      <td>Top of Dam</td>
+      <td>14.6</td>
+      <td>10</td>
+      <td>Draft to RC</td>
+      <td>no</td>
+    </tr>
+    <tr>
+      <td>Fall Creek</td>
+      <td>Top of Dam</td>
+      <td>14.6</td>
+      <td>11</td>
+      <td>FIRO_SPACE</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Fall Creek</td>
+      <td>Rule Curve</td>
+      <td>85.4</td>
+      <td>1</td>
+      <td>Special Curves</td>
+      <td>no</td>
+    </tr>
+    <tr>
+      <td>Fall Creek</td>
+      <td>Rule Curve</td>
+      <td>85.4</td>
+      <td>2</td>
+      <td>Max Evacuation Release</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Fall Creek</td>
+      <td>Rule Curve</td>
+      <td>85.4</td>
+      <td>3</td>
+      <td>Flood Min</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Fall Creek</td>
+      <td>Rule Curve</td>
+      <td>85.4</td>
+      <td>4</td>
+      <td>Harrisburg Bankfull Simplified Max</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Fall Creek</td>
+      <td>Rule Curve</td>
+      <td>85.4</td>
+      <td>5</td>
+      <td>Medium Fish Horn Min</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Fall Creek</td>
+      <td>Rule Curve</td>
+      <td>85.4</td>
+      <td>6</td>
+      <td>BiOp MinTrib and Withdrawals by WY</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Fall Creek</td>
+      <td>Rule Curve</td>
+      <td>85.4</td>
+      <td>7</td>
+      <td>Drawdown Max</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Fall Creek</td>
+      <td>Rule Curve</td>
+      <td>85.4</td>
+      <td>8</td>
+      <td>MainstemFlowAug</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Fall Creek</td>
+      <td>Rule Curve</td>
+      <td>85.4</td>
+      <td>9</td>
+      <td>Deep Drawdown</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Fall Creek</td>
+      <td>Rule Curve</td>
+      <td>85.4</td>
+      <td>10</td>
+      <td>Draft to RC</td>
+      <td>no</td>
+    </tr>
+    <tr>
+      <td>Fall Creek</td>
+      <td>Rule Curve</td>
+      <td>85.4</td>
+      <td>11</td>
+      <td>FIRO_SPACE</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Fern Ridge</td>
+      <td>Top of Dam</td>
+      <td>23.3</td>
+      <td>1</td>
+      <td>Special Curves</td>
+      <td>no</td>
+    </tr>
+    <tr>
+      <td>Fern Ridge</td>
+      <td>Top of Dam</td>
+      <td>23.3</td>
+      <td>2</td>
+      <td>Max Evacuation Release</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Fern Ridge</td>
+      <td>Top of Dam</td>
+      <td>23.3</td>
+      <td>3</td>
+      <td>Flood Min</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Fern Ridge</td>
+      <td>Top of Dam</td>
+      <td>23.3</td>
+      <td>4</td>
+      <td>Monroe Regulation Goal Max</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Fern Ridge</td>
+      <td>Top of Dam</td>
+      <td>23.3</td>
+      <td>5</td>
+      <td>BiOp MinTrib and Withdrawals by WY</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Fern Ridge</td>
+      <td>Top of Dam</td>
+      <td>23.3</td>
+      <td>6</td>
+      <td>MainstemFlowAug</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Fern Ridge</td>
+      <td>Top of Dam</td>
+      <td>23.3</td>
+      <td>7</td>
+      <td>Draft to RC</td>
+      <td>no</td>
+    </tr>
+    <tr>
+      <td>Fern Ridge</td>
+      <td>Top of Dam</td>
+      <td>23.3</td>
+      <td>8</td>
+      <td>FIRO_SPACE</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Fern Ridge</td>
+      <td>Rule Curve</td>
+      <td>76.7</td>
+      <td>1</td>
+      <td>Special Curves</td>
+      <td>no</td>
+    </tr>
+    <tr>
+      <td>Fern Ridge</td>
+      <td>Rule Curve</td>
+      <td>76.7</td>
+      <td>2</td>
+      <td>Max Evacuation Release</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Fern Ridge</td>
+      <td>Rule Curve</td>
+      <td>76.7</td>
+      <td>3</td>
+      <td>Flood Min</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Fern Ridge</td>
+      <td>Rule Curve</td>
+      <td>76.7</td>
+      <td>4</td>
+      <td>Monroe Regulation Goal Max</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Fern Ridge</td>
+      <td>Rule Curve</td>
+      <td>76.7</td>
+      <td>5</td>
+      <td>BiOp MinTrib and Withdrawals by WY</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Fern Ridge</td>
+      <td>Rule Curve</td>
+      <td>76.7</td>
+      <td>6</td>
+      <td>MainstemFlowAug</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Fern Ridge</td>
+      <td>Rule Curve</td>
+      <td>76.7</td>
+      <td>7</td>
+      <td>FIRO_SPACE</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Foster</td>
+      <td>Top of Dam</td>
+      <td>12.0</td>
+      <td>1</td>
+      <td>Waterloo Flood Simple</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Foster</td>
+      <td>Rule Curve</td>
+      <td>88.0</td>
+      <td>1</td>
+      <td>Waterloo Flood Simple</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Top of Dam</td>
+      <td>5.9</td>
+      <td>1</td>
+      <td>Special Curves</td>
+      <td>no</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Top of Dam</td>
+      <td>5.9</td>
+      <td>2</td>
+      <td>Max Evacuation Release</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Top of Dam</td>
+      <td>5.9</td>
+      <td>3</td>
+      <td>Secondary Flood Draft Limit</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Top of Dam</td>
+      <td>5.9</td>
+      <td>4</td>
+      <td>Flood Min</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Top of Dam</td>
+      <td>5.9</td>
+      <td>5</td>
+      <td>Waterloo Flood Max</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Top of Dam</td>
+      <td>5.9</td>
+      <td>6</td>
+      <td>Jefferson Flood Stage Simplified Max</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Top of Dam</td>
+      <td>5.9</td>
+      <td>7</td>
+      <td>BiOp Max Flow Winter GPR FOS</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Top of Dam</td>
+      <td>5.9</td>
+      <td>8</td>
+      <td>Deep Drawdown</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Top of Dam</td>
+      <td>5.9</td>
+      <td>9</td>
+      <td>Combined Min Trib</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Top of Dam</td>
+      <td>5.9</td>
+      <td>10</td>
+      <td>MainstemFlowAug</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Top of Dam</td>
+      <td>5.9</td>
+      <td>11</td>
+      <td>Draft to RC</td>
+      <td>no</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Top of Dam</td>
+      <td>5.9</td>
+      <td>12</td>
+      <td>FIRO_SPACE</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Rule Curve</td>
+      <td>94.1</td>
+      <td>1</td>
+      <td>No Draft</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Rule Curve</td>
+      <td>94.1</td>
+      <td>2</td>
+      <td>Special Curves</td>
+      <td>no</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Rule Curve</td>
+      <td>94.1</td>
+      <td>3</td>
+      <td>Con Max</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Rule Curve</td>
+      <td>94.1</td>
+      <td>4</td>
+      <td>Secondary Flood Draft Limit</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Rule Curve</td>
+      <td>94.1</td>
+      <td>5</td>
+      <td>Flood Min</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Rule Curve</td>
+      <td>94.1</td>
+      <td>6</td>
+      <td>Waterloo Flood Max</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Rule Curve</td>
+      <td>94.1</td>
+      <td>7</td>
+      <td>Jefferson Flood Stage Simplified Max</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Rule Curve</td>
+      <td>94.1</td>
+      <td>8</td>
+      <td>Deep Drawdown</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Rule Curve</td>
+      <td>94.1</td>
+      <td>9</td>
+      <td>Combined Min Trib</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Rule Curve</td>
+      <td>94.1</td>
+      <td>10</td>
+      <td>MainstemFlowAug</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Rule Curve</td>
+      <td>94.1</td>
+      <td>11</td>
+      <td>FIRO_SPACE</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>Top of Dam</td>
+      <td>30.9</td>
+      <td>1</td>
+      <td>Special Curves</td>
+      <td>no</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>Top of Dam</td>
+      <td>30.9</td>
+      <td>2</td>
+      <td>Max Evacuation Rate</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>Top of Dam</td>
+      <td>30.9</td>
+      <td>3</td>
+      <td>Flood Min</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>Top of Dam</td>
+      <td>30.9</td>
+      <td>4</td>
+      <td>Harrisburg Regulation Goal Simplified</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>Top of Dam</td>
+      <td>30.9</td>
+      <td>5</td>
+      <td>IRRM</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>Top of Dam</td>
+      <td>30.9</td>
+      <td>6</td>
+      <td>BiOp MinTrib and Withdrawals by WY</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>Top of Dam</td>
+      <td>30.9</td>
+      <td>7</td>
+      <td>Fill_LOP_First_Script</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>Top of Dam</td>
+      <td>30.9</td>
+      <td>8</td>
+      <td>HCR_LOP_Balance</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>Top of Dam</td>
+      <td>30.9</td>
+      <td>9</td>
+      <td>Draft to RC</td>
+      <td>no</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>Top of Dam</td>
+      <td>30.9</td>
+      <td>10</td>
+      <td>FIRO_SPACE</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>Rule Curve</td>
+      <td>69.1</td>
+      <td>1</td>
+      <td>No Draft</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>Rule Curve</td>
+      <td>69.1</td>
+      <td>2</td>
+      <td>Special Curves</td>
+      <td>no</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>Rule Curve</td>
+      <td>69.1</td>
+      <td>3</td>
+      <td>Max Evacuation Rate</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>Rule Curve</td>
+      <td>69.1</td>
+      <td>4</td>
+      <td>Flood Min</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>Rule Curve</td>
+      <td>69.1</td>
+      <td>5</td>
+      <td>Harrisburg Regulation Goal Simplified</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>Rule Curve</td>
+      <td>69.1</td>
+      <td>6</td>
+      <td>IRRM</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>Rule Curve</td>
+      <td>69.1</td>
+      <td>7</td>
+      <td>BiOp MinTrib and Withdrawals by WY</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>Rule Curve</td>
+      <td>69.1</td>
+      <td>8</td>
+      <td>Fill_LOP_First_Script</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>Rule Curve</td>
+      <td>69.1</td>
+      <td>9</td>
+      <td>HCR_LOP_Balance</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>Rule Curve</td>
+      <td>69.1</td>
+      <td>10</td>
+      <td>FIRO_SPACE</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Top of Dam</td>
+      <td>8.5</td>
+      <td>1</td>
+      <td>No RO use above 900 ft</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Top of Dam</td>
+      <td>8.5</td>
+      <td>2</td>
+      <td>Special Curves</td>
+      <td>no</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Top of Dam</td>
+      <td>8.5</td>
+      <td>3</td>
+      <td>Max Evacuation Release</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Top of Dam</td>
+      <td>8.5</td>
+      <td>4</td>
+      <td>Secondary Flood Draft Limit</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Top of Dam</td>
+      <td>8.5</td>
+      <td>5</td>
+      <td>Flood Min</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Top of Dam</td>
+      <td>8.5</td>
+      <td>6</td>
+      <td>Jasper Bankfull Max</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Top of Dam</td>
+      <td>8.5</td>
+      <td>7</td>
+      <td>Harrisburg Regulation Goal Simplified</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Top of Dam</td>
+      <td>8.5</td>
+      <td>8</td>
+      <td>Deep Drawdown</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Top of Dam</td>
+      <td>8.5</td>
+      <td>9</td>
+      <td>MainstemFlowAug</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Top of Dam</td>
+      <td>8.5</td>
+      <td>10</td>
+      <td>Draft to RC</td>
+      <td>no</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Top of Dam</td>
+      <td>8.5</td>
+      <td>11</td>
+      <td>FIRO_SPACE</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Rule Curve</td>
+      <td>91.5</td>
+      <td>1</td>
+      <td>NoDraft</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Rule Curve</td>
+      <td>91.5</td>
+      <td>2</td>
+      <td>ROC Down</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Rule Curve</td>
+      <td>91.5</td>
+      <td>3</td>
+      <td>ROC Up</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Rule Curve</td>
+      <td>91.5</td>
+      <td>4</td>
+      <td>No RO use above 900 ft</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Rule Curve</td>
+      <td>91.5</td>
+      <td>5</td>
+      <td>Special Curves</td>
+      <td>no</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Rule Curve</td>
+      <td>91.5</td>
+      <td>6</td>
+      <td>Secondary Flood Draft Limit</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Rule Curve</td>
+      <td>91.5</td>
+      <td>7</td>
+      <td>Flood Min</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Rule Curve</td>
+      <td>91.5</td>
+      <td>8</td>
+      <td>Jasper Bankfull Max</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Rule Curve</td>
+      <td>91.5</td>
+      <td>9</td>
+      <td>Harrisburg Regulation Goal Simplified</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Rule Curve</td>
+      <td>91.5</td>
+      <td>10</td>
+      <td>Min for DEX</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Rule Curve</td>
+      <td>91.5</td>
+      <td>11</td>
+      <td>IRRM</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Rule Curve</td>
+      <td>91.5</td>
+      <td>12</td>
+      <td>Deep Drawdown</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Rule Curve</td>
+      <td>91.5</td>
+      <td>13</td>
+      <td>Spring Spill</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Rule Curve</td>
+      <td>91.5</td>
+      <td>14</td>
+      <td>BiOp MinTrib and Withdrawals by WY</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Rule Curve</td>
+      <td>91.5</td>
+      <td>15</td>
+      <td>MainstemFlowAug</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Rule Curve</td>
+      <td>91.5</td>
+      <td>16</td>
+      <td>Draft to RC</td>
+      <td>no</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Rule Curve</td>
+      <td>91.5</td>
+      <td>17</td>
+      <td>FIRO_SPACE</td>
+      <td>yes</td>
+    </tr>
+  </tbody>
+</table>
+<h2>FIRO_SPACE</h2><p>Achieving: pool within 1.0 ft of the target. Off-target days are explained when the outflow sat on the max limit (could not draft) or the min limit (could not fill). Targeting: rule_followed_pct is how often the outflow obeyed the FIRO rule's own value; overridden days are where another rule won.</p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>reservoir</th>
+      <th>days_with_target</th>
+      <th>within_1.0ft_pct</th>
+      <th>mean_dev_ft</th>
+      <th>max_above_ft</th>
+      <th>max_below_ft</th>
+      <th>days_above</th>
+      <th>above_at_max_limit</th>
+      <th>above_unexplained</th>
+      <th>days_below</th>
+      <th>below_at_min_limit</th>
+      <th>below_unexplained</th>
+      <th>rule_attached</th>
+      <th>rule_followed_pct</th>
+      <th>rule_overridden_days</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Blue River</td>
+      <td>881</td>
+      <td>51.3</td>
+      <td>6.55</td>
+      <td>182.00</td>
+      <td>-16.34</td>
+      <td>130</td>
+      <td>116</td>
+      <td>14</td>
+      <td>299</td>
+      <td>157</td>
+      <td>142</td>
+      <td>yes</td>
+      <td>70.0</td>
+      <td>264.0</td>
+    </tr>
+    <tr>
+      <td>Cottage Grove</td>
+      <td>881</td>
+      <td>61.2</td>
+      <td>0.30</td>
+      <td>48.57</td>
+      <td>-5.59</td>
+      <td>84</td>
+      <td>83</td>
+      <td>1</td>
+      <td>258</td>
+      <td>246</td>
+      <td>12</td>
+      <td>yes</td>
+      <td>58.1</td>
+      <td>369.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>881</td>
+      <td>9.1</td>
+      <td>-60.10</td>
+      <td>153.00</td>
+      <td>-161.40</td>
+      <td>44</td>
+      <td>44</td>
+      <td>0</td>
+      <td>757</td>
+      <td>736</td>
+      <td>21</td>
+      <td>yes</td>
+      <td>12.9</td>
+      <td>767.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>881</td>
+      <td>1.1</td>
+      <td>-27.73</td>
+      <td>101.76</td>
+      <td>-102.40</td>
+      <td>47</td>
+      <td>46</td>
+      <td>1</td>
+      <td>824</td>
+      <td>810</td>
+      <td>14</td>
+      <td>yes</td>
+      <td>3.7</td>
+      <td>848.0</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>881</td>
+      <td>66.2</td>
+      <td>1.95</td>
+      <td>80.46</td>
+      <td>-11.31</td>
+      <td>119</td>
+      <td>112</td>
+      <td>7</td>
+      <td>179</td>
+      <td>133</td>
+      <td>46</td>
+      <td>yes</td>
+      <td>69.6</td>
+      <td>268.0</td>
+    </tr>
+    <tr>
+      <td>Fern Ridge</td>
+      <td>881</td>
+      <td>46.8</td>
+      <td>-0.10</td>
+      <td>24.13</td>
+      <td>-6.65</td>
+      <td>93</td>
+      <td>93</td>
+      <td>0</td>
+      <td>376</td>
+      <td>374</td>
+      <td>2</td>
+      <td>yes</td>
+      <td>35.5</td>
+      <td>568.0</td>
+    </tr>
+    <tr>
+      <td>Foster</td>
+      <td>881</td>
+      <td>98.8</td>
+      <td>0.30</td>
+      <td>28.00</td>
+      <td>-0.60</td>
+      <td>11</td>
+      <td>11</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>no</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>881</td>
+      <td>25.5</td>
+      <td>-21.84</td>
+      <td>67.44</td>
+      <td>-171.88</td>
+      <td>62</td>
+      <td>53</td>
+      <td>9</td>
+      <td>594</td>
+      <td>594</td>
+      <td>0</td>
+      <td>yes</td>
+      <td>27.4</td>
+      <td>640.0</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>881</td>
+      <td>19.3</td>
+      <td>-6.65</td>
+      <td>100.00</td>
+      <td>-40.83</td>
+      <td>132</td>
+      <td>130</td>
+      <td>2</td>
+      <td>579</td>
+      <td>560</td>
+      <td>19</td>
+      <td>yes</td>
+      <td>21.8</td>
+      <td>689.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>881</td>
+      <td>4.3</td>
+      <td>-14.85</td>
+      <td>106.78</td>
+      <td>-110.06</td>
+      <td>79</td>
+      <td>74</td>
+      <td>5</td>
+      <td>764</td>
+      <td>764</td>
+      <td>0</td>
+      <td>yes</td>
+      <td>5.4</td>
+      <td>833.0</td>
+    </tr>
+  </tbody>
+</table>
+<h2>MinFlow</h2><p>Minimum flow + withdrawal from the config against the outflow where it is met. A shortfall is explained when the max limit was below the requirement. rule_attached says whether Combined Min Trib exists at that reservoir in this run.</p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>reservoir</th>
+      <th>released_at</th>
+      <th>days_with_requirement</th>
+      <th>mean_required_cfs</th>
+      <th>days_short</th>
+      <th>short_max_limit_below</th>
+      <th>short_unexplained</th>
+      <th>shortfall_af</th>
+      <th>min_limit_below_required_days</th>
+      <th>rule_attached</th>
+      <th>other_rule</th>
+      <th>other_rule_matches_config_pct</th>
+      <th>rule_matches_config_pct</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Blue River</td>
+      <td>Blue River</td>
+      <td>881</td>
+      <td>73.7</td>
+      <td>143</td>
+      <td>52</td>
+      <td>91</td>
+      <td>13800.0</td>
+      <td>203</td>
+      <td>no</td>
+      <td>Blue River-Dam-BiOp MinTrib and Withdrawals by WY Flow-MIN</td>
+      <td>61.7</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Cottage Grove</td>
+      <td>Cottage Grove</td>
+      <td>881</td>
+      <td>69.8</td>
+      <td>245</td>
+      <td>223</td>
+      <td>22</td>
+      <td>8574.0</td>
+      <td>288</td>
+      <td>no</td>
+      <td>Cottage Grove-Dam-BiOp MinTrib and Withdrawals by WY Flow-MIN</td>
+      <td>61.7</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>Cougar</td>
+      <td>881</td>
+      <td>348.0</td>
+      <td>308</td>
+      <td>308</td>
+      <td>0</td>
+      <td>52955.0</td>
+      <td>328</td>
+      <td>no</td>
+      <td>Cougar-Dam-BiOp MinTrib and Withdrawals by WY Flow-MIN</td>
+      <td>61.7</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Detroit</td>
+      <td>881</td>
+      <td>1357.3</td>
+      <td>6</td>
+      <td>6</td>
+      <td>0</td>
+      <td>2083.0</td>
+      <td>6</td>
+      <td>yes</td>
+      <td></td>
+      <td></td>
+      <td>100.0</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>Dorena</td>
+      <td>881</td>
+      <td>160.8</td>
+      <td>178</td>
+      <td>127</td>
+      <td>51</td>
+      <td>14258.0</td>
+      <td>239</td>
+      <td>no</td>
+      <td>Dorena-Dam-BiOp MinTrib and Withdrawals by WY Flow-MIN</td>
+      <td>61.7</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Fall Creek</td>
+      <td>Fall Creek</td>
+      <td>881</td>
+      <td>107.1</td>
+      <td>165</td>
+      <td>0</td>
+      <td>165</td>
+      <td>14361.0</td>
+      <td>337</td>
+      <td>no</td>
+      <td>Fall Creek-Dam-BiOp MinTrib and Withdrawals by WY Flow-MIN</td>
+      <td>61.7</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Fern Ridge</td>
+      <td>Fern Ridge</td>
+      <td>881</td>
+      <td>77.9</td>
+      <td>305</td>
+      <td>288</td>
+      <td>17</td>
+      <td>53448.0</td>
+      <td>306</td>
+      <td>no</td>
+      <td>Fern Ridge-Dam-BiOp MinTrib and Withdrawals by WY Flow-MIN</td>
+      <td>61.7</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Foster</td>
+      <td>881</td>
+      <td>1216.8</td>
+      <td>54</td>
+      <td>0</td>
+      <td>54</td>
+      <td>9657.0</td>
+      <td>n/a (via Foster)</td>
+      <td>yes</td>
+      <td></td>
+      <td></td>
+      <td>n/a (via Foster)</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>Hills Creek</td>
+      <td>881</td>
+      <td>454.6</td>
+      <td>177</td>
+      <td>177</td>
+      <td>0</td>
+      <td>39277.0</td>
+      <td>195</td>
+      <td>no</td>
+      <td>Hills Creek-Dam-BiOp MinTrib and Withdrawals by WY Flow-MIN</td>
+      <td>61.7</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Lookout Point</td>
+      <td>881</td>
+      <td>1290.9</td>
+      <td>139</td>
+      <td>139</td>
+      <td>0</td>
+      <td>39083.0</td>
+      <td>140</td>
+      <td>no</td>
+      <td>Lookout Point-Dam-BiOp MinTrib and Withdrawals by WY Flow-MIN</td>
+      <td>61.7</td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
+<h2>Diversions</h2><p>Whether DiversionFromCSV wrote the config value to its rule (within 0.5 cfs).</p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>element</th>
+      <th>rule_in_results</th>
+      <th>days</th>
+      <th>matches_config_pct</th>
+      <th>days_different</th>
+      <th>max_difference_cfs</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Diversion 1 down</td>
+      <td>yes</td>
+      <td>881</td>
+      <td>100.0</td>
+      <td>0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>Diversion 1 up</td>
+      <td>yes</td>
+      <td>881</td>
+      <td>100.0</td>
+      <td>0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>Diversion 2</td>
+      <td>yes</td>
+      <td>881</td>
+      <td>100.0</td>
+      <td>0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>Diversion 3</td>
+      <td>yes</td>
+      <td>881</td>
+      <td>100.0</td>
+      <td>0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>Diversion 4</td>
+      <td>yes</td>
+      <td>881</td>
+      <td>100.0</td>
+      <td>0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>Diversion 5</td>
+      <td>yes</td>
+      <td>881</td>
+      <td>100.0</td>
+      <td>0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>Diversion 6</td>
+      <td>yes</td>
+      <td>881</td>
+      <td>100.0</td>
+      <td>0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>Diversion 7</td>
+      <td>yes</td>
+      <td>881</td>
+      <td>100.0</td>
+      <td>0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>Diversion 8</td>
+      <td>yes</td>
+      <td>881</td>
+      <td>100.0</td>
+      <td>0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>Diversion 9</td>
+      <td>yes</td>
+      <td>881</td>
+      <td>100.0</td>
+      <td>0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>Diversion 10</td>
+      <td>yes</td>
+      <td>881</td>
+      <td>100.0</td>
+      <td>0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>Diversion 11</td>
+      <td>yes</td>
+      <td>881</td>
+      <td>100.0</td>
+      <td>0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>Diversion 12</td>
+      <td>yes</td>
+      <td>881</td>
+      <td>100.0</td>
+      <td>0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>Diversion 13</td>
+      <td>yes</td>
+      <td>881</td>
+      <td>100.0</td>
+      <td>0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>Diversion 14</td>
+      <td>yes</td>
+      <td>881</td>
+      <td>100.0</td>
+      <td>0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>Diversion 15</td>
+      <td>yes</td>
+      <td>881</td>
+      <td>100.0</td>
+      <td>0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>Return 1 down</td>
+      <td>yes</td>
+      <td>881</td>
+      <td>100.0</td>
+      <td>0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>Return 1 up</td>
+      <td>yes</td>
+      <td>881</td>
+      <td>100.0</td>
+      <td>0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>Return 2</td>
+      <td>yes</td>
+      <td>881</td>
+      <td>100.0</td>
+      <td>0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>Return 3</td>
+      <td>yes</td>
+      <td>881</td>
+      <td>100.0</td>
+      <td>0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>Return 4</td>
+      <td>yes</td>
+      <td>881</td>
+      <td>100.0</td>
+      <td>0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>Return 5</td>
+      <td>yes</td>
+      <td>881</td>
+      <td>100.0</td>
+      <td>0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>Return 6</td>
+      <td>yes</td>
+      <td>881</td>
+      <td>100.0</td>
+      <td>0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>Return 7</td>
+      <td>yes</td>
+      <td>881</td>
+      <td>100.0</td>
+      <td>0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>Return 8</td>
+      <td>yes</td>
+      <td>881</td>
+      <td>100.0</td>
+      <td>0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>Return 9</td>
+      <td>yes</td>
+      <td>881</td>
+      <td>100.0</td>
+      <td>0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>Return 10</td>
+      <td>yes</td>
+      <td>881</td>
+      <td>100.0</td>
+      <td>0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>Return 11</td>
+      <td>yes</td>
+      <td>881</td>
+      <td>100.0</td>
+      <td>0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>Return 12</td>
+      <td>yes</td>
+      <td>881</td>
+      <td>100.0</td>
+      <td>0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>Return 13</td>
+      <td>yes</td>
+      <td>881</td>
+      <td>100.0</td>
+      <td>0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>Return 14</td>
+      <td>yes</td>
+      <td>881</td>
+      <td>100.0</td>
+      <td>0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <td>Return 15</td>
+      <td>yes</td>
+      <td>881</td>
+      <td>100.0</td>
+      <td>0</td>
+      <td>0.0</td>
+    </tr>
+  </tbody>
+</table>
+<h2>Conflicts</h2><p>Rules that wanted a different release and what stopped them. <b>capped</b>: the rule wanted more, and the outflow sat on the max limit set by <i>by</i> (outlet capacity when no rule's value equals the max limit). <b>held up</b>: the rule wanted less, and the outflow sat on the min limit set by <i>by</i>. volume_af is the total difference between what the rule wanted and the release. Day by day in release_decisions/ and the table under the reservoir plot.</p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>reservoir</th>
+      <th>rule</th>
+      <th>saved_as</th>
+      <th>outcome</th>
+      <th>by</th>
+      <th>days</th>
+      <th>volume_af</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Blue River</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>(not found)</td>
+      <td>104</td>
+      <td>411154.0</td>
+    </tr>
+    <tr>
+      <td>Blue River</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Dam-Max Evacuation Release; Vida Flood Max</td>
+      <td>67</td>
+      <td>307506.0</td>
+    </tr>
+    <tr>
+      <td>Blue River</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>FIRO_SPACE</td>
+      <td>315</td>
+      <td>240199.0</td>
+    </tr>
+    <tr>
+      <td>Blue River</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>outlet capacity</td>
+      <td>6</td>
+      <td>200368.0</td>
+    </tr>
+    <tr>
+      <td>Blue River</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Dam-Max Evacuation Release</td>
+      <td>30</td>
+      <td>131042.0</td>
+    </tr>
+    <tr>
+      <td>Blue River</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Vida Flood Max</td>
+      <td>5</td>
+      <td>125679.0</td>
+    </tr>
+    <tr>
+      <td>Blue River</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Flood Min; Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>230</td>
+      <td>22810.0</td>
+    </tr>
+    <tr>
+      <td>Blue River</td>
+      <td>Vida Flood Max</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>(not found)</td>
+      <td>2</td>
+      <td>19609.0</td>
+    </tr>
+    <tr>
+      <td>Blue River</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Flood Min; Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>113</td>
+      <td>10795.0</td>
+    </tr>
+    <tr>
+      <td>Blue River</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>54</td>
+      <td>7296.0</td>
+    </tr>
+    <tr>
+      <td>Blue River</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>54</td>
+      <td>5291.0</td>
+    </tr>
+    <tr>
+      <td>Blue River</td>
+      <td>Dam-Max Evacuation Release</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>(not found)</td>
+      <td>2</td>
+      <td>4267.0</td>
+    </tr>
+    <tr>
+      <td>Blue River</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Dam-BiOp MinTrib and Withdrawals by WY; FIRO_SPACE</td>
+      <td>4</td>
+      <td>552.0</td>
+    </tr>
+    <tr>
+      <td>Blue River</td>
+      <td>Vida Flood Max</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>Flood Min; Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>4</td>
+      <td>377.0</td>
+    </tr>
+    <tr>
+      <td>Cottage Grove</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>(not found)</td>
+      <td>65</td>
+      <td>169598.0</td>
+    </tr>
+    <tr>
+      <td>Cottage Grove</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>FIRO_SPACE</td>
+      <td>223</td>
+      <td>135623.0</td>
+    </tr>
+    <tr>
+      <td>Cottage Grove</td>
+      <td>Spillway-Uncontrolled Spill</td>
+      <td>min</td>
+      <td>capped</td>
+      <td>outlet capacity</td>
+      <td>4</td>
+      <td>112857.0</td>
+    </tr>
+    <tr>
+      <td>Cottage Grove</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>outlet capacity</td>
+      <td>7</td>
+      <td>98465.0</td>
+    </tr>
+    <tr>
+      <td>Cottage Grove</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>369</td>
+      <td>50825.0</td>
+    </tr>
+    <tr>
+      <td>Cottage Grove</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Goshen Bankfull Max</td>
+      <td>7</td>
+      <td>41497.0</td>
+    </tr>
+    <tr>
+      <td>Cottage Grove</td>
+      <td>Harrisburg Bankfull Simplified Max</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>(not found)</td>
+      <td>16</td>
+      <td>38810.0</td>
+    </tr>
+    <tr>
+      <td>Cottage Grove</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>288</td>
+      <td>35993.0</td>
+    </tr>
+    <tr>
+      <td>Cottage Grove</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Goshen Bankfull Max; Harrisburg Regulation Goal Simplified</td>
+      <td>7</td>
+      <td>33268.0</td>
+    </tr>
+    <tr>
+      <td>Cottage Grove</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Dam-Max Evacuation Release; Goshen Bankfull Max</td>
+      <td>39</td>
+      <td>27975.0</td>
+    </tr>
+    <tr>
+      <td>Cottage Grove</td>
+      <td>Harrisburg Regulation Goal Simplified</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>(not found)</td>
+      <td>5</td>
+      <td>25185.0</td>
+    </tr>
+    <tr>
+      <td>Cottage Grove</td>
+      <td>Goshen Bankfull Max</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>(not found)</td>
+      <td>4</td>
+      <td>21331.0</td>
+    </tr>
+    <tr>
+      <td>Cottage Grove</td>
+      <td>Spillway-Uncontrolled Spill</td>
+      <td>min</td>
+      <td>capped</td>
+      <td>Goshen Bankfull Max</td>
+      <td>1</td>
+      <td>21266.0</td>
+    </tr>
+    <tr>
+      <td>Cottage Grove</td>
+      <td>Spillway-Uncontrolled Spill</td>
+      <td>min</td>
+      <td>capped</td>
+      <td>Goshen Bankfull Max; Harrisburg Regulation Goal Simplified</td>
+      <td>2</td>
+      <td>20574.0</td>
+    </tr>
+    <tr>
+      <td>Cottage Grove</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Dam-Max Evacuation Release; Goshen Bankfull Max; Harrisburg Bankfull Simplified Max; Harrisburg Regulation Goal Simplified</td>
+      <td>3</td>
+      <td>6788.0</td>
+    </tr>
+    <tr>
+      <td>Cottage Grove</td>
+      <td>Dam-Max Evacuation Release</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>(not found)</td>
+      <td>3</td>
+      <td>6277.0</td>
+    </tr>
+    <tr>
+      <td>Cottage Grove</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Goshen Bankfull Max; Harrisburg Bankfull Simplified Max</td>
+      <td>1</td>
+      <td>4111.0</td>
+    </tr>
+    <tr>
+      <td>Cottage Grove</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Flood Min; Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>30</td>
+      <td>3155.0</td>
+    </tr>
+    <tr>
+      <td>Cottage Grove</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Flood Min; Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>26</td>
+      <td>2462.0</td>
+    </tr>
+    <tr>
+      <td>Cottage Grove</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Dam-Max Evacuation Release</td>
+      <td>4</td>
+      <td>1083.0</td>
+    </tr>
+    <tr>
+      <td>Cottage Grove</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Dam-Max Evacuation Release; Goshen Bankfull Max; Harrisburg Regulation Goal Simplified</td>
+      <td>1</td>
+      <td>1078.0</td>
+    </tr>
+    <tr>
+      <td>Cottage Grove</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Dam-BiOp MinTrib and Withdrawals by WY; FIRO_SPACE</td>
+      <td>5</td>
+      <td>775.0</td>
+    </tr>
+    <tr>
+      <td>Cottage Grove</td>
+      <td>Harrisburg Bankfull Simplified Max</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>Flood Min; Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>4</td>
+      <td>397.0</td>
+    </tr>
+    <tr>
+      <td>Cottage Grove</td>
+      <td>Harrisburg Regulation Goal Simplified</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>Flood Min; Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>4</td>
+      <td>397.0</td>
+    </tr>
+    <tr>
+      <td>Cottage Grove</td>
+      <td>Goshen Bankfull Max</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>Flood Min; Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>3</td>
+      <td>270.0</td>
+    </tr>
+    <tr>
+      <td>Cottage Grove</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Flood Min; Dam-BiOp MinTrib and Withdrawals by WY; FIRO_SPACE</td>
+      <td>2</td>
+      <td>201.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>No Draft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>outlet capacity</td>
+      <td>325</td>
+      <td>644411150.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>No Draft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Spring Spill</td>
+      <td>243</td>
+      <td>481527207.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>No Draft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Deep Drawdown</td>
+      <td>132</td>
+      <td>261488185.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>No Draft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Max Evacuation Release; Vida Flood Max</td>
+      <td>26</td>
+      <td>51377306.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>No Draft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Max Evacuation Release</td>
+      <td>21</td>
+      <td>41480331.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>No Draft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>IRRM</td>
+      <td>16</td>
+      <td>31696767.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>No Draft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Vida Flood Max</td>
+      <td>16</td>
+      <td>31634739.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>No Draft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Max Evacuation Release; Vida Flood Max; Spring Spill</td>
+      <td>1</td>
+      <td>1977615.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>No Draft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Max Evacuation Release; Vida Flood Max; Deep Drawdown</td>
+      <td>1</td>
+      <td>1977521.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>No Draft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Max Evacuation Release; Spring Spill</td>
+      <td>1</td>
+      <td>1977521.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>No Draft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Max Evacuation Release; FIRO_SPACE</td>
+      <td>1</td>
+      <td>1976409.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>IRRM</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Spring Spill</td>
+      <td>245</td>
+      <td>468071.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Spring Spill</td>
+      <td>245</td>
+      <td>468071.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Spring Spill</td>
+      <td>245</td>
+      <td>468071.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Spring Spill</td>
+      <td>245</td>
+      <td>468071.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>(not found)</td>
+      <td>58</td>
+      <td>443382.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>IRRM</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>(not found)</td>
+      <td>58</td>
+      <td>427021.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>Spring Spill</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Vida Flood Max</td>
+      <td>5</td>
+      <td>392764.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>(not found)</td>
+      <td>45</td>
+      <td>371384.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>IRRM</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Deep Drawdown</td>
+      <td>129</td>
+      <td>335879.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>Spring Spill</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Deep Drawdown</td>
+      <td>129</td>
+      <td>335879.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Deep Drawdown</td>
+      <td>129</td>
+      <td>335879.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Deep Drawdown</td>
+      <td>129</td>
+      <td>334496.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Vida Flood Max</td>
+      <td>15</td>
+      <td>303539.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>Spring Spill</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>(not found)</td>
+      <td>32</td>
+      <td>257563.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>Spring Spill</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Max Evacuation Release</td>
+      <td>9</td>
+      <td>230295.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>outlet capacity</td>
+      <td>5</td>
+      <td>220616.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>IRRM</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>FIRO_SPACE</td>
+      <td>73</td>
+      <td>153256.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>FIRO_SPACE</td>
+      <td>73</td>
+      <td>153256.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>Spring Spill</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>FIRO_SPACE</td>
+      <td>73</td>
+      <td>153256.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>FIRO_SPACE</td>
+      <td>73</td>
+      <td>153256.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>209</td>
+      <td>147925.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>Spring Spill</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>209</td>
+      <td>147925.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>209</td>
+      <td>147925.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>209</td>
+      <td>147593.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Max Evacuation Release; Vida Flood Max</td>
+      <td>11</td>
+      <td>146295.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>IRRM</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>209</td>
+      <td>143163.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>Spring Spill</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Max Evacuation Release; Vida Flood Max</td>
+      <td>12</td>
+      <td>137882.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>(not found)</td>
+      <td>23</td>
+      <td>110457.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>IRRM</td>
+      <td>2</td>
+      <td>91712.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>IRRM</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Flood Min; Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>119</td>
+      <td>70810.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>Spring Spill</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Flood Min; Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>119</td>
+      <td>70810.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Flood Min; Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>119</td>
+      <td>70810.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Flood Min; Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>119</td>
+      <td>69620.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Flood Min; Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>111</td>
+      <td>65314.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Max Evacuation Release</td>
+      <td>11</td>
+      <td>47033.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Max Evacuation Release; Vida Flood Max</td>
+      <td>8</td>
+      <td>43750.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>IRRM</td>
+      <td>16</td>
+      <td>38770.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>Spring Spill</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>IRRM</td>
+      <td>16</td>
+      <td>38770.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>IRRM</td>
+      <td>16</td>
+      <td>38770.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Max Evacuation Release</td>
+      <td>2</td>
+      <td>35311.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Vida Flood Max</td>
+      <td>3</td>
+      <td>32891.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>Vida Flood Max</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>IRRM</td>
+      <td>2</td>
+      <td>15732.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>IRRM</td>
+      <td>14</td>
+      <td>12018.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>IRRM</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Flood Min; Deep Drawdown; Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>5</td>
+      <td>2975.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>Spring Spill</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Flood Min; Deep Drawdown; Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>5</td>
+      <td>2975.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Flood Min; Deep Drawdown; Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>5</td>
+      <td>2975.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Flood Min; Deep Drawdown; Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>5</td>
+      <td>2975.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>Vida Flood Max</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>Flood Min; Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>5</td>
+      <td>2562.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>Max Evacuation Release</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>IRRM</td>
+      <td>1</td>
+      <td>2380.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>No Draft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Combined Min Trib</td>
+      <td>490</td>
+      <td>968504573.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>No Draft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>outlet capacity</td>
+      <td>113</td>
+      <td>223879229.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>No Draft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Deep Drawdown</td>
+      <td>111</td>
+      <td>219513180.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>No Draft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Dam-Max Evacuation Release</td>
+      <td>63</td>
+      <td>124168564.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>No Draft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>IRRM</td>
+      <td>60</td>
+      <td>118641222.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>No Draft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>FIRO_SPACE</td>
+      <td>18</td>
+      <td>35582669.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>No Draft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Jefferson Winter Ops Max</td>
+      <td>6</td>
+      <td>11842672.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>No Draft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Mehama Winter Ops Max</td>
+      <td>6</td>
+      <td>9827357.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>No Draft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Secondary Flood Draft Limit</td>
+      <td>4</td>
+      <td>7887471.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>No Draft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Deep Drawdown; Combined Min Trib</td>
+      <td>1</td>
+      <td>1981091.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>No Draft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>IRRM; Combined Min Trib</td>
+      <td>1</td>
+      <td>1980173.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>No Draft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Dam-Max Evacuation Release; Secondary Flood Draft Limit; FIRO_SPACE</td>
+      <td>1</td>
+      <td>1971868.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>No Draft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Dam-Max Evacuation Release; Secondary Flood Draft Limit</td>
+      <td>1</td>
+      <td>1970047.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>No Draft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Dam-Max Evacuation Release; FIRO_SPACE</td>
+      <td>1</td>
+      <td>1964930.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>No Draft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Regulating Outlet Upper-Upper RO use 1400 to 1542 ft; Dam-Max Evacuation Release</td>
+      <td>1</td>
+      <td>1959511.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>No Draft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Regulating Outlet Upper-Upper RO use 1400 to 1542 ft; Mehama Winter Ops Max</td>
+      <td>1</td>
+      <td>1959351.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>No Draft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Dam-Max Evacuation Release; Mehama Winter Ops Max</td>
+      <td>1</td>
+      <td>1955268.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Regulating Outlet Lower-No Lower RO Flow</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>Combined Min Trib</td>
+      <td>490</td>
+      <td>1415758.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Combined Min Trib</td>
+      <td>490</td>
+      <td>1415758.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Combined Min Trib</td>
+      <td>490</td>
+      <td>1415724.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Combined Min Trib</td>
+      <td>490</td>
+      <td>1413378.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>IRRM</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Combined Min Trib</td>
+      <td>490</td>
+      <td>1351827.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Regulating Outlet Lower-No Lower RO Flow</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>(not found)</td>
+      <td>70</td>
+      <td>974593.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>(not found)</td>
+      <td>70</td>
+      <td>974593.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>IRRM</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>(not found)</td>
+      <td>69</td>
+      <td>913673.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Combined Min Trib</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>(not found)</td>
+      <td>70</td>
+      <td>811949.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Dam-Max Evacuation Release</td>
+      <td>36</td>
+      <td>713485.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Secondary Flood Draft Limit</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Combined Min Trib</td>
+      <td>76</td>
+      <td>705826.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Regulating Outlet Lower-No Lower RO Flow</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>Deep Drawdown</td>
+      <td>111</td>
+      <td>652110.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>IRRM</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Deep Drawdown</td>
+      <td>111</td>
+      <td>652110.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Deep Drawdown</td>
+      <td>111</td>
+      <td>652110.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Deep Drawdown</td>
+      <td>111</td>
+      <td>652110.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Regulating Outlet Upper-Upper RO use 1400 to 1542 ft</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>Combined Min Trib</td>
+      <td>207</td>
+      <td>597733.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>(not found)</td>
+      <td>31</td>
+      <td>590481.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Secondary Flood Draft Limit</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>outlet capacity</td>
+      <td>40</td>
+      <td>529261.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>outlet capacity</td>
+      <td>6</td>
+      <td>491971.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Secondary Flood Draft Limit</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Deep Drawdown</td>
+      <td>80</td>
+      <td>470523.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>(not found)</td>
+      <td>39</td>
+      <td>384112.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Regulating Outlet Upper-Upper RO use 1400 to 1542 ft</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>IRRM</td>
+      <td>60</td>
+      <td>367042.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Regulating Outlet Lower-No Lower RO Flow</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>IRRM</td>
+      <td>60</td>
+      <td>367042.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>IRRM</td>
+      <td>60</td>
+      <td>367042.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>IRRM</td>
+      <td>60</td>
+      <td>367042.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>IRRM</td>
+      <td>60</td>
+      <td>367042.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Combined Min Trib</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Deep Drawdown</td>
+      <td>111</td>
+      <td>351019.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Jefferson Winter Ops Max</td>
+      <td>4</td>
+      <td>324408.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Dam-Max Evacuation Release</td>
+      <td>21</td>
+      <td>306986.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Mehama Winter Ops Max</td>
+      <td>5</td>
+      <td>237051.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Regulating Outlet Lower-No Lower RO Flow</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>Min for BCL</td>
+      <td>112</td>
+      <td>233256.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Min for BCL</td>
+      <td>112</td>
+      <td>233256.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>IRRM</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Min for BCL</td>
+      <td>112</td>
+      <td>233256.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Min for BCL</td>
+      <td>112</td>
+      <td>233256.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Secondary Flood Draft Limit</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Dam-Max Evacuation Release</td>
+      <td>50</td>
+      <td>224013.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Min for BCL</td>
+      <td>107</td>
+      <td>216478.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Regulating Outlet Upper-Upper RO use 1400 to 1542 ft</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>(not found)</td>
+      <td>14</td>
+      <td>188607.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Combined Min Trib</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>IRRM</td>
+      <td>60</td>
+      <td>185118.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Regulating Outlet Upper-Upper RO use 1400 to 1542 ft</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>Deep Drawdown</td>
+      <td>31</td>
+      <td>134686.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Secondary Flood Draft Limit</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>FIRO_SPACE</td>
+      <td>18</td>
+      <td>113043.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Jefferson Winter Ops Max</td>
+      <td>2</td>
+      <td>46999.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Regulating Outlet Lower-No Lower RO Flow</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>Secondary Flood Draft Limit</td>
+      <td>4</td>
+      <td>46413.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Secondary Flood Draft Limit</td>
+      <td>4</td>
+      <td>46413.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>IRRM</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Secondary Flood Draft Limit</td>
+      <td>4</td>
+      <td>46413.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Secondary Flood Draft Limit</td>
+      <td>4</td>
+      <td>46413.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Secondary Flood Draft Limit</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Jefferson Winter Ops Max</td>
+      <td>2</td>
+      <td>44131.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Secondary Flood Draft Limit</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Mehama Winter Ops Max</td>
+      <td>2</td>
+      <td>42130.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Dam-Max Evacuation Release; Mehama Winter Ops Max</td>
+      <td>1</td>
+      <td>39641.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Combined Min Trib</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Secondary Flood Draft Limit</td>
+      <td>4</td>
+      <td>36893.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Regulating Outlet Upper-Upper RO use 1400 to 1542 ft; Mehama Winter Ops Max</td>
+      <td>1</td>
+      <td>30286.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Regulating Outlet Upper-Upper RO use 1400 to 1542 ft; Dam-Max Evacuation Release</td>
+      <td>1</td>
+      <td>23126.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Secondary Flood Draft Limit</td>
+      <td>4</td>
+      <td>22754.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Regulating Outlet Lower-No Lower RO Flow</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>FIRO_SPACE</td>
+      <td>1</td>
+      <td>18541.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>FIRO_SPACE</td>
+      <td>1</td>
+      <td>18541.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>IRRM</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>FIRO_SPACE</td>
+      <td>1</td>
+      <td>18541.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>FIRO_SPACE</td>
+      <td>1</td>
+      <td>18541.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Combined Min Trib</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>FIRO_SPACE</td>
+      <td>1</td>
+      <td>16558.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Regulating Outlet Lower-No Lower RO Flow</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>Secondary Flood Draft Limit; FIRO_SPACE</td>
+      <td>1</td>
+      <td>11603.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Secondary Flood Draft Limit; FIRO_SPACE</td>
+      <td>1</td>
+      <td>11603.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>IRRM</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Secondary Flood Draft Limit; FIRO_SPACE</td>
+      <td>1</td>
+      <td>11603.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Secondary Flood Draft Limit; FIRO_SPACE</td>
+      <td>1</td>
+      <td>11603.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>IRRM</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Jefferson Winter Ops Max</td>
+      <td>1</td>
+      <td>11120.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Combined Min Trib</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Min for BCL</td>
+      <td>107</td>
+      <td>10612.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Jefferson Winter Ops Max</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>Min for BCL</td>
+      <td>5</td>
+      <td>10413.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Secondary Flood Draft Limit</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>No Draft</td>
+      <td>1</td>
+      <td>9818.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Mehama Winter Ops Max</td>
+      <td>1</td>
+      <td>9779.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Secondary Flood Draft Limit</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Deep Drawdown; Combined Min Trib</td>
+      <td>1</td>
+      <td>9223.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Combined Min Trib</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Secondary Flood Draft Limit; FIRO_SPACE</td>
+      <td>1</td>
+      <td>9223.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Mehama Winter Ops Max</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>Min for BCL</td>
+      <td>3</td>
+      <td>4844.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Regulating Outlet Upper-Upper RO use 1400 to 1542 ft</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>IRRM; Combined Min Trib</td>
+      <td>1</td>
+      <td>3299.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Regulating Outlet Lower-No Lower RO Flow</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>IRRM; Combined Min Trib</td>
+      <td>1</td>
+      <td>3299.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>IRRM; Combined Min Trib</td>
+      <td>1</td>
+      <td>3299.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>IRRM; Combined Min Trib</td>
+      <td>1</td>
+      <td>3299.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>IRRM; Combined Min Trib</td>
+      <td>1</td>
+      <td>3299.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Regulating Outlet Upper-Upper RO use 1400 to 1542 ft</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>Deep Drawdown; Combined Min Trib</td>
+      <td>1</td>
+      <td>2380.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Regulating Outlet Lower-No Lower RO Flow</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>Deep Drawdown; Combined Min Trib</td>
+      <td>1</td>
+      <td>2380.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>IRRM</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Deep Drawdown; Combined Min Trib</td>
+      <td>1</td>
+      <td>2380.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Deep Drawdown; Combined Min Trib</td>
+      <td>1</td>
+      <td>2380.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Deep Drawdown; Combined Min Trib</td>
+      <td>1</td>
+      <td>2380.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Regulating Outlet Upper-Upper RO use 1400 to 1542 ft</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>Min for BCL</td>
+      <td>1</td>
+      <td>2083.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Regulating Outlet Upper-Upper RO use 1400 to 1542 ft</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>No Draft</td>
+      <td>1</td>
+      <td>1785.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Regulating Outlet Lower-No Lower RO Flow</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>No Draft</td>
+      <td>1</td>
+      <td>1785.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>No Draft</td>
+      <td>1</td>
+      <td>1785.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>IRRM</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>No Draft</td>
+      <td>1</td>
+      <td>1785.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>No Draft</td>
+      <td>1</td>
+      <td>1785.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>No Draft</td>
+      <td>1</td>
+      <td>1785.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Combined Min Trib</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>outlet capacity</td>
+      <td>5</td>
+      <td>1488.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Combined Min Trib</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>No Draft</td>
+      <td>1</td>
+      <td>595.0</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Min for BCL</td>
+      <td>min</td>
+      <td>capped</td>
+      <td>No Draft</td>
+      <td>1</td>
+      <td>298.0</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>(not found)</td>
+      <td>84</td>
+      <td>600957.0</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>FIRO_SPACE</td>
+      <td>288</td>
+      <td>421982.0</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>outlet capacity</td>
+      <td>7</td>
+      <td>253529.0</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>Spillway-Uncontrolled Spill</td>
+      <td>min</td>
+      <td>capped</td>
+      <td>outlet capacity</td>
+      <td>4</td>
+      <td>188424.0</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Dam-Max Evacuation Release; Goshen Bankfull Max</td>
+      <td>51</td>
+      <td>155685.0</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Goshen Bankfull Max; Harrisburg Regulation Goal Simplified</td>
+      <td>11</td>
+      <td>150803.0</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>Harrisburg Bankfull Simplified Max</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>(not found)</td>
+      <td>19</td>
+      <td>110448.0</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Goshen Bankfull Max</td>
+      <td>8</td>
+      <td>102477.0</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>256</td>
+      <td>81604.0</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>Harrisburg Regulation Goal Simplified</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>(not found)</td>
+      <td>5</td>
+      <td>76199.0</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>Goshen Bankfull Max</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>(not found)</td>
+      <td>4</td>
+      <td>68572.0</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>191</td>
+      <td>49115.0</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>Dam-Max Evacuation Release</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>(not found)</td>
+      <td>4</td>
+      <td>32907.0</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>Spillway-Uncontrolled Spill</td>
+      <td>min</td>
+      <td>capped</td>
+      <td>Goshen Bankfull Max; Harrisburg Regulation Goal Simplified</td>
+      <td>2</td>
+      <td>32868.0</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>Spillway-Uncontrolled Spill</td>
+      <td>min</td>
+      <td>capped</td>
+      <td>Goshen Bankfull Max</td>
+      <td>1</td>
+      <td>32860.0</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Goshen Bankfull Max; Harrisburg Bankfull Simplified Max</td>
+      <td>2</td>
+      <td>16283.0</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Dam-Max Evacuation Release</td>
+      <td>9</td>
+      <td>15739.0</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>Goshen Bankfull Max</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>Spillway-Uncontrolled Spill</td>
+      <td>1</td>
+      <td>14738.0</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>Harrisburg Bankfull Simplified Max</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>Spillway-Uncontrolled Spill</td>
+      <td>1</td>
+      <td>14738.0</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Spillway-Uncontrolled Spill</td>
+      <td>1</td>
+      <td>14738.0</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>Harrisburg Regulation Goal Simplified</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>Spillway-Uncontrolled Spill</td>
+      <td>1</td>
+      <td>14738.0</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Dam-Max Evacuation Release; Goshen Bankfull Max; Harrisburg Bankfull Simplified Max</td>
+      <td>1</td>
+      <td>7043.0</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Dam-BiOp MinTrib and Withdrawals by WY; FIRO_SPACE</td>
+      <td>7</td>
+      <td>2023.0</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>Dam-Max Evacuation Release</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>Spillway-Uncontrolled Spill</td>
+      <td>1</td>
+      <td>1846.0</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Flood Min; Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>8</td>
+      <td>1587.0</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>Harrisburg Bankfull Simplified Max</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>Flood Min; Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>3</td>
+      <td>595.0</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>Harrisburg Regulation Goal Simplified</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>Flood Min; Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>3</td>
+      <td>595.0</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Flood Min</td>
+      <td>2</td>
+      <td>397.0</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Flood Min</td>
+      <td>2</td>
+      <td>397.0</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>Goshen Bankfull Max</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>Flood Min; Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>2</td>
+      <td>333.0</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Flood Min; Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>4</td>
+      <td>292.0</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Flood Min; Dam-BiOp MinTrib and Withdrawals by WY; FIRO_SPACE</td>
+      <td>1</td>
+      <td>198.0</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>min</td>
+      <td>capped</td>
+      <td>outlet capacity</td>
+      <td>2</td>
+      <td>42.0</td>
+    </tr>
+    <tr>
+      <td>Fall Creek</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Deep Drawdown</td>
+      <td>125</td>
+      <td>216925.0</td>
+    </tr>
+    <tr>
+      <td>Fall Creek</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Deep Drawdown</td>
+      <td>125</td>
+      <td>216925.0</td>
+    </tr>
+    <tr>
+      <td>Fall Creek</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Max Evacuation Release</td>
+      <td>28</td>
+      <td>175346.0</td>
+    </tr>
+    <tr>
+      <td>Fall Creek</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>(not found)</td>
+      <td>30</td>
+      <td>123107.0</td>
+    </tr>
+    <tr>
+      <td>Fall Creek</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>(not found)</td>
+      <td>30</td>
+      <td>123107.0</td>
+    </tr>
+    <tr>
+      <td>Fall Creek</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Medium Fish Horn Min</td>
+      <td>214</td>
+      <td>50973.0</td>
+    </tr>
+    <tr>
+      <td>Fall Creek</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Medium Fish Horn Min</td>
+      <td>214</td>
+      <td>50973.0</td>
+    </tr>
+    <tr>
+      <td>Fall Creek</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Medium Fish Horn Min</td>
+      <td>214</td>
+      <td>50973.0</td>
+    </tr>
+    <tr>
+      <td>Fall Creek</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>108</td>
+      <td>12719.0</td>
+    </tr>
+    <tr>
+      <td>Fall Creek</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>108</td>
+      <td>12719.0</td>
+    </tr>
+    <tr>
+      <td>Fall Creek</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>108</td>
+      <td>12719.0</td>
+    </tr>
+    <tr>
+      <td>Fall Creek</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>outlet capacity</td>
+      <td>2</td>
+      <td>5136.0</td>
+    </tr>
+    <tr>
+      <td>Fall Creek</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Deep Drawdown</td>
+      <td>1</td>
+      <td>58.0</td>
+    </tr>
+    <tr>
+      <td>Fern Ridge</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Dam-Max Evacuation Release</td>
+      <td>79</td>
+      <td>606225.0</td>
+    </tr>
+    <tr>
+      <td>Fern Ridge</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>(not found)</td>
+      <td>104</td>
+      <td>574701.0</td>
+    </tr>
+    <tr>
+      <td>Fern Ridge</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Monroe Regulation Goal Max</td>
+      <td>23</td>
+      <td>560339.0</td>
+    </tr>
+    <tr>
+      <td>Fern Ridge</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>FIRO_SPACE</td>
+      <td>148</td>
+      <td>181880.0</td>
+    </tr>
+    <tr>
+      <td>Fern Ridge</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Dam-Max Evacuation Release; Monroe Regulation Goal Max</td>
+      <td>3</td>
+      <td>53038.0</td>
+    </tr>
+    <tr>
+      <td>Fern Ridge</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Flood Min; Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>393</td>
+      <td>38975.0</td>
+    </tr>
+    <tr>
+      <td>Fern Ridge</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Flood Min; Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>349</td>
+      <td>34498.0</td>
+    </tr>
+    <tr>
+      <td>Fern Ridge</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>outlet capacity</td>
+      <td>1</td>
+      <td>19840.0</td>
+    </tr>
+    <tr>
+      <td>Fern Ridge</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Flood Min</td>
+      <td>73</td>
+      <td>7240.0</td>
+    </tr>
+    <tr>
+      <td>Fern Ridge</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Flood Min</td>
+      <td>72</td>
+      <td>7061.0</td>
+    </tr>
+    <tr>
+      <td>Fern Ridge</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>50</td>
+      <td>6253.0</td>
+    </tr>
+    <tr>
+      <td>Fern Ridge</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>50</td>
+      <td>6210.0</td>
+    </tr>
+    <tr>
+      <td>Fern Ridge</td>
+      <td>Monroe Regulation Goal Max</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>Flood Min</td>
+      <td>1</td>
+      <td>99.0</td>
+    </tr>
+    <tr>
+      <td>Fern Ridge</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Flood Min; Dam-BiOp MinTrib and Withdrawals by WY; FIRO_SPACE</td>
+      <td>1</td>
+      <td>99.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>No Draft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Combined Min Trib</td>
+      <td>368</td>
+      <td>729245693.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>No Draft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Secondary Flood Draft Limit</td>
+      <td>77</td>
+      <td>151983558.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>No Draft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Con Max</td>
+      <td>60</td>
+      <td>118819200.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>No Draft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>outlet capacity</td>
+      <td>53</td>
+      <td>105118711.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>No Draft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Max Evacuation Release</td>
+      <td>29</td>
+      <td>57189592.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>No Draft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Deep Drawdown</td>
+      <td>26</td>
+      <td>49504251.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>No Draft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Waterloo Flood Max</td>
+      <td>21</td>
+      <td>41374709.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>No Draft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Deep Drawdown; Max Evacuation Release</td>
+      <td>2</td>
+      <td>3957845.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>No Draft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Secondary Flood Draft Limit; Waterloo Flood Max</td>
+      <td>2</td>
+      <td>3941298.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Secondary Flood Draft Limit</td>
+      <td>69</td>
+      <td>2479383.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>No Draft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Combined Min Trib; FIRO_SPACE</td>
+      <td>1</td>
+      <td>1982762.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>No Draft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Con Max; Deep Drawdown; BiOp Max Flow Winter GPR FOS</td>
+      <td>1</td>
+      <td>1977450.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>No Draft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Con Max; FIRO_SPACE</td>
+      <td>1</td>
+      <td>1975537.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>No Draft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Con Max; Max Evacuation Release</td>
+      <td>1</td>
+      <td>1963829.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>(not found)</td>
+      <td>112</td>
+      <td>828940.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Secondary Flood Draft Limit</td>
+      <td>78</td>
+      <td>759918.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Combined Min Trib</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Secondary Flood Draft Limit</td>
+      <td>78</td>
+      <td>728261.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Combined Min Trib</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>(not found)</td>
+      <td>112</td>
+      <td>723083.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Combined Min Trib</td>
+      <td>410</td>
+      <td>717785.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Combined Min Trib</td>
+      <td>410</td>
+      <td>717095.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Secondary Flood Draft Limit</td>
+      <td>71</td>
+      <td>693829.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Combined Min Trib</td>
+      <td>374</td>
+      <td>651761.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Waterloo Flood Max</td>
+      <td>12</td>
+      <td>612999.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Secondary Flood Draft Limit</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>outlet capacity</td>
+      <td>30</td>
+      <td>540354.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>(not found)</td>
+      <td>42</td>
+      <td>507535.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>FIRO_SPACE</td>
+      <td>104</td>
+      <td>458040.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>FIRO_SPACE</td>
+      <td>104</td>
+      <td>458040.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Combined Min Trib</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>FIRO_SPACE</td>
+      <td>104</td>
+      <td>419533.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Max Evacuation Release</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>Secondary Flood Draft Limit</td>
+      <td>71</td>
+      <td>367276.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Secondary Flood Draft Limit</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Con Max</td>
+      <td>53</td>
+      <td>344612.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>(not found)</td>
+      <td>70</td>
+      <td>321405.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Secondary Flood Draft Limit</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Combined Min Trib</td>
+      <td>35</td>
+      <td>292811.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Con Max</td>
+      <td>60</td>
+      <td>262747.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Max Evacuation Release</td>
+      <td>29</td>
+      <td>242412.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>outlet capacity</td>
+      <td>4</td>
+      <td>234129.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Waterloo Flood Max</td>
+      <td>9</td>
+      <td>187522.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Secondary Flood Draft Limit</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Deep Drawdown</td>
+      <td>25</td>
+      <td>157631.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Secondary Flood Draft Limit</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Waterloo Flood Max</td>
+      <td>11</td>
+      <td>146506.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Deep Drawdown</td>
+      <td>29</td>
+      <td>100973.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Deep Drawdown</td>
+      <td>29</td>
+      <td>100973.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Max Evacuation Release</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>(not found)</td>
+      <td>11</td>
+      <td>97026.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Combined Min Trib</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Deep Drawdown</td>
+      <td>29</td>
+      <td>78672.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Secondary Flood Draft Limit</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Max Evacuation Release</td>
+      <td>20</td>
+      <td>70537.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Secondary Flood Draft Limit</td>
+      <td>7</td>
+      <td>66089.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Secondary Flood Draft Limit</td>
+      <td>7</td>
+      <td>51278.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Max Evacuation Release</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>FIRO_SPACE</td>
+      <td>6</td>
+      <td>34087.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Secondary Flood Draft Limit; Waterloo Flood Max</td>
+      <td>2</td>
+      <td>25264.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Con Max</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>(not found)</td>
+      <td>8</td>
+      <td>18561.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Secondary Flood Draft Limit</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>No Draft</td>
+      <td>2</td>
+      <td>17091.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Secondary Flood Draft Limit</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Deep Drawdown; Max Evacuation Release</td>
+      <td>2</td>
+      <td>9786.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Flood Min</td>
+      <td>96</td>
+      <td>9521.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Flood Min</td>
+      <td>96</td>
+      <td>9521.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Combined Min Trib</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Flood Min</td>
+      <td>96</td>
+      <td>9116.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Max Evacuation Release</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>Deep Drawdown</td>
+      <td>3</td>
+      <td>7488.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Con Max; Max Evacuation Release</td>
+      <td>1</td>
+      <td>4962.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Flood Min</td>
+      <td>49</td>
+      <td>4853.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Con Max</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>FIRO_SPACE</td>
+      <td>2</td>
+      <td>4520.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Combined Min Trib; FIRO_SPACE</td>
+      <td>2</td>
+      <td>2126.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Combined Min Trib; FIRO_SPACE</td>
+      <td>2</td>
+      <td>2126.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>No Draft</td>
+      <td>2</td>
+      <td>1792.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>No Draft</td>
+      <td>2</td>
+      <td>1792.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>No Draft</td>
+      <td>2</td>
+      <td>1792.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Combined Min Trib</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>No Draft</td>
+      <td>2</td>
+      <td>1520.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Jefferson Flood Stage Simplified Max</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>Flood Min</td>
+      <td>4</td>
+      <td>397.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Flood Min; Combined Min Trib</td>
+      <td>3</td>
+      <td>306.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Flood Min; Combined Min Trib</td>
+      <td>3</td>
+      <td>306.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Flood Min; Combined Min Trib</td>
+      <td>3</td>
+      <td>306.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Waterloo Flood Max</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>Flood Min</td>
+      <td>2</td>
+      <td>198.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>BiOp Max Flow Winter GPR FOS</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>Deep Drawdown</td>
+      <td>1</td>
+      <td>166.0</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>No Draft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>outlet capacity</td>
+      <td>264</td>
+      <td>523354292.0</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>No Draft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>IRRM</td>
+      <td>145</td>
+      <td>287265014.0</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>No Draft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Max Evacuation Rate</td>
+      <td>126</td>
+      <td>249103069.0</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>No Draft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Fill_LOP_First_Script</td>
+      <td>115</td>
+      <td>227934831.0</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>No Draft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>HCR_LOP_Balance</td>
+      <td>43</td>
+      <td>85227658.0</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>No Draft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Harrisburg Regulation Goal Simplified</td>
+      <td>12</td>
+      <td>23676315.0</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>No Draft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Max Evacuation Rate; FIRO_SPACE</td>
+      <td>1</td>
+      <td>1975046.0</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Max Evacuation Rate</td>
+      <td>110</td>
+      <td>937540.0</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>Fill_LOP_First_Script</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>(not found)</td>
+      <td>126</td>
+      <td>923526.0</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>IRRM</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>(not found)</td>
+      <td>116</td>
+      <td>768590.0</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>outlet capacity</td>
+      <td>9</td>
+      <td>623788.0</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Harrisburg Regulation Goal Simplified</td>
+      <td>11</td>
+      <td>424742.0</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>Fill_LOP_First_Script</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>IRRM</td>
+      <td>143</td>
+      <td>336543.0</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>HCR_LOP_Balance</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>IRRM</td>
+      <td>143</td>
+      <td>336365.0</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>IRRM</td>
+      <td>143</td>
+      <td>333682.0</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>IRRM</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>outlet capacity</td>
+      <td>6</td>
+      <td>228314.0</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>IRRM</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Fill_LOP_First_Script</td>
+      <td>114</td>
+      <td>163538.0</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Fill_LOP_First_Script</td>
+      <td>114</td>
+      <td>163538.0</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>Fill_LOP_First_Script</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Flood Min; Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>176</td>
+      <td>139636.0</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>IRRM</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Flood Min; Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>174</td>
+      <td>138050.0</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>IRRM</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Harrisburg Regulation Goal Simplified</td>
+      <td>6</td>
+      <td>130523.0</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Flood Min; Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>167</td>
+      <td>129854.0</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>Fill_LOP_First_Script</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>89</td>
+      <td>77063.0</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>89</td>
+      <td>76689.0</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>HCR_LOP_Balance</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>89</td>
+      <td>73504.0</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>IRRM</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>89</td>
+      <td>66334.0</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>IRRM</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>FIRO_SPACE</td>
+      <td>42</td>
+      <td>65448.0</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>Fill_LOP_First_Script</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>FIRO_SPACE</td>
+      <td>42</td>
+      <td>65448.0</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>Fill_LOP_First_Script</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>HCR_LOP_Balance</td>
+      <td>44</td>
+      <td>65169.0</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>HCR_LOP_Balance</td>
+      <td>43</td>
+      <td>61598.0</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>IRRM</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>HCR_LOP_Balance</td>
+      <td>44</td>
+      <td>60799.0</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>Harrisburg Regulation Goal Simplified</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>(not found)</td>
+      <td>4</td>
+      <td>47407.0</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>HCR_LOP_Balance</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Flood Min; Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>40</td>
+      <td>27300.0</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>Max Evacuation Rate</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>(not found)</td>
+      <td>2</td>
+      <td>12620.0</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>HCR_LOP_Balance</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>(not found)</td>
+      <td>1</td>
+      <td>5473.0</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>Harrisburg Regulation Goal Simplified</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>Flood Min; Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>5</td>
+      <td>3967.0</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>(not found)</td>
+      <td>1</td>
+      <td>3160.0</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>IRRM</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Flood Min; Dam-BiOp MinTrib and Withdrawals by WY; FIRO_SPACE</td>
+      <td>3</td>
+      <td>2401.0</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>Fill_LOP_First_Script</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Flood Min; Dam-BiOp MinTrib and Withdrawals by WY; FIRO_SPACE</td>
+      <td>3</td>
+      <td>2401.0</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>Fill_LOP_First_Script</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>IRRM; Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>2</td>
+      <td>1748.0</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>HCR_LOP_Balance</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>IRRM; Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>2</td>
+      <td>1748.0</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>IRRM; Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>2</td>
+      <td>1748.0</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>IRRM</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Flood Min; Dam-BiOp MinTrib and Withdrawals by WY; Fill_LOP_First_Script</td>
+      <td>1</td>
+      <td>805.0</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Flood Min; Dam-BiOp MinTrib and Withdrawals by WY; Fill_LOP_First_Script</td>
+      <td>1</td>
+      <td>805.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>NoDraft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>outlet capacity</td>
+      <td>430</td>
+      <td>851726485.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>NoDraft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Deep Drawdown</td>
+      <td>162</td>
+      <td>319860157.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>NoDraft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>IRRM</td>
+      <td>117</td>
+      <td>231291996.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>NoDraft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Spring Spill</td>
+      <td>26</td>
+      <td>51403114.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>NoDraft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Dam-Max Evacuation Release</td>
+      <td>24</td>
+      <td>47281871.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>NoDraft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Harrisburg Regulation Goal Simplified; Dam-Max Evacuation Release</td>
+      <td>20</td>
+      <td>39034838.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>NoDraft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Jasper Bankfull Max</td>
+      <td>19</td>
+      <td>37235890.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>NoDraft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Harrisburg Regulation Goal Simplified</td>
+      <td>18</td>
+      <td>35363390.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>NoDraft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Secondary Flood Draft Limit</td>
+      <td>12</td>
+      <td>23575656.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>NoDraft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>ROC Up</td>
+      <td>8</td>
+      <td>15811768.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>NoDraft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>FIRO_SPACE</td>
+      <td>2</td>
+      <td>3962543.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>NoDraft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Secondary Flood Draft Limit; Deep Drawdown</td>
+      <td>1</td>
+      <td>1966566.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>NoDraft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Jasper Bankfull Max; Deep Drawdown</td>
+      <td>1</td>
+      <td>1966539.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>NoDraft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Secondary Flood Draft Limit; Jasper Bankfull Max</td>
+      <td>1</td>
+      <td>1957670.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>NoDraft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Jasper Bankfull Max; Harrisburg Regulation Goal Simplified</td>
+      <td>1</td>
+      <td>1952454.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>NoDraft</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Jasper Bankfull Max; Harrisburg Regulation Goal Simplified; Dam-Max Evacuation Release</td>
+      <td>1</td>
+      <td>1951736.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>(not found)</td>
+      <td>87</td>
+      <td>1785219.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Spring Spill</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>(not found)</td>
+      <td>85</td>
+      <td>1774247.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>(not found)</td>
+      <td>76</td>
+      <td>1594332.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>IRRM</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Deep Drawdown</td>
+      <td>163</td>
+      <td>1479089.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Spring Spill</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Deep Drawdown</td>
+      <td>163</td>
+      <td>1479089.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Deep Drawdown</td>
+      <td>163</td>
+      <td>1479089.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Deep Drawdown</td>
+      <td>163</td>
+      <td>1479089.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>IRRM</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>(not found)</td>
+      <td>71</td>
+      <td>1432169.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Harrisburg Regulation Goal Simplified</td>
+      <td>16</td>
+      <td>1288641.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Secondary Flood Draft Limit</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>outlet capacity</td>
+      <td>82</td>
+      <td>1215506.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Min for DEX</td>
+      <td>428</td>
+      <td>1146050.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Min for DEX</td>
+      <td>428</td>
+      <td>1146050.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Spring Spill</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Min for DEX</td>
+      <td>428</td>
+      <td>1143862.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Jasper Bankfull Max</td>
+      <td>11</td>
+      <td>1122336.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>IRRM</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Min for DEX</td>
+      <td>428</td>
+      <td>1111485.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Harrisburg Regulation Goal Simplified; Dam-Max Evacuation Release</td>
+      <td>20</td>
+      <td>1107169.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Min for DEX</td>
+      <td>420</td>
+      <td>1080554.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Regulated Outlet-No RO use above 900 ft</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>(not found)</td>
+      <td>36</td>
+      <td>798511.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Regulated Outlet-No RO use above 900 ft</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>IRRM</td>
+      <td>111</td>
+      <td>757924.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>IRRM</td>
+      <td>111</td>
+      <td>757924.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Spring Spill</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>IRRM</td>
+      <td>111</td>
+      <td>757924.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>IRRM</td>
+      <td>111</td>
+      <td>757924.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Secondary Flood Draft Limit</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Deep Drawdown</td>
+      <td>101</td>
+      <td>700728.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>IRRM</td>
+      <td>111</td>
+      <td>589653.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Regulated Outlet-No RO use above 900 ft</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>Min for DEX</td>
+      <td>194</td>
+      <td>519471.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>outlet capacity</td>
+      <td>5</td>
+      <td>360850.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>IRRM</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Jasper Bankfull Max</td>
+      <td>9</td>
+      <td>290913.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>IRRM</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Secondary Flood Draft Limit</td>
+      <td>13</td>
+      <td>251798.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Spring Spill</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Secondary Flood Draft Limit</td>
+      <td>13</td>
+      <td>251798.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Secondary Flood Draft Limit</td>
+      <td>13</td>
+      <td>251798.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Secondary Flood Draft Limit</td>
+      <td>13</td>
+      <td>251798.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>(not found)</td>
+      <td>16</td>
+      <td>214425.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>IRRM</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Spring Spill</td>
+      <td>26</td>
+      <td>167134.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Spring Spill</td>
+      <td>26</td>
+      <td>167134.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Spring Spill</td>
+      <td>26</td>
+      <td>167134.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Spring Spill</td>
+      <td>26</td>
+      <td>167134.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Dam-Max Evacuation Release</td>
+      <td>20</td>
+      <td>141861.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Secondary Flood Draft Limit</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Dam-Max Evacuation Release</td>
+      <td>22</td>
+      <td>139739.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Secondary Flood Draft Limit</td>
+      <td>12</td>
+      <td>138435.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Dam-Max Evacuation Release</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>Secondary Flood Draft Limit</td>
+      <td>13</td>
+      <td>138344.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>IRRM</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>FIRO_SPACE</td>
+      <td>18</td>
+      <td>134771.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>FIRO_SPACE</td>
+      <td>18</td>
+      <td>134771.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Spring Spill</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>FIRO_SPACE</td>
+      <td>18</td>
+      <td>134771.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>FIRO_SPACE</td>
+      <td>18</td>
+      <td>134771.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Dam-Max Evacuation Release</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>Deep Drawdown</td>
+      <td>54</td>
+      <td>126456.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Dam-Max Evacuation Release</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>(not found)</td>
+      <td>11</td>
+      <td>108272.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Jasper Bankfull Max; Harrisburg Regulation Goal Simplified; Dam-Max Evacuation Release</td>
+      <td>1</td>
+      <td>101595.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Regulated Outlet-No RO use above 900 ft</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>Deep Drawdown</td>
+      <td>12</td>
+      <td>100660.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Jasper Bankfull Max; Harrisburg Regulation Goal Simplified</td>
+      <td>1</td>
+      <td>80901.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>IRRM</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>ROC Down</td>
+      <td>13</td>
+      <td>79792.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Spring Spill</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>ROC Down</td>
+      <td>13</td>
+      <td>79792.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>ROC Down</td>
+      <td>13</td>
+      <td>79792.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>ROC Down</td>
+      <td>13</td>
+      <td>76088.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Jasper Bankfull Max</td>
+      <td>7</td>
+      <td>56002.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Secondary Flood Draft Limit</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Jasper Bankfull Max</td>
+      <td>7</td>
+      <td>48953.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>ROC Down</td>
+      <td>8</td>
+      <td>42188.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Secondary Flood Draft Limit</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Harrisburg Regulation Goal Simplified</td>
+      <td>3</td>
+      <td>41952.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>IRRM</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Harrisburg Regulation Goal Simplified</td>
+      <td>3</td>
+      <td>40465.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Harrisburg Regulation Goal Simplified</td>
+      <td>2</td>
+      <td>38067.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Dam-Max Evacuation Release</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>FIRO_SPACE</td>
+      <td>4</td>
+      <td>27139.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Secondary Flood Draft Limit</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>FIRO_SPACE</td>
+      <td>2</td>
+      <td>26781.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>IRRM</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Jasper Bankfull Max; Harrisburg Regulation Goal Simplified; Dam-Max Evacuation Release</td>
+      <td>1</td>
+      <td>18096.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>IRRM</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Secondary Flood Draft Limit; Deep Drawdown</td>
+      <td>1</td>
+      <td>16905.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Spring Spill</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Secondary Flood Draft Limit; Deep Drawdown</td>
+      <td>1</td>
+      <td>16905.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Secondary Flood Draft Limit; Deep Drawdown</td>
+      <td>1</td>
+      <td>16905.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Secondary Flood Draft Limit; Deep Drawdown</td>
+      <td>1</td>
+      <td>16905.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Regulated Outlet-No RO use above 900 ft</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>Min for DEX; IRRM</td>
+      <td>6</td>
+      <td>16195.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Min for DEX; IRRM</td>
+      <td>6</td>
+      <td>16195.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Spring Spill</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Min for DEX; IRRM</td>
+      <td>6</td>
+      <td>16195.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Min for DEX; IRRM</td>
+      <td>6</td>
+      <td>16195.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Min for DEX; IRRM</td>
+      <td>6</td>
+      <td>16195.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>ROC Up</td>
+      <td>2</td>
+      <td>16024.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>IRRM</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>ROC Up</td>
+      <td>3</td>
+      <td>14369.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>ROC Up</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>(not found)</td>
+      <td>4</td>
+      <td>13857.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Harrisburg Regulation Goal Simplified</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>Flood Min; Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>5</td>
+      <td>11901.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>IRRM</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Flood Min; Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>5</td>
+      <td>11901.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Flood Min; Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>5</td>
+      <td>11901.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Spring Spill</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Flood Min; Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>5</td>
+      <td>11901.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Flood Min; Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>5</td>
+      <td>11901.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Secondary Flood Draft Limit</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>ROC Up</td>
+      <td>1</td>
+      <td>10280.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Dam-Max Evacuation Release</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>Secondary Flood Draft Limit; Deep Drawdown</td>
+      <td>1</td>
+      <td>8177.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>ROC Up</td>
+      <td>2</td>
+      <td>6387.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>ROC Down</td>
+      <td>min</td>
+      <td>capped</td>
+      <td>Harrisburg Regulation Goal Simplified</td>
+      <td>1</td>
+      <td>6292.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Secondary Flood Draft Limit; Jasper Bankfull Max</td>
+      <td>1</td>
+      <td>5906.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Secondary Flood Draft Limit</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>Jasper Bankfull Max; Deep Drawdown</td>
+      <td>1</td>
+      <td>5175.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>IRRM</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Min for DEX; FIRO_SPACE</td>
+      <td>1</td>
+      <td>2678.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Min for DEX; FIRO_SPACE</td>
+      <td>1</td>
+      <td>2678.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Spring Spill</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Min for DEX; FIRO_SPACE</td>
+      <td>1</td>
+      <td>2678.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>MainstemFlowAug</td>
+      <td>script</td>
+      <td>held up</td>
+      <td>Min for DEX; FIRO_SPACE</td>
+      <td>1</td>
+      <td>2678.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Spring Spill</td>
+      <td>script</td>
+      <td>capped</td>
+      <td>ROC Up</td>
+      <td>2</td>
+      <td>1931.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>ROC Up</td>
+      <td>max</td>
+      <td>held up</td>
+      <td>FIRO_SPACE</td>
+      <td>1</td>
+      <td>1717.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Min for DEX</td>
+      <td>min</td>
+      <td>capped</td>
+      <td>outlet capacity</td>
+      <td>5</td>
+      <td>1488.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Min for DEX</td>
+      <td>min</td>
+      <td>capped</td>
+      <td>FIRO_SPACE</td>
+      <td>1</td>
+      <td>956.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>ROC Down</td>
+      <td>min</td>
+      <td>capped</td>
+      <td>outlet capacity</td>
+      <td>1</td>
+      <td>838.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Flood Min</td>
+      <td>min</td>
+      <td>capped</td>
+      <td>FIRO_SPACE</td>
+      <td>1</td>
+      <td>659.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>min</td>
+      <td>capped</td>
+      <td>FIRO_SPACE</td>
+      <td>1</td>
+      <td>659.0</td>
+    </tr>
+  </tbody>
+</table>
+<h2>RuleControl</h2><p>Days each rule's value equalled the outflow (within 5 cfs or 2%), i.e. the rule was in control. Several rules can share a day. Rules never in control are left out here; RuleControl_summary.csv has them all.</p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>reservoir</th>
+      <th>rule</th>
+      <th>saved_as</th>
+      <th>days_with_value</th>
+      <th>days_in_control</th>
+      <th>in_control_pct</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Blue River</td>
+      <td>Dam-Max Evacuation Release</td>
+      <td>max</td>
+      <td>881</td>
+      <td>108</td>
+      <td>12.3</td>
+    </tr>
+    <tr>
+      <td>Blue River</td>
+      <td>Flood Min</td>
+      <td>min</td>
+      <td>881</td>
+      <td>230</td>
+      <td>26.1</td>
+    </tr>
+    <tr>
+      <td>Blue River</td>
+      <td>Vida Flood Max</td>
+      <td>max</td>
+      <td>881</td>
+      <td>82</td>
+      <td>9.3</td>
+    </tr>
+    <tr>
+      <td>Blue River</td>
+      <td>Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>min</td>
+      <td>881</td>
+      <td>288</td>
+      <td>32.7</td>
+    </tr>
+    <tr>
+      <td>Blue River</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>881</td>
+      <td>319</td>
+      <td>36.2</td>
+    </tr>
+    <tr>
+      <td>Blue River</td>
+      <td>(no rule equals the outflow)</td>
+      <td></td>
+      <td>881</td>
+      <td>167</td>
+      <td>19.0</td>
+    </tr>
+    <tr>
+      <td>Cottage Grove</td>
+      <td>Dam-Max Evacuation Release</td>
+      <td>max</td>
+      <td>881</td>
+      <td>79</td>
+      <td>9.0</td>
+    </tr>
+    <tr>
+      <td>Cottage Grove</td>
+      <td>Flood Min</td>
+      <td>min</td>
+      <td>881</td>
+      <td>32</td>
+      <td>3.6</td>
+    </tr>
+    <tr>
+      <td>Cottage Grove</td>
+      <td>Goshen Bankfull Max</td>
+      <td>max</td>
+      <td>881</td>
+      <td>93</td>
+      <td>10.6</td>
+    </tr>
+    <tr>
+      <td>Cottage Grove</td>
+      <td>Harrisburg Bankfull Simplified Max</td>
+      <td>max</td>
+      <td>881</td>
+      <td>7</td>
+      <td>0.8</td>
+    </tr>
+    <tr>
+      <td>Cottage Grove</td>
+      <td>Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>min</td>
+      <td>881</td>
+      <td>406</td>
+      <td>46.1</td>
+    </tr>
+    <tr>
+      <td>Cottage Grove</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>881</td>
+      <td>230</td>
+      <td>26.1</td>
+    </tr>
+    <tr>
+      <td>Cottage Grove</td>
+      <td>Harrisburg Regulation Goal Simplified</td>
+      <td>max</td>
+      <td>881</td>
+      <td>17</td>
+      <td>1.9</td>
+    </tr>
+    <tr>
+      <td>Cottage Grove</td>
+      <td>(no rule equals the outflow)</td>
+      <td></td>
+      <td>881</td>
+      <td>159</td>
+      <td>18.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>IRRM</td>
+      <td>script</td>
+      <td>881</td>
+      <td>16</td>
+      <td>1.8</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>Max Evacuation Release</td>
+      <td>max</td>
+      <td>881</td>
+      <td>51</td>
+      <td>5.8</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>Flood Min</td>
+      <td>min</td>
+      <td>881</td>
+      <td>124</td>
+      <td>14.1</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>Vida Flood Max</td>
+      <td>max</td>
+      <td>881</td>
+      <td>44</td>
+      <td>5.0</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>881</td>
+      <td>134</td>
+      <td>15.2</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>Spring Spill</td>
+      <td>script</td>
+      <td>881</td>
+      <td>245</td>
+      <td>27.8</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>min</td>
+      <td>881</td>
+      <td>333</td>
+      <td>37.8</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>881</td>
+      <td>73</td>
+      <td>8.3</td>
+    </tr>
+    <tr>
+      <td>Cougar</td>
+      <td>(no rule equals the outflow)</td>
+      <td></td>
+      <td>881</td>
+      <td>23</td>
+      <td>2.6</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>No Draft</td>
+      <td>script</td>
+      <td>881</td>
+      <td>1</td>
+      <td>0.1</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Regulating Outlet Upper-Upper RO use 1400 to 1542 ft</td>
+      <td>max</td>
+      <td>881</td>
+      <td>2</td>
+      <td>0.2</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Dam-Max Evacuation Release</td>
+      <td>max</td>
+      <td>881</td>
+      <td>68</td>
+      <td>7.7</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Secondary Flood Draft Limit</td>
+      <td>script</td>
+      <td>276</td>
+      <td>6</td>
+      <td>2.2</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Min for BCL</td>
+      <td>min</td>
+      <td>881</td>
+      <td>112</td>
+      <td>12.7</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Mehama Winter Ops Max</td>
+      <td>max</td>
+      <td>881</td>
+      <td>8</td>
+      <td>0.9</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Jefferson Winter Ops Max</td>
+      <td>max</td>
+      <td>881</td>
+      <td>6</td>
+      <td>0.7</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>881</td>
+      <td>112</td>
+      <td>12.7</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>IRRM</td>
+      <td>script</td>
+      <td>881</td>
+      <td>61</td>
+      <td>6.9</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>Combined Min Trib</td>
+      <td>script</td>
+      <td>881</td>
+      <td>492</td>
+      <td>55.8</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>881</td>
+      <td>20</td>
+      <td>2.3</td>
+    </tr>
+    <tr>
+      <td>Detroit</td>
+      <td>(no rule equals the outflow)</td>
+      <td></td>
+      <td>881</td>
+      <td>2</td>
+      <td>0.2</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>Spillway-Uncontrolled Spill</td>
+      <td>min</td>
+      <td>881</td>
+      <td>1</td>
+      <td>0.1</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>Dam-Max Evacuation Release</td>
+      <td>max</td>
+      <td>881</td>
+      <td>91</td>
+      <td>10.3</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>Flood Min</td>
+      <td>min</td>
+      <td>881</td>
+      <td>11</td>
+      <td>1.2</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>Goshen Bankfull Max</td>
+      <td>max</td>
+      <td>881</td>
+      <td>103</td>
+      <td>11.7</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>Harrisburg Bankfull Simplified Max</td>
+      <td>max</td>
+      <td>881</td>
+      <td>4</td>
+      <td>0.5</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>min</td>
+      <td>881</td>
+      <td>272</td>
+      <td>30.9</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>881</td>
+      <td>296</td>
+      <td>33.6</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>Harrisburg Regulation Goal Simplified</td>
+      <td>max</td>
+      <td>881</td>
+      <td>11</td>
+      <td>1.2</td>
+    </tr>
+    <tr>
+      <td>Dorena</td>
+      <td>(no rule equals the outflow)</td>
+      <td></td>
+      <td>881</td>
+      <td>210</td>
+      <td>23.8</td>
+    </tr>
+    <tr>
+      <td>Fall Creek</td>
+      <td>Max Evacuation Release</td>
+      <td>max</td>
+      <td>881</td>
+      <td>84</td>
+      <td>9.5</td>
+    </tr>
+    <tr>
+      <td>Fall Creek</td>
+      <td>Harrisburg Bankfull Simplified Max</td>
+      <td>max</td>
+      <td>881</td>
+      <td>5</td>
+      <td>0.6</td>
+    </tr>
+    <tr>
+      <td>Fall Creek</td>
+      <td>Medium Fish Horn Min</td>
+      <td>min</td>
+      <td>881</td>
+      <td>214</td>
+      <td>24.3</td>
+    </tr>
+    <tr>
+      <td>Fall Creek</td>
+      <td>Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>min</td>
+      <td>881</td>
+      <td>108</td>
+      <td>12.3</td>
+    </tr>
+    <tr>
+      <td>Fall Creek</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>881</td>
+      <td>124</td>
+      <td>14.1</td>
+    </tr>
+    <tr>
+      <td>Fall Creek</td>
+      <td>Harrisburg Regulation Goal Simplified Max</td>
+      <td>max</td>
+      <td>881</td>
+      <td>5</td>
+      <td>0.6</td>
+    </tr>
+    <tr>
+      <td>Fall Creek</td>
+      <td>(no rule equals the outflow)</td>
+      <td></td>
+      <td>881</td>
+      <td>351</td>
+      <td>39.8</td>
+    </tr>
+    <tr>
+      <td>Fern Ridge</td>
+      <td>Dam-Max Evacuation Release</td>
+      <td>max</td>
+      <td>881</td>
+      <td>102</td>
+      <td>11.6</td>
+    </tr>
+    <tr>
+      <td>Fern Ridge</td>
+      <td>Flood Min</td>
+      <td>min</td>
+      <td>881</td>
+      <td>467</td>
+      <td>53.0</td>
+    </tr>
+    <tr>
+      <td>Fern Ridge</td>
+      <td>Monroe Regulation Goal Max</td>
+      <td>max</td>
+      <td>881</td>
+      <td>27</td>
+      <td>3.1</td>
+    </tr>
+    <tr>
+      <td>Fern Ridge</td>
+      <td>Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>min</td>
+      <td>881</td>
+      <td>444</td>
+      <td>50.4</td>
+    </tr>
+    <tr>
+      <td>Fern Ridge</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>881</td>
+      <td>149</td>
+      <td>16.9</td>
+    </tr>
+    <tr>
+      <td>Fern Ridge</td>
+      <td>(no rule equals the outflow)</td>
+      <td></td>
+      <td>881</td>
+      <td>96</td>
+      <td>10.9</td>
+    </tr>
+    <tr>
+      <td>Foster</td>
+      <td>Waterloo Flood Simple</td>
+      <td>script</td>
+      <td>881</td>
+      <td>12</td>
+      <td>1.4</td>
+    </tr>
+    <tr>
+      <td>Foster</td>
+      <td>(no rule equals the outflow)</td>
+      <td></td>
+      <td>881</td>
+      <td>869</td>
+      <td>98.6</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>No Draft</td>
+      <td>script</td>
+      <td>881</td>
+      <td>2</td>
+      <td>0.2</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Con Max</td>
+      <td>max</td>
+      <td>881</td>
+      <td>63</td>
+      <td>7.2</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Secondary Flood Draft Limit</td>
+      <td>script</td>
+      <td>308</td>
+      <td>79</td>
+      <td>25.6</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Flood Min</td>
+      <td>min</td>
+      <td>881</td>
+      <td>99</td>
+      <td>11.2</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Waterloo Flood Max</td>
+      <td>max</td>
+      <td>881</td>
+      <td>23</td>
+      <td>2.6</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>881</td>
+      <td>29</td>
+      <td>3.3</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Combined Min Trib</td>
+      <td>script</td>
+      <td>881</td>
+      <td>415</td>
+      <td>47.1</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>881</td>
+      <td>106</td>
+      <td>12.0</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>Max Evacuation Release</td>
+      <td>max</td>
+      <td>881</td>
+      <td>33</td>
+      <td>3.7</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>BiOp Max Flow Winter GPR FOS</td>
+      <td>max</td>
+      <td>881</td>
+      <td>1</td>
+      <td>0.1</td>
+    </tr>
+    <tr>
+      <td>Green Peter</td>
+      <td>(no rule equals the outflow)</td>
+      <td></td>
+      <td>881</td>
+      <td>45</td>
+      <td>5.1</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>Max Evacuation Rate</td>
+      <td>max</td>
+      <td>881</td>
+      <td>126</td>
+      <td>14.3</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>Flood Min</td>
+      <td>min</td>
+      <td>881</td>
+      <td>180</td>
+      <td>20.4</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>Harrisburg Regulation Goal Simplified</td>
+      <td>max</td>
+      <td>881</td>
+      <td>12</td>
+      <td>1.4</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>IRRM</td>
+      <td>script</td>
+      <td>881</td>
+      <td>145</td>
+      <td>16.5</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>min</td>
+      <td>881</td>
+      <td>271</td>
+      <td>30.8</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>Fill_LOP_First_Script</td>
+      <td>script</td>
+      <td>881</td>
+      <td>115</td>
+      <td>13.1</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>HCR_LOP_Balance</td>
+      <td>script</td>
+      <td>399</td>
+      <td>44</td>
+      <td>11.0</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>881</td>
+      <td>45</td>
+      <td>5.1</td>
+    </tr>
+    <tr>
+      <td>Hills Creek</td>
+      <td>(no rule equals the outflow)</td>
+      <td></td>
+      <td>881</td>
+      <td>130</td>
+      <td>14.8</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>ROC Down</td>
+      <td>min</td>
+      <td>881</td>
+      <td>13</td>
+      <td>1.5</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>ROC Up</td>
+      <td>max</td>
+      <td>881</td>
+      <td>8</td>
+      <td>0.9</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Secondary Flood Draft Limit</td>
+      <td>script</td>
+      <td>267</td>
+      <td>14</td>
+      <td>5.2</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Flood Min</td>
+      <td>min</td>
+      <td>881</td>
+      <td>5</td>
+      <td>0.6</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Jasper Bankfull Max</td>
+      <td>max</td>
+      <td>881</td>
+      <td>23</td>
+      <td>2.6</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Harrisburg Regulation Goal Simplified</td>
+      <td>max</td>
+      <td>881</td>
+      <td>40</td>
+      <td>4.5</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Min for DEX</td>
+      <td>min</td>
+      <td>881</td>
+      <td>435</td>
+      <td>49.4</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>IRRM</td>
+      <td>script</td>
+      <td>881</td>
+      <td>117</td>
+      <td>13.3</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Deep Drawdown</td>
+      <td>script</td>
+      <td>881</td>
+      <td>164</td>
+      <td>18.6</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Spring Spill</td>
+      <td>script</td>
+      <td>881</td>
+      <td>26</td>
+      <td>3.0</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Dam-BiOp MinTrib and Withdrawals by WY</td>
+      <td>min</td>
+      <td>881</td>
+      <td>5</td>
+      <td>0.6</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>FIRO_SPACE</td>
+      <td>script</td>
+      <td>881</td>
+      <td>19</td>
+      <td>2.2</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>Dam-Max Evacuation Release</td>
+      <td>max</td>
+      <td>881</td>
+      <td>45</td>
+      <td>5.1</td>
+    </tr>
+    <tr>
+      <td>Lookout Point</td>
+      <td>(no rule equals the outflow)</td>
+      <td></td>
+      <td>881</td>
+      <td>5</td>
+      <td>0.6</td>
+    </tr>
+  </tbody>
+</table>
+<h2>Control points</h2><p>Flow at each control point against its maximum (the regulation goal, or the action flow where none is given, from control_point_limits.csv) and, at Salem and Albany, the lowest BiOp minimum for the day across water year types.</p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>basin</th>
+      <th>control_point</th>
+      <th>junction</th>
+      <th>maximum_cfs</th>
+      <th>days_above_max</th>
+      <th>largest_excess_cfs</th>
+      <th>days_below_min</th>
+      <th>largest_shortfall_cfs</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Coast Fork</td>
+      <td>Goshen</td>
+      <td>CF WIllamette_nr Goshen</td>
+      <td>12100.0</td>
+      <td>7</td>
+      <td>18218.0</td>
+      <td>n/a</td>
+      <td>n/a</td>
+    </tr>
+    <tr>
+      <td>Middle Fork</td>
+      <td>Jasper</td>
+      <td>MF Willamette_at Jasper</td>
+      <td>20000.0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>n/a</td>
+      <td>n/a</td>
+    </tr>
+    <tr>
+      <td>McKenzie</td>
+      <td>Vida</td>
+      <td>McKenzie_at Vida</td>
+      <td>14500.0</td>
+      <td>14</td>
+      <td>17244.0</td>
+      <td>n/a</td>
+      <td>n/a</td>
+    </tr>
+    <tr>
+      <td>Long Tom</td>
+      <td>Monroe</td>
+      <td>Long Tom_at Monroe</td>
+      <td>5660.0</td>
+      <td>32</td>
+      <td>2191.0</td>
+      <td>n/a</td>
+      <td>n/a</td>
+    </tr>
+    <tr>
+      <td>South Santiam</td>
+      <td>Waterloo</td>
+      <td>So Santiam_at Waterloo</td>
+      <td>19000.0</td>
+      <td>6</td>
+      <td>4181.0</td>
+      <td>n/a</td>
+      <td>n/a</td>
+    </tr>
+    <tr>
+      <td>North Santiam</td>
+      <td>Mehama</td>
+      <td>No Santiam_at Mehama</td>
+      <td>17000.0</td>
+      <td>7</td>
+      <td>19884.0</td>
+      <td>n/a</td>
+      <td>n/a</td>
+    </tr>
+    <tr>
+      <td>Santiam</td>
+      <td>Jefferson</td>
+      <td>Santiam_at Jefferson</td>
+      <td>43000.0</td>
+      <td>13</td>
+      <td>62004.0</td>
+      <td>n/a</td>
+      <td>n/a</td>
+    </tr>
+    <tr>
+      <td>Mainstem Willamette</td>
+      <td>Eugene</td>
+      <td>Willamette_at Eugene</td>
+      <td>39500.0</td>
+      <td>1</td>
+      <td>3014.0</td>
+      <td>n/a</td>
+      <td>n/a</td>
+    </tr>
+    <tr>
+      <td>Mainstem Willamette</td>
+      <td>Harrisburg</td>
+      <td>Willamette_at Harrisburg</td>
+      <td>52000.0</td>
+      <td>17</td>
+      <td>42029.0</td>
+      <td>n/a</td>
+      <td>n/a</td>
+    </tr>
+    <tr>
+      <td>Mainstem Willamette</td>
+      <td>Albany</td>
+      <td>Willamette_at Albany</td>
+      <td>67300.0</td>
+      <td>21</td>
+      <td>91268.0</td>
+      <td>25</td>
+      <td>649.0</td>
+    </tr>
+    <tr>
+      <td>Mainstem Willamette</td>
+      <td>Salem</td>
+      <td>Willamette_at Salem</td>
+      <td>94000.0</td>
+      <td>40</td>
+      <td>163994.0</td>
+      <td>78</td>
+      <td>4837.0</td>
+    </tr>
+  </tbody>
+</table>
+</body></html>

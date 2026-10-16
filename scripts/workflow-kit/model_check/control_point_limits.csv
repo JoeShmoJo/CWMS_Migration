@@ -1,0 +1,18 @@
+# Flood flows at the Willamette control points, from "Table 2. Flood regulation goals at Willamette projects".
+# Flows are those at the NWS action (bankfull), flood and major flood stages; they change as rating tables are updated.
+# regulation_goal_cfs is the flow the projects regulate to: the action flow unless the table's footnote 4 gives a different one.
+# junction is the control point's junction in the ResSim model (the B part of its results).
+# basin groups the control points on the plot, upstream first. reservoirs lists the projects upstream of the
+# point, separated by ;, for the control point table.
+station_id,station_name,junction,basin,reservoirs,action_cfs,flood_cfs,major_flood_cfs,regulation_goal_cfs,notes
+GOSO,Coast Fork Willamette River near Goshen,CF WIllamette_nr Goshen,Coast Fork,Cottage Grove;Dorena,12100,14900,41000,12100,
+JASO,Middle Fork Willamette at Jasper,MF Willamette_at Jasper,Middle Fork,Hills Creek;Lookout Point;Dexter;Fall Creek,20000,23000,65200,20000,
+VIDO,McKenzie River near Vida,McKenzie_at Vida,McKenzie,Cougar;Blue River,22200,35000,49500,14500,Regulation goal differs from action stage (footnote 4)
+MNRO,Long Tom River at Monroe,Long Tom_at Monroe,Long Tom,Fern Ridge,5660,6780,16000,,Footnote 4: regulation goal differs from action stage; maximum evacuation rate from Fern Ridge is 3000 cfs
+WTLO,S. Santiam River at Waterloo,So Santiam_at Waterloo,South Santiam,Green Peter;Foster,19000,25700,42700,19000,
+MEHO,N. Santiam River at Mehama,No Santiam_at Mehama,North Santiam,Detroit;Big Cliff,17000,30500,53600,17000,Regulation goal differs from action stage (footnote 4)
+JFFO,Santiam River at Jefferson,Santiam_at Jefferson,Santiam,Detroit;Big Cliff;Green Peter;Foster,43000,55900,213000,43000,
+EUGO,Willamette River at Eugene,Willamette_at Eugene,Mainstem Willamette,Cottage Grove;Dorena;Hills Creek;Lookout Point;Dexter;Fall Creek,39500,52600,94300,39500,
+HARO,Willamette River at Harrisburg,Willamette_at Harrisburg,Mainstem Willamette,Cottage Grove;Dorena;Hills Creek;Lookout Point;Dexter;Fall Creek;Cougar;Blue River,39700,66500,100700,52000,Regulation goal differs from action stage (footnote 4)
+ALBO,Willamette River at Albany,Willamette_at Albany,Mainstem Willamette,Cottage Grove;Dorena;Hills Creek;Lookout Point;Dexter;Fall Creek;Cougar;Blue River;Fern Ridge,67300,84000,152600,67300,
+SLMO,Willamette River at Salem,Willamette_at Salem,Mainstem Willamette,Cottage Grove;Dorena;Hills Creek;Lookout Point;Dexter;Fall Creek;Cougar;Blue River;Fern Ridge;Detroit;Big Cliff;Green Peter;Foster,94000,154300,201700,94000,

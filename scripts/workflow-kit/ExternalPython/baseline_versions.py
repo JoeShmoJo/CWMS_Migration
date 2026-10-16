@@ -1,0 +1,408 @@
+"""Immutable RTS baseline versions, result provenance, and an append-only action trail."""
+from datetime import datetime, timezone
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import shutil
+import uuid
+
+import numpy as np
+import pandas as pd
+
+
+def digest_file(path):
+    digest = hashlib.sha256()
+    with open(path, 'rb') as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b''):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def atomic_json(path, data):
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_name(path.name + '.' + uuid.uuid4().hex + '.pending')
+    temporary.write_text(json.dumps(data, indent=2, allow_nan=False), encoding='utf-8')
+    os.replace(temporary, path)
+
+
+def event(root, action, **details):
+    archive = Path(root) / 'augmentation-archives'
+    archive.mkdir(exist_ok=True)
+    record = dict(utc=datetime.now(timezone.utc).isoformat(), action=action, **details)
+    with (archive / 'action-history.jsonl').open('a', encoding='utf-8') as handle:
+        handle.write(json.dumps(record, allow_nan=False) + '\n')
+        handle.flush()
+        os.fsync(handle.fileno())
+
+
+def registry(root):
+    archive = Path(root) / 'augmentation-archives'
+    filename = archive / 'baseline-versions.json'
+    if filename.exists():
+        return json.loads(filename.read_text(encoding='utf-8'))
+    legacy = archive / 'baseline'
+    if not legacy.exists():
+        return {'current': None, 'versions': {}}
+    manifest = json.loads((legacy / 'manifest.json').read_text())
+    from run_archive import archive_digest
+    if archive_digest(legacy / 'forecast.dss') != manifest['sha256']:
+        raise ValueError('Existing baseline checksum mismatch')
+    context_path = archive / 'baseline-context.json'
+    version = {'directory': 'baseline', 'sha256': manifest['sha256'],
+               'run_code': manifest['run_code'], 'fingerprint': None,
+               'context': json.loads(context_path.read_text()) if context_path.exists() else None}
+    data = {'current': 'baseline-0001', 'versions': {'baseline-0001': version}}
+    atomic_json(filename, data)
+    event(root, 'baseline-registered', baseline_id='baseline-0001', legacy=True)
+    return data
+
+
+def baseline_directory(root, manifest=None):
+    root = Path(root)
+    data = registry(root)
+    if not data['current']:
+        # Legacy callers can still check the missing physical path themselves.
+        return root / 'augmentation-archives/baseline'
+    identity = data['current']
+    if manifest is not None:
+        identity = manifest.get('baseline_id')
+        if identity is None:
+            identity = next((key for key, value in data['versions'].items()
+                             if value['sha256'] == manifest['baseline_sha256']), None)
+        if identity not in data['versions']:
+            raise ValueError('Scheme references an unknown baseline version')
+        if data['versions'][identity]['sha256'] != manifest['baseline_sha256']:
+            raise ValueError('Scheme baseline checksum differs from its version')
+    directory = (root / 'augmentation-archives' / data['versions'][identity]['directory']).resolve()
+    if root.resolve() / 'augmentation-archives' not in directory.parents:
+        raise ValueError('Baseline directory is outside the forecast archive')
+    return directory
+
+
+def baseline_identity(root, manifest=None):
+    data = registry(root)
+    if manifest is None:
+        return data['current']
+    identity = manifest.get('baseline_id')
+    if identity is None:
+        identity = next((key for key, item in data['versions'].items()
+                         if item['sha256'] == manifest['baseline_sha256']), None)
+    if identity not in data['versions'] or data['versions'][identity]['sha256'] != manifest['baseline_sha256']:
+        raise ValueError('Unknown or inconsistent baseline provenance')
+    return identity
+
+
+def read_fingerprint_series(dss, logical, paths, allow_empty=False):
+    """Read cataloged DSS blocks explicitly; blank D parts can return no data."""
+    from plot_rts_forecast import unit_key
+    samples={};units=kind=None
+    for path in sorted(paths):
+        record=dss.read_ts(path,trim_missing=True)
+        raw_times=getattr(record,'pytimes',None)
+        raw_values=getattr(record,'values',None)
+        if raw_times is None or raw_values is None:
+            if allow_empty and raw_times is None and raw_values is None:
+                continue
+            raise ValueError('DSS returned no timestamps or values for cataloged record: '+path)
+        times=pd.DatetimeIndex(raw_times)
+        values=np.ma.asarray(raw_values,dtype=float).filled(np.nan)
+        if allow_empty and not len(times) and not len(values):
+            continue
+        if len(times)!=len(values) or not len(values) or times.has_duplicates or times.hasnans:
+            raise ValueError('Empty or ambiguous baseline DSS block: '+path)
+        current_units=unit_key(record.units)
+        current_kind=str(getattr(record,'type','')).strip().upper()
+        if units is not None and (units,kind)!=(current_units,current_kind):
+            raise ValueError('Inconsistent units/type across DSS blocks: '+logical)
+        units,kind=current_units,current_kind
+        for timestamp,value in zip(times,values):
+            value=float(value)
+            if not np.isfinite(value) or abs(value)>1e30: value=float('nan')
+            if timestamp in samples:
+                previous=samples[timestamp]
+                if np.isfinite(previous) and np.isfinite(value) and previous!=value:
+                    raise ValueError('Conflicting overlapping DSS block values: '+logical+' at '+str(timestamp))
+                if np.isfinite(previous): continue
+            samples[timestamp]=value
+    times=pd.DatetimeIndex(sorted(samples))
+    return times,np.array([samples[time] for time in times],dtype=float),units,kind
+
+
+def semantic_fingerprint(filename, run_code):
+    """Hash logical series, ignoring DSS layout/calendar blocks and missing sentinels.
+
+    Includes only computed reservoir pool elevation and outflow for the selected
+    run code and all archived members. Excludes rule/state/input/river records.
+    No numerical tolerance: any finite value, timestamp, unit, or type change
+    counts. Existing gaps are represented, never filled or interpolated.
+    """
+    from pydsstools.heclib.dss import HecDss
+    from plot_rts_forecast import unit_key
+    keys = {}
+    output_f = re.compile(r'^C:\d+\|' + re.escape(run_code) + '$', re.I)
+    from run_archive import is_compact, open_archive
+    reader = open_archive(filename, run_code) if is_compact(filename) else HecDss.Open(str(filename))
+    with reader as dss:
+        for path in dss.getPathnameList('/*/*/*/*/*/*/'):
+            # Preserve blank pathname parts, including the usually blank A part.
+            parts = str(path).split('/')[1:-1]
+            if len(parts) != 6:
+                raise ValueError('Malformed DSS pathname: ' + str(path))
+            a, b, c, _, e, f = parts
+            if not b.upper().endswith('-POOL') or c.upper() not in ('ELEV','ELEVATION','FLOW-OUT') or not output_f.fullmatch(f):
+                continue
+            logical = '/{}/{}/{}//{}/{}/'.format(a, b, c, e, f)
+            key = logical.upper()
+            keys.setdefault(key, (logical, set()))[1].add(str(path))
+        if not keys:
+            raise ValueError('No computed reservoir pool elevation/outflow series found for baseline comparison')
+        records = {}
+        has_elevation = has_outflow = False
+        coverage = {}
+        print('Comparing reservoir pool elevation/outflow series:', len(keys),
+              ('compact arrays: ' + str(Path(filename).parent)) if is_compact(filename) else str(filename), flush=True)
+        for number, (key, (logical, paths)) in enumerate(sorted(keys.items()), 1):
+            if number % 100 == 0:
+                print('Compared series:', number, '/', len(keys), flush=True)
+            parts = logical.split('/')[1:-1]
+            times,values,units,kind=read_fingerprint_series(dss,logical,paths)
+            order = np.argsort(times.asi8)
+            values = values[order].copy()
+            values[~np.isfinite(values) | (np.abs(values) > 1e30)] = np.nan
+            values[values == 0] = 0.0
+            metadata = [key, units, kind,
+                        [time.isoformat() for time in times[order]]]
+            digest = hashlib.sha256(json.dumps(metadata, separators=(',', ':')).encode('utf-8'))
+            # Explicit marker for missing values makes NaN payloads irrelevant.
+            digest.update(np.isnan(values).astype('u1').tobytes())
+            digest.update(np.nan_to_num(values, nan=0).astype('<f8').tobytes())
+            records[key] = digest.hexdigest()
+            parts = logical.split('/')[1:-1]
+            if output_f.fullmatch(parts[5]):
+                has_elevation |= parts[2].upper() in ('ELEV', 'ELEVATION') and np.isfinite(values).any()
+                has_outflow |= parts[2].upper() == 'FLOW-OUT' and np.isfinite(values).any()
+                group=(parts[1].upper(),parts[5].upper())
+                if np.isfinite(values).any():
+                    coverage.setdefault(group,set()).add('ELEV' if parts[2].upper() in ('ELEV','ELEVATION') else 'FLOW-OUT')
+        incomplete=[group for group,parameters in coverage.items() if parameters != {'ELEV','FLOW-OUT'}]
+        if incomplete:
+            raise ValueError('Pool elevation/outflow pair missing: '+str(incomplete))
+        if not has_elevation or not has_outflow:
+            raise ValueError('Computed baseline elevation and outflow records are required')
+    digest = hashlib.sha256(json.dumps(records, sort_keys=True).encode('utf-8')).hexdigest()
+    return {'sha256': digest, 'records': records, 'scope': 'reservoir-pool-elevation-outflow-v1'}
+
+
+def disable(root, token):
+    marker = Path(root) / 'rts-augmentation-active.json'
+    if marker.exists():
+        marker.rename(Path(root) / ('rts-augmentation-disabled-' + token + '.json'))
+
+
+def promote_live_candidate(live, candidate, backup, expected):
+    """Keep rollback via rename, avoiding an extra full-DSS backup copy."""
+    live, candidate, backup = Path(live), Path(candidate), Path(backup)
+    if expected is not None:
+        if digest_file(live) != expected:
+            raise ValueError('Live forecast changed during staging')
+        if backup.exists():
+            raise FileExistsError(backup)
+        os.replace(live, backup)
+    elif live.exists():
+        raise ValueError('Live forecast appeared during staging')
+    try:
+        os.replace(candidate, live)
+    except BaseException:
+        if expected is not None:
+            os.replace(backup, live)
+        raise
+
+
+def replace_live(root, source, reason):
+    root = Path(root)
+    live = root / 'forecast.dss'
+    token = uuid.uuid4().hex
+    backup = root / ('forecast.before-' + reason + '-' + token + '.dss')
+    original = digest_file(live) if live.exists() else None
+    candidate = root / ('forecast.' + reason + '-pending-' + token + '.dss')
+    shutil.copy2(source, candidate)
+    if digest_file(candidate) != digest_file(source):
+        raise ValueError('Baseline copy verification failed')
+    disable(root, token)
+    promote_live_candidate(live, candidate, backup, original)
+    return str(backup) if original is not None else None
+
+
+def load_baseline(root, context, run_code):
+    data = registry(root)
+    identity = data['current']
+    if identity is None:
+        raise ValueError('No saved baseline. Compute unaugmented, then Save as baseline first.')
+    version = data['versions'][identity]
+    if version['run_code'] != run_code:
+        raise ValueError('Baseline belongs to a different run code')
+    saved_context = version.get('context')
+    scope = ('forecast_name', 'run_name', 'timezone', 'lookback', 'start', 'end')
+    if saved_context is not None and any(saved_context.get(key) != context.get(key) for key in scope):
+        raise ValueError('Forecast window differs from the saved baseline. Use a new forecast for different dates or extracted inputs.')
+    source = baseline_directory(root) / 'forecast.dss'
+    from run_archive import archive_digest, is_compact
+    if archive_digest(source) != version['sha256']:
+        raise ValueError('Baseline checksum mismatch')
+    if is_compact(source):
+        disable(root, uuid.uuid4().hex)
+        backup = None
+        print('Baseline mode: live DSS inputs retained; augmentation disabled. Recompute unaugmented.', flush=True)
+    else:
+        backup = replace_live(root, source, 'baseline')
+    atomic_json(Path(root) / 'augmentation-archives/baseline-edit-session.json',
+                {'baseline_id': identity, 'context': context, 'run_code': run_code})
+    event(root, 'baseline-loaded', baseline_id=identity, backup=backup)
+    print('Loaded baseline:', identity, 'Augmentation disabled.', flush=True)
+    print('Make model changes and compute in RTS; then Save as baseline.', flush=True)
+
+
+def save_baseline(root, context, run_code, fingerprint=semantic_fingerprint, snapshot=None):
+    root = Path(root)
+    archive = root / 'augmentation-archives'
+    if (root / 'rts-augmentation-active.json').exists():
+        raise ValueError('Augmentation is active. Load baseline and compute unaugmented before saving.')
+    data = registry(root)
+    current = data['current']
+    session_path = archive / 'baseline-edit-session.json'
+    if current:
+        if not session_path.exists():
+            raise ValueError('Load baseline first, then compute unaugmented and Save as baseline.')
+        session = json.loads(session_path.read_text())
+        if session['baseline_id'] != current or session['run_code'] != run_code or session['context'] != context:
+            raise ValueError('Baseline edit session does not match the current baseline, forecast window, or run code')
+        if data['versions'][current]['run_code'] != run_code:
+            raise ValueError('Cannot change baseline run code within this forecast')
+    archive.mkdir(exist_ok=True)
+    pending = archive / ('baseline-pending-' + uuid.uuid4().hex)
+    pending.mkdir()
+    live = root / 'forecast.dss'
+    try:
+        from run_archive import archive_digest, capture_run, signature
+        before = signature(live)
+        snapshot_hash = (snapshot or capture_run)(live, pending, run_code)
+        if signature(live) != before:
+            raise ValueError('Live forecast changed during capture')
+        candidate_fp = fingerprint(pending / 'forecast.dss', run_code)
+        changed_records = []
+        if current:
+            old = data['versions'][current]
+            source = baseline_directory(root)
+            if archive_digest(source / 'forecast.dss') != old['sha256']:
+                raise ValueError('Saved baseline checksum mismatch')
+            old_fp = old.get('fingerprint')
+            if old_fp is None or old_fp.get('scope') != candidate_fp.get('scope'):
+                print('Rebuilding saved baseline comparison with current scope.',flush=True)
+                old_fp = fingerprint(source / 'forecast.dss', run_code)
+            old['fingerprint'] = old_fp
+            missing = set(old_fp['records']) - set(candidate_fp['records'])
+            if missing:
+                raise ValueError('Baseline capture lost {} previously archived series; inspect compute before saving'.format(len(missing)))
+            if signature(live) != before:
+                raise ValueError('Live forecast changed during comparison; finish compute first')
+            if old_fp['sha256'] == candidate_fp['sha256']:
+                atomic_json(archive / 'baseline-versions.json', data)
+                event(root, 'baseline-save-unchanged', baseline_id=current,
+                      captured_sha256=snapshot_hash, compute_status='user-confirmed-not-verified')
+                print('Baseline results unchanged. Keeping', current, flush=True)
+                return current, False
+            changed_records = [key for key in sorted(set(old_fp['records']) | set(candidate_fp['records']))
+                               if old_fp['records'].get(key) != candidate_fp['records'].get(key)]
+            # Preserve legacy ancillary files for existing CLI consumers.
+            for path in source.iterdir():
+                if path.is_file() and path.name not in ('forecast.dss', 'manifest.json', 'run-archive.json', 'series.npz'):
+                    shutil.copy2(path, pending / path.name)
+        identity = 'baseline-{:04d}'.format(len(data['versions']) + 1)
+        destination = archive / ('baseline' if current is None else identity)
+        if destination.exists():
+            raise FileExistsError(destination)
+        version = {'directory': destination.name, 'sha256': snapshot_hash,
+                   'run_code': run_code, 'fingerprint': candidate_fp, 'context': context,
+                   'created_utc': datetime.now(timezone.utc).isoformat()}
+        atomic_json(pending / 'manifest.json', {'sha256': snapshot_hash, 'forecast_root': str(root),
+                    'run_code': run_code, 'baseline_id': identity})
+        if signature(live) != before:
+            raise ValueError('Live forecast changed during comparison; finish compute first')
+        pending.rename(destination)
+        data['versions'][identity] = version
+        data['current'] = identity
+        atomic_json(archive / 'baseline-versions.json', data)
+        atomic_json(archive / 'baseline-context.json', context)
+        atomic_json(session_path, {'baseline_id': identity, 'context': context, 'run_code': run_code})
+        event(root, 'baseline-saved', baseline_id=identity, previous_baseline=current,
+              changed_records=changed_records, compute_status='user-confirmed-not-verified')
+        write_archive_index(root)
+        print('Saved baseline:', identity, flush=True)
+        if current:
+            print('Older augmented results are now labelled Previous baseline; their original pairings remain available.', flush=True)
+        return identity, True
+    finally:
+        if pending.exists():
+            shutil.rmtree(pending)
+
+
+def result_directory(root, folder):
+    archive = (Path(root) / 'augmentation-archives').resolve()
+    requested = Path(folder)
+    if requested.is_symlink() or requested.parent.is_symlink():
+        raise ValueError('Invalid result archive link')
+    folder = requested.resolve()
+    if folder.parent.parent != archive or not folder.name.startswith('results-') or not (folder / 'capture.json').is_file():
+        raise ValueError('Choose an archived results-* folder inside a scheme, not a baseline or scheme folder')
+    if (folder / 'FAILED.txt').exists():
+        raise ValueError('Invalid or failed result archive')
+    scheme = json.loads((folder.parent / 'manifest.json').read_text())
+    capture = json.loads((folder / 'capture.json').read_text())
+    if capture['scheme'] != scheme['scheme'] or capture['baseline_sha256'] != scheme['baseline_sha256']:
+        raise ValueError('Result provenance differs from its scheme')
+    baseline_directory(root, scheme)
+    return folder
+
+
+def write_archive_index(root):
+    root = Path(root)
+    archive = root / 'augmentation-archives'
+    data = registry(root)
+    rows = []
+    for capture_path in sorted(archive.glob('*/results-*/capture.json')):
+        if (capture_path.parent / 'FAILED.txt').exists():
+            continue
+        capture = json.loads(capture_path.read_text())
+        identity = baseline_identity(root, capture)
+        rows.append({'directory': str(capture_path.parent), 'scheme': capture['scheme'],
+                     'captured_utc': capture.get('captured_utc'), 'baseline_id': identity,
+                     'baseline_status': 'Current baseline' if identity == data['current'] else 'Previous baseline'})
+    atomic_json(archive / 'archive-index.json', {'current_baseline': data['current'], 'results': rows})
+    return rows
+
+
+def delete_result(root, folder, include_plots=False):
+    folder = result_directory(root, folder)
+    associated = []
+    if include_plots:
+        identity = str(folder.relative_to(Path(root) / 'augmentation-archives'))
+        plot_root = (Path(root) / 'output_plots').resolve()
+        for selection in plot_root.glob('saved-runs-*/selection.json'):
+            directory = selection.parent
+            if directory.is_symlink() or directory.resolve().parent != plot_root:
+                raise ValueError('Invalid associated plot archive directory')
+            metadata = json.loads(selection.read_text())
+            if any(run.get('id') == identity for run in metadata['runs']):
+                associated.append(directory)
+    event(root, 'result-delete-requested', directory=str(folder), plots=[str(path) for path in associated],
+          capture=json.loads((folder / 'capture.json').read_text()))
+    shutil.rmtree(folder)
+    for path in associated:
+        shutil.rmtree(path)
+    event(root, 'result-deleted', directory=str(folder), plots=[str(path) for path in associated])
+    write_archive_index(root)
+    print('Deleted archived result and its plots:', folder, flush=True)
+    print('Baseline, scheme configuration, and action history retained.', flush=True)

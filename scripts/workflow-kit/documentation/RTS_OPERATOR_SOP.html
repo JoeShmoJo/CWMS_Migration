@@ -1,0 +1,63 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>RTS baseline and augmentation: operator SOP</title><style>body{font:17px/1.6 system-ui,sans-serif;color:#213346;margin:0;background:#f3f6fa}nav{background:#173d56;padding:14px;position:sticky;top:0}nav a{color:white;display:inline-block;margin:4px 12px}main{max-width:1100px;margin:auto;padding:28px;background:white}a{color:#0063a5}h1,h2,h3{line-height:1.25;scroll-margin-top:90px}h2{margin-top:2em;border-bottom:1px solid #cbd5df;padding-bottom:8px}pre{overflow:auto;padding:16px;background:#eef2f6;white-space:pre-wrap;overflow-wrap:anywhere}code{font-family:Consolas,monospace;font-size:.9em;background:#eef2f6}table{border-collapse:collapse;width:100%;font-size:.92em}th,td{border:1px solid #cad3dc;padding:9px;text-align:left;vertical-align:top;overflow-wrap:anywhere}th{background:#e5edf3}.table{overflow:auto}footer{margin-top:3em;color:#546579}@media print{nav{display:none}main{max-width:none;padding:0}body{background:white}pre{white-space:pre-wrap}a{color:inherit}}</style><body><nav><a href="PROJECT_START_HERE.html">Start here</a><a href="PROJECT_RESUME.html">Resume project</a><a href="WORKFLOW_SOP.html">Operator SOP</a><a href="STANDALONE_WORKFLOW_REFERENCE.html">Standalone reference</a><a href="RTS_WORKFLOW_REFERENCE.html">RTS reference</a><a href="STANDALONE_SAVED_RESULTS.html">Standalone saved runs</a><a href="STANDALONE_POR_MODEL_CHECK.html">POR / Model Check</a><a href="WORKFLOW_PACKAGE.html">Import / packaging</a><a href="RTS_IMPORT_VALIDATION.html">Next: RTS validation</a><a href="RTS_DATA_IO.html">Data / archives</a><a href="DIVERSION_POSTPROCESS.html">Diversions (optional)</a></nav><main><h1 id="rts-baseline-and-augmentation-operator-sop">RTS baseline and augmentation: operator SOP</h1>
+<p>Current workflow, 16 October 2026. Details: <a href="RTS_WORKFLOW_REFERENCE.html">process and file reference</a>. Use the original ResSim application and a supported compute mode; serial is suitable. This workflow does not require the experimental JAR patch.</p>
+<p><strong>Extract once → configure baseline → compute unaugmented → accept → process/load augmentation → compute augmented → accept → plot.</strong></p>
+<h2 id="1-open-the-forecast-and-extract">1. Open the forecast and extract</h2>
+<ol start="1">
+<li>Open the intended forecast and select its forecast alternative in RTS.</li>
+<li>Run watershed script <code>scripts\RTS_WORKFLOW_MENU.py</code> in the RTS Script Editor.</li>
+<li>Verify forecast, alternative, DSS path, lookback, start, end and timezone. Use <strong>Refresh forecast metadata</strong> after changing the selected forecast/run.</li>
+<li>Verify dates fit current RFC availability and CWMS lookback coverage. To process augmentation, the saved baseline must cover April 1, travel-time lead-in and the selected season end. A short October test is not a full-season baseline.</li>
+<li>If using fixed-abundant water-year mode, verify the model uses <strong>ALL_ABUNDANT (4)</strong>, not the zero dummy.</li>
+<li>Click <strong>Initial Extract</strong>, confirm, and wait for successful input loading. Reopen/refresh the same forecast as instructed. This does not compute ResSim.</li>
+</ol>
+<p>Extract once for this forecast. After a baseline exists, use a new forecast for new dates/downloads. Do not re-extract just to change operating configuration.</p>
+<h2 id="2-configure-and-compute-the-baseline">2. Configure and compute the baseline</h2>
+<ol start="1">
+<li>Click <strong>Baseline Configuration</strong>. In the browser editor, open saved settings or edit the imported settings. Enter a useful name and description.</li>
+<li><strong>Save Configuration</strong> saves a reusable library version; it does not activate it.</li>
+<li>Finish all computes and close DSS views, then <strong>Apply for Baseline Compute</strong>. Apply snapshots this forecast&#x27;s settings and disables augmentation. Use <strong>Close Editor</strong> when finished.</li>
+<li>Reopen the forecast if necessary. Confirm <strong>Next compute: no augmentation</strong>.</li>
+<li>Compute the intended alternative/ensemble with the normal RTS/ResSim controls. The workflow menu does not start compute. Check successful member completion.</li>
+<li>Click <strong>Augmentation Configuration</strong> and answer <strong>Yes</strong> to accept/archive the completed baseline. Confirm an ID such as <code>baseline-0001</code> is shown.</li>
+</ol>
+<p>An unaugmented compute with the unchanged imported settings can also establish the first baseline. Explicit Apply makes the selected configuration clearer.</p>
+<h2 id="3-create-and-activate-an-augmentation-scheme">3. Create and activate an augmentation scheme</h2>
+<ol start="1">
+<li>In <strong>Augmentation Configuration</strong>, name the configuration and set reservoir participation, storage floors, maximum releases, travel times and calculation settings. Current requirements: identical Salem/Albany participation; Lookout Point participates and Hills Creek is combined with it.</li>
+<li><strong>Save Configuration</strong> retains reusable JSON; <strong>Open Configuration</strong> loads a saved file. Reusing settings in another forecast recalculates its releases.</li>
+<li>Select an offered conservation season. If none is offered, save settings if useful but do not process: the baseline lacks the necessary season coverage.</li>
+<li>Click <strong>Process and Load Releases</strong>. At its completion prompt, choose Yes only if a new successful compute needs archiving; otherwise choose No.</li>
+<li>Wait for <strong>Releases processed and loaded</strong> and check the next-compute label.</li>
+</ol>
+<p>This is the scheme “commit”: prepared releases are saved and activated against one baseline. It is not a Git commit and does not run the simulation.</p>
+<h2 id="4-compute-archive-and-plot-the-pair">4. Compute, archive and plot the pair</h2>
+<ol start="1">
+<li>Reopen the forecast as instructed and compute with the loaded augmentation. <strong>Do not run Initial Extract again.</strong></li>
+<li>Check successful completion. Click <strong>Plot Results</strong>, then <strong>Yes</strong> to archive it.</li>
+<li>Ctrl-click the matching unaugmented baseline and augmented result, checking that both have the same baseline ID. Click <strong>Plot Selected</strong>.</li>
+<li>Review elevations/outflows, mainstem flows and available target overlays. The browser opens the plot index; <strong>Open Last Plots</strong> reopens this session&#x27;s plots.</li>
+</ol>
+<p>Select one run for single-run plots or two for comparison. Cross-baseline pairs are allowed but include baseline differences, as their labels indicate.</p>
+<h2 id="5-create-a-new-baseline-and-another-scheme">5. Create a new baseline and another scheme</h2>
+<ol start="1">
+<li>Accept any completed augmented result you want to retain before changing baseline settings; a later compute can overwrite live outputs.</li>
+<li>Open <strong>Baseline Configuration</strong>, load/edit/name/save settings, then <strong>Apply for Baseline Compute</strong>. Augmentation is disabled automatically. No separate Reset Baseline button is required in the current menu.</li>
+<li>Compute unaugmented and accept the completed results as in step 2.</li>
+<li>Changed pool elevations/outflows create a new baseline ID; older augmented results retain their pairs and become <strong>Previous baseline</strong>. Identical compared outputs retain the existing ID and print <strong>Baseline results unchanged</strong>.</li>
+<li>Open/reuse augmentation settings, <strong>Process and Load Releases</strong>, compute, accept, and plot again. Releases must be prepared against the current baseline.</li>
+</ol>
+<h2 id="prompts-retention-and-errors">Prompts, retention and errors</h2>
+<div class="table"><table><thead><tr><th>Choice/action</th><th>Meaning</th></tr></thead><tbody>
+<tr><td>Completion prompt: Yes</td><td>Compute finished successfully; archive its current results</td></tr>
+<tr><td>No</td><td>Use previously saved results only</td></tr>
+<tr><td>Cancel</td><td>Stop</td></tr>
+<tr><td>Delete Selected Augmented Result</td><td>After confirmation, remove that result and plots involving it; retain baselines, scheme inputs, configurations and history</td></tr>
+</tbody></table></div>
+<p>The completion prompt does not approve baseline quality or independently verify compute success. Old DSS records can survive a failed compute.</p>
+<p>Finish compute and close DSSVue/DSS views before file operations. If a lock requires closing the forecast, keep the menu open and use <strong>Use this displayed forecast after closing it in RTS</strong> with verified metadata; reopen the same forecast before compute. Do not run menu tasks and native compute concurrently.</p>
+<p>New accepted results log <strong>Compact archive: ... No DSS snapshot copied.</strong> Existing DSS archives remain usable. Do not delete compact <code>series.npz</code> as a cache: it is primary saved data. Keep the task&#x27;s <code>workflow-logs</code> log for failures.</p>
+<p><strong>Known caveat:</strong> changing water-year inputs alone may retain an older archived input if pool elevations/outflows match. Fixed-abundant rejects values other than</p>
+<ol start="4">
+<li>Do not assume reacceptance refreshed that input; resolve it before processing.</li>
+</ol>
+<p>A fresh forecast is the clean workaround for changed extracted/mapped inputs. See the reference for details and other troubleshooting.</p><footer>Offline watershed documentation · <a href="../RTS_OPERATOR_SOP.md">Markdown source</a> · Use browser Print to save as PDF.</footer></main></body></html>

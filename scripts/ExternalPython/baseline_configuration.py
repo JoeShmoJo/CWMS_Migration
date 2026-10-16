@@ -1,0 +1,548 @@
+"""Resolve, validate and stage forecast-scoped baseline settings; serve editor."""
+import argparse
+import copy
+import csv
+from datetime import date
+import hashlib
+import json
+import math
+from pathlib import Path
+import re
+import shutil
+import tempfile
+import uuid
+
+from baseline_versions import atomic_json, digest_file, disable, event, registry
+
+TABLE_KEYS = {'DeepDrawdownConfigCSV': ('deep_drawdown','configuration'),
+    'SpringSpillConfigCSV': ('spring_spill','configuration'),
+    'NoDraftConfigCSV': ('no_draft','configuration'),
+    'secondaryDraftConfigCSV': ('secondary_flood_draft','configuration'),
+    'firoSpaceConfigCSV': ('firo_space','schedule'),
+    'minFlowConfigCSV': ('minimum_flow_withdrawal','minimum_flows'),
+    'withdrawalConfigCSV': ('minimum_flow_withdrawal','withdrawals'),
+    'diversionConfigCSV': ('diversions','schedule')}
+MODULE_KEYS = {'DeepDrawdown':'deep_drawdown','SpringSpill':'spring_spill',
+    'NoDraft':'no_draft','SecondaryFloodDraftLimit':'secondary_flood_draft',
+    'FIRO_SPACE':'firo_space','MinFlowPlusWithdrawal':'minimum_flow_withdrawal',
+    'DiversionFromCSV':'diversions','IRRM':'irrm','DraftToRC':'draft_to_rc',
+    'FillLOPfirst':'fill_lop_first','HCR_LOP_Balance':'hcr_lop_balance'}
+RESERVOIRS = {'Big Cliff','Blue River','Cottage Grove','Cougar','Detroit','Dexter',
+             'Dorena','Fall Creek','Fern Ridge','Foster','Green Peter','Hills Creek','Lookout Point'}
+
+
+def read_csv(path):
+    with Path(path).open(encoding='utf-8-sig', newline='') as handle:
+        rows = [row for row in csv.reader(handle) if row and any(cell.strip() for cell in row)
+                and not row[0].lstrip().startswith('#')]
+    if len(rows) < 2:
+        raise ValueError('CSV needs a header and data: ' + str(path))
+    return rows[0], [[None if not cell.strip() else cell for cell in row] for row in rows[1:]]
+
+
+def validate_table(rule, name, table, template):
+    columns, rows = table['columns'], table['rows']
+    if not columns or len(set(columns)) != len(columns) or any(not isinstance(c, str) or not c.strip() for c in columns):
+        raise ValueError('Empty or duplicate columns: ' + rule)
+    if not rows or any(not isinstance(row, list) or len(row) != len(columns) for row in rows):
+        raise ValueError('Missing rows or inconsistent widths: ' + rule)
+    for row in rows:
+        if any(value is not None and not isinstance(value, (str, int, float, bool)) for value in row):
+            raise ValueError('Table cells must be scalar values: ' + rule)
+    daily = columns[:2] == ['Month','Day']
+    if daily:
+        expected = template['columns']
+        if any(c not in expected for c in columns):
+            raise ValueError('Unrecognized reservoir or element column: ' + rule)
+        days = set()
+        for row in rows:
+            month, day = int(str(row[0])), int(str(row[1]))
+            date(2001, month, day)  # Existing readers use a non-leap generic year.
+            if (month, day) in days:
+                raise ValueError('Duplicate schedule day: ' + rule)
+            days.add((month, day))
+            for col, value in zip(columns[2:],row[2:]):
+                if col.upper() != 'NOTES' and value is not None:
+                    number = float(value)
+                    if not math.isfinite(number):
+                        raise ValueError('Invalid schedule value: ' + rule)
+        if len(days) != 365:
+            raise ValueError('Daily schedule must contain every day of the generic year: ' + rule)
+    elif rule == 'secondary_flood_draft':
+        if columns != template['columns']:
+            raise ValueError('Secondary flood columns must match the current model')
+        by_key = {row[0]: row for row in rows}
+        if len(by_key) != len(rows) or not {'LimitDrafts','SecondaryFloodElev','MinDraftRate','PhCap'} <= set(by_key):
+            raise ValueError('Invalid secondary flood variables')
+        for index, reservoir in enumerate(columns[1:],1):
+            if reservoir == 'Notes': continue
+            enabled = str(by_key['LimitDrafts'][index]).upper()
+            if enabled not in ('TRUE','FALSE'): raise ValueError('Invalid LimitDrafts flag')
+            for key in ('SecondaryFloodElev','MinDraftRate','PhCap'):
+                value = by_key[key][index]
+                if value is None and enabled == 'FALSE': continue
+                if value is None or not math.isfinite(float(value)):
+                    raise ValueError('Missing/invalid secondary flood setting: ' + reservoir)
+                if key != 'SecondaryFloodElev' and float(value) < 0:
+                    raise ValueError('Negative secondary draft/capacity')
+    else:
+        required = set(template['columns']) - {'Notes','NOTES'}
+        if not required <= set(columns): raise ValueError('Missing event table columns: ' + rule)
+        seen=set()
+        for row in rows:
+            values = dict(zip(columns,row))
+            reservoir = values.get('RESERVOIR',values.get('Project'))
+            if reservoir not in RESERVOIRS: raise ValueError('Unknown reservoir: ' + str(reservoir))
+            if rule=='deep_drawdown' and reservoir in seen:raise ValueError('Duplicate event reservoir: '+reservoir)
+            seen.add(reservoir)
+            inactive_placeholder=rule=='deep_drawdown'
+            for key, value in values.items():
+                if key in ('Notes','NOTES','RESERVOIR','Project'): continue
+                if key == 'ACTIVE':
+                    if str(value).upper() not in ('TRUE','FALSE'): raise ValueError('Invalid ACTIVE flag')
+                elif value in (None,'') and inactive_placeholder:
+                    continue
+                elif value is None or not math.isfinite(float(value)):
+                    raise ValueError('Invalid event setting: ' + key)
+            for prefix in ('START_','TARGET_','END_',''):
+                month_key, day_key = prefix+'MONTH',prefix+'DAY'
+                if not prefix: month_key, day_key='Month','Day'
+                if month_key in values and day_key in values and not (inactive_placeholder and (values[month_key] in (None,'') or values[day_key] in (None,''))):
+                    date(2001,int(str(values[month_key])),int(str(values[day_key])))
+            if 'DURATION_DAYS' in values and values['DURATION_DAYS'] not in (None,'') and (float(values['DURATION_DAYS']) < 0 or float(values['DURATION_DAYS']) != int(float(values['DURATION_DAYS']))):
+                raise ValueError('Duration must be a nonnegative whole number')
+
+
+def with_null_reservoirs(configuration):
+    """Expand editable IRRM/Deep Drawdown slots without inventing operating values."""
+    result=copy.deepcopy(configuration)
+    rules=result.get('rules',{})
+    irrm=rules.get('irrm',{}).get('settings',{})
+    for name in sorted(RESERVOIRS):
+        irrm.setdefault('active',{}).setdefault(name,False)
+        irrm.setdefault('target_elevation_ft',{}).setdefault(name,None)
+    table=rules.get('deep_drawdown',{}).get('tables',{}).get('configuration')
+    if table and table.get('mode')=='inline' and 'RESERVOIR' in table['columns'] and 'ACTIVE' in table['columns']:
+        columns=table['columns'];name_index=columns.index('RESERVOIR');active_index=columns.index('ACTIVE')
+        existing={row[name_index] for row in table['rows']}
+        for name in sorted(RESERVOIRS-existing):
+            row=[None]*len(columns);row[name_index]=name;row[active_index]='FALSE';table['rows'].append(row)
+    return result
+
+
+def event_rows_for_runtime(rule,table):
+    # Legacy Deep Drawdown readers parse every row, even inactive rows. Do not
+    # send blank placeholder rows to them; a missing reservoir is a neutral rule.
+    if rule!='deep_drawdown':return table['rows']
+    columns=table['columns']
+    required=[i for i,key in enumerate(columns) if key not in ('Notes','NOTES')]
+    return [row for row in table['rows'] if str(row[columns.index('ACTIVE')]).upper()=='TRUE' and all(row[i] not in (None,'') for i in required)]
+
+
+def operating_status(configuration):
+    rules=configuration['rules'];settings=rules['irrm']['settings'];statuses={}
+    statuses['irrm']={name:('off' if not settings['active'].get(name,False) else
+        'not configured' if settings['target_elevation_ft'].get(name) is None else 'on') for name in sorted(RESERVOIRS)}
+    table=rules['deep_drawdown']['tables']['configuration'];columns=table['columns']
+    required=[i for i,key in enumerate(columns) if key not in ('RESERVOIR','Notes','NOTES','ACTIVE')]
+    statuses['deep_drawdown']={row[columns.index('RESERVOIR')]:
+        ('off' if str(row[columns.index('ACTIVE')]).upper()!='TRUE' else
+         'not configured' if any(row[i] in (None,'') for i in required) else 'on') for row in table['rows']}
+    return statuses
+
+
+def template(scripts):
+    return with_null_reservoirs(json.loads((Path(scripts) / 'baseline-configuration.example.json').read_text(encoding='utf-8')))
+
+
+def validate_settings(settings, defaults, prefix=''):
+    if set(settings) != set(defaults):
+        raise ValueError('Unknown or missing rule settings: ' + prefix)
+    for key, expected in defaults.items():
+        value = settings[key]
+        if prefix == 'irrm.' and key in ('active','target_elevation_ft'):
+            if not isinstance(value,dict) or any(name not in RESERVOIRS for name in value):
+                raise ValueError('Invalid IRRM reservoir map')
+            for name,item in value.items():
+                if key=='active':
+                    if not isinstance(item,bool):raise ValueError('Invalid IRRM activation')
+                elif item is None:
+                    continue
+                elif isinstance(item,bool) or not isinstance(item,(int,float)) or not math.isfinite(item):
+                    raise ValueError('IRRM target must be finite feet')
+        elif key == 'active' and isinstance(expected,bool) and isinstance(value,dict):
+            if any(name not in RESERVOIRS or not isinstance(flag,bool) for name,flag in value.items()):
+                raise ValueError('Invalid reservoir activation map')
+        elif isinstance(expected,dict):
+            if key == 'mode_by_reservoir':
+                if any(name not in RESERVOIRS or mode not in ('FILL_ONLY','DRAFT_ONLY','BOTH') for name,mode in value.items()):
+                    raise ValueError('Invalid FIRO reservoir mode')
+            else:
+                if not isinstance(value,dict): raise ValueError('Expected reservoir settings: ' + key)
+                validate_settings(value,expected,prefix+key+'.')
+        elif isinstance(expected,bool):
+            if not isinstance(value,bool): raise ValueError('Expected Boolean: ' + key)
+        elif isinstance(expected,(int,float)):
+            if isinstance(value,bool) or not isinstance(value,(int,float)) or not math.isfinite(value):
+                raise ValueError('Expected finite number: ' + key)
+            if isinstance(expected,int) and int(value)!=value: raise ValueError('Expected whole number: ' + key)
+            if key.endswith('month') and not 1 <= value <= 12: raise ValueError('Invalid month: ' + key)
+            if key.endswith('day') and not 1 <= value <= 31: raise ValueError('Invalid day: ' + key)
+            if key == 'glide_days' and value <= 0: raise ValueError('Glide days must be positive')
+            if (key.endswith('_cfs') or key.endswith('_ac_ft') or key.endswith('_days')) and value < 0:
+                raise ValueError('Negative setting: ' + key)
+        elif not isinstance(value,str) or not value.strip(): raise ValueError('Expected text: ' + key)
+        if key == 'mode' and value not in ('FILL_ONLY','DRAFT_ONLY','BOTH'): raise ValueError('Invalid FIRO mode')
+    if 'start_month' in settings and 'start_day' in settings:
+        date(2001,int(settings['start_month']),int(settings['start_day']))
+        date(2001,int(settings['end_month']),int(settings['end_day']))
+    if settings.get('interpolate_gaps_up_to_days',0) > 365: raise ValueError('Interpolation gap exceeds one year')
+    if 'high_flow_cfs' in settings and settings['low_flow_cfs'] > settings['high_flow_cfs']:
+        raise ValueError('Low flow exceeds high flow')
+    for name, low in settings.get('minimum_conservation_elevation_ft',{}).items():
+        if low >= settings['maximum_conservation_elevation_ft'][name]: raise ValueError('Invalid conservation elevation range')
+
+
+def resolve(config, scripts, watershed):
+    defaults = template(scripts)
+    if 'standalone_workflow' in config:
+        from standalone_jobs import validate
+        validate(config['standalone_workflow'])
+    if config.get('format') != defaults['format'] or config.get('schema_version') != 1 or not str(config.get('name','')).strip():
+        raise ValueError('Invalid baseline configuration header')
+    if set(config['rules']) != set(defaults['rules']):
+        raise ValueError('The baseline configuration must contain all eleven rule groups')
+    result, linked = with_null_reservoirs(config), {}
+    for key, rule in result['rules'].items():
+        reference = defaults['rules'][key]
+        validate_settings(rule['settings'],reference['settings'],key+'.')
+        if set(rule['tables']) != set(reference['tables']): raise ValueError('Unknown or missing rule tables: ' + key)
+        for name, table in rule['tables'].items():
+            if table['mode'] not in ('inline','csv'): raise ValueError('Invalid table source')
+            if table['mode'] == 'csv':
+                path = Path(table['csv_path'])
+                if not path.is_absolute(): path = Path(watershed) / path
+                raw = path.read_bytes()
+                columns, rows = read_csv(path)
+                if digest_file(path) != hashlib.sha256(raw).hexdigest(): raise ValueError('Linked CSV changed while reading')
+                table['columns'],table['rows'] = columns,rows
+                linked[key+'-'+name+'.csv'] = raw
+            validate_table(key,name,table,reference['tables'][name])
+            table['mode'] = 'inline'
+    result=with_null_reservoirs(result)
+    result['operating_status']=operating_status(result)
+    return result, linked
+
+
+def read_alternative_settings(path):
+    """Read the flat settings used by the baseline adapter, leaving unrelated
+    Hjson values (including augmentation settings and OFF) to ResSim's reader.
+    CSV paths may be quoted JSON strings or Hjson bare strings.
+    """
+    wanted=set(TABLE_KEYS) | {'draftToRCActive','irrmActive','irrmTargetElevs'}
+    values={}
+    for number,line in enumerate(Path(path).read_text(encoding='utf-8-sig').splitlines(),1):
+        text=line.strip()
+        if not text or text.startswith(('#','//')): continue
+        if ':' not in text:
+            raise ValueError('Unsupported multiline alt_config syntax at {}:{}'.format(path,number))
+        key,value=text.split(':',1);key=key.strip().strip('"')
+        if key not in wanted: continue
+        value=value.strip()
+        try:
+            parsed,end=json.JSONDecoder().raw_decode(value)
+            remainder=value[end:].strip()
+            if remainder and not remainder.startswith(('#','//')):
+                raise ValueError('Unexpected trailing text')
+        except (ValueError,json.JSONDecodeError) as exc:
+            if key in TABLE_KEYS and value and not value.startswith(('"','[','{')):
+                parsed=value.split(' #',1)[0].strip()
+            else:
+                raise ValueError('Unsupported value for {} at {}:{}: {}'.format(key,path,number,exc)) from exc
+        values[key]=parsed
+    return values
+
+
+def legacy_values(watershed, alternative):
+    if not re.fullmatch(r'[A-Za-z0-9_ .-]+', alternative) or alternative in ('.','..'):
+        raise ValueError('Invalid alternative configuration name')
+    folder=Path(watershed)/'scripts/alt_config'
+    values=read_alternative_settings(folder/'_default.txt')
+    visited=set()
+    name=alternative
+    while True:
+        if name in visited: raise ValueError('Alternative configuration alias cycle')
+        visited.add(name)
+        path=folder/(name+'.txt')
+        lines=path.read_text(encoding='utf-8-sig').splitlines()
+        if lines and lines[0].startswith('@alias '):
+            name=lines[0].split(None,1)[1].strip()
+            if not re.fullmatch(r'[A-Za-z0-9_ .-]+',name) or name in ('.','..'):
+                raise ValueError('Invalid alternative configuration alias')
+            continue
+        values.update(read_alternative_settings(path))
+        return values
+
+
+def current_configuration(root, scripts, alternative='Con_Season', marker_name='rts-baseline-config-active.json', originals='_rts_baseline_originals'):
+    marker = Path(root)/marker_name
+    if marker.exists():
+        pointer=json.loads(marker.read_text());source=Path(root)/pointer['directory']/'resolved.json'
+        if digest_file(source)!=pointer['resolved_sha256']: raise ValueError('Active configuration checksum mismatch')
+        data=json.loads(source.read_text())
+        saved=json.loads(source.with_name('configuration.json').read_text())
+        for key, rule in saved['rules'].items():
+            for name, table in rule['tables'].items():
+                table['rows']=data['rules'][key]['tables'][name]['rows']
+                table['columns']=data['rules'][key]['tables'][name]['columns']
+        return with_null_reservoirs(saved)
+    # Read installed CSVs, not the example schedules. Current Con_Season defaults
+    # have flat Hjson key/value lines; refuse more complex syntax rather than guess.
+    result=template(scripts);result['name']='Con_Season imported settings';result['description']='Settings read from the imported RTS model.';watershed=Path(scripts).parent.parent
+    values=legacy_values(watershed,alternative)
+    result['name']=alternative+' imported settings'
+    result['description']='Settings imported from '+alternative+' and watershed defaults.'
+    for alt_key,(rule,table_name) in TABLE_KEYS.items():
+        table=result['rules'][rule]['tables'][table_name]
+        path=Path(values.get(alt_key,table['csv_path']))
+        if not path.is_absolute(): path=watershed/path
+        table['columns'],table['rows']=read_csv(path)
+        table['csv_path']=str(values.get(alt_key,table['csv_path']))
+    result['rules']['draft_to_rc']['settings']['active']=values.get('draftToRCActive',True)
+    for key,setting in [('irrmActive','active'),('irrmTargetElevs','target_elevation_ft')]:
+        if key in values: result['rules']['irrm']['settings'][setting]=values[key]
+    # Constants are sourced from the installed legacy implementations.
+    import ast
+    import sys
+    sys.path.insert(0,str(Path(scripts).parent))
+    if originals=='_standalone_baseline_originals':
+        from standalone_baseline_runtime import CONSTANTS
+    else:
+        from rts_baseline_runtime import CONSTANTS
+    for module,key in MODULE_KEYS.items():
+        path=watershed/'scripts'/originals/'externalRules'/(module+'.py')
+        text=path.read_text()
+        for setting,constant in CONSTANTS.items():
+            if setting not in result['rules'][key]['settings']: continue
+            match=re.search(r'^'+re.escape(constant)+r'\s*=\s*(.+)$',text,re.M)
+            if match: result['rules'][key]['settings'][setting]=ast.literal_eval(match[1].split('#',1)[0].strip())
+    return with_null_reservoirs(result)
+
+
+def apply_configuration(root, context, config, scripts):
+    root=Path(root).resolve();scripts=Path(scripts).resolve();watershed=scripts.parent.parent
+    if (root/'baseline-execution-test.json').exists():
+        raise ValueError('Restore configured execution mode before applying settings.')
+    standalone=context.get('mode')=='standalone'
+    if standalone:
+        from standalone_jobs import include
+        config=include(config,scripts)
+        if context.get('run_type'):config['standalone_workflow']['run_type']=context['run_type']
+    originals='_standalone_baseline_originals' if standalone else '_rts_baseline_originals'
+    config=with_null_reservoirs(config)
+    resolved,linked=resolve(config,scripts,watershed)
+    config['operating_status']=copy.deepcopy(resolved['operating_status'])
+    for rule,statuses in resolved['operating_status'].items():
+        for reservoir,state in statuses.items():
+            if state=='not configured':print(rule+' / '+reservoir+': not configured; no additional release requirement',flush=True)
+    identity=uuid.uuid4().hex
+    sets=root/'baseline-configurations/sets';sets.mkdir(parents=True,exist_ok=True)
+    directory=sets/identity;directory.mkdir()
+    (directory/'tables').mkdir();(directory/'linked-sources').mkdir()
+    table_paths={};hashes={}
+    for alt_key,(rule,name) in TABLE_KEYS.items():
+        relative='tables/'+rule+'-'+name+'.csv';path=directory/relative
+        table=resolved['rules'][rule]['tables'][name]
+        with path.open('w',newline='',encoding='utf-8') as handle:
+            writer=csv.writer(handle);writer.writerow(table['columns'])
+            writer.writerows([['' if v is None else ('TRUE' if v else 'FALSE') if isinstance(v,bool) else v for v in row] for row in event_rows_for_runtime(rule,table)])
+        table_paths[alt_key]=relative;hashes[relative]=digest_file(path)
+    for name,raw in linked.items(): (directory/'linked-sources'/name).write_bytes(raw)
+    (directory/'scripts').mkdir()
+    script_hashes={}
+    for module in MODULE_KEYS:
+        original=watershed/'scripts'/originals/'externalRules'/(module+'.py')
+        saved=directory/'scripts'/(module+'.py')
+        shutil.copy2(original,saved)
+        script_hashes[module]=digest_file(saved)
+        if digest_file(original)!=script_hashes[module]: raise ValueError('Script changed during snapshot: '+module)
+    runtime='standalone_baseline_runtime.py' if standalone else 'rts_baseline_runtime.py'
+    shutil.copy2(watershed/'scripts'/runtime,directory/'scripts'/runtime)
+    resolved.update(table_paths=table_paths,table_sha256=hashes,script_sha256=script_hashes)
+    atomic_json(directory/'resolved.json',resolved);atomic_json(directory/'configuration.json',config)
+    pointer={'id':identity,'directory':str(directory.relative_to(root)), 'resolved_sha256':digest_file(directory/'resolved.json'),
+             'name':config['name'],'context':context,'status':'applied-awaiting-unaugmented-compute'}
+    atomic_json(directory/'manifest.json',pointer)
+    if standalone:
+        pointer['model_alternative']=context['model_alternative']
+        pointer['status']='applied-awaiting-manual-compute'
+        atomic_json(directory/'manifest.json',pointer)
+        atomic_json(root/'standalone-baseline-config-active.json',pointer)
+        print('Applied standalone settings: '+config['name']+' to '+context['model_alternative'],flush=True)
+        print('Compute manually in ResSim. Existing extraction/augmentation trial settings are unchanged.',flush=True)
+    else:
+        atomic_json(root/'augmentation-archives/workflow-pending.json',{'mode':'baseline','baseline_configuration_id':identity})
+        disable(root,identity)
+        atomic_json(root/'rts-baseline-config-active.json',pointer)
+        event(root,'baseline-configuration-applied',configuration_id=identity,name=config['name'])
+        print('Applied baseline configuration:', config['name'],identity,flush=True)
+        print('Augmentation disabled. Reopen and compute in RTS; check RTS baseline init messages.',flush=True)
+    return pointer
+
+
+def check_initialization(root, details):
+    marker=Path(root)/'rts-baseline-config-active.json'
+    if not marker.exists(): return None
+    pointer=json.loads(marker.read_text());directory=Path(root)/pointer['directory']
+    receipts=[json.loads(path.read_text()) for path in (directory/'initialization-receipts').glob('*.json')]
+    seen={item['member'] for item in receipts if item['configuration_id']==pointer['id'] and item.get('resolved_sha256')==pointer['resolved_sha256']}
+    missing=set(details['members']+details['synthetic_members'])-seen
+    if missing: raise ValueError('Applied baseline configuration has no initialization receipts for members: '+str(sorted(missing))+'. Restart RTS after installing adapters, then recompute.')
+    return pointer
+
+
+def archive_configuration(root, destination, pointer):
+    if pointer is None: return
+    source=Path(root)/pointer['directory']
+    target=Path(destination)/'baseline-configuration'
+    shutil.copytree(source,target,ignore=shutil.ignore_patterns('initialization-receipts'))
+    atomic_json(Path(destination)/'baseline-configuration.json',pointer)
+
+
+def configuration_library(scripts):
+    return Path(scripts).parent/'baseline-configuration-library'
+
+
+def save_library_configuration(scripts, configuration):
+    if not str(configuration.get('name','')).strip():
+        raise ValueError('Enter a configuration name before saving')
+    resolved,_=resolve(configuration,scripts,Path(scripts).parent.parent)
+    # Saved reusable sets embed the actual schedule values, so they remain
+    # portable even if the original CSV is moved or subsequently edited.
+    identity=uuid.uuid4().hex
+    path=configuration_library(scripts)/(identity+'.json')
+    path.parent.mkdir(parents=True,exist_ok=True)
+    atomic_json(path,resolved)
+    return {'id':identity,'name':resolved['name'],'path':str(path)}
+
+
+def list_library_configurations(scripts):
+    items=[]
+    for path in sorted(configuration_library(scripts).glob('*.json'),key=lambda p:p.stat().st_mtime,reverse=True):
+        data=json.loads(path.read_text())
+        items.append({'id':path.stem,'name':data['name']})
+    return items
+
+
+def serve_editor(scripts, context=None):
+    from http.server import BaseHTTPRequestHandler,ThreadingHTTPServer
+    import secrets
+    import threading
+    import webbrowser
+    scripts=Path(scripts);root=Path(context['dss_path']).parent if context else None
+    token=secrets.token_urlsafe(32)
+    standalone=bool(context and context.get('mode')=='standalone')
+    if standalone:
+        from standalone_configuration import current as standalone_current
+        config=standalone_current(root,scripts,context)
+    else:
+        config=current_configuration(root,scripts) if root else template(scripts)
+    page=(scripts/'baseline-editor.html').read_text(encoding='utf-8')
+    if standalone:
+        # Adjust static help before injecting user configuration JSON.
+        page=page.replace('in RTS','in ResSim').replace('the RTS menu','the standalone menu').replace('the RTS adapter','the standalone adapter')
+    start=page.index('<script id="example" type="application/json">')+len('<script id="example" type="application/json">');end=page.index('</script>',start)
+    page=page[:start]+json.dumps(config).replace('</','<\\/')+page[end:]
+    page=page.replace('Design mockup · No connection to RTS or model files', 'RTS baseline editor · Save and Apply are separate actions')
+    page=page.replace('The RTS adapter is not implemented in this design mockup', 'Apply is available when this editor is launched from RTS')
+    page=page.replace('This mockup supports editing and export only.', 'Apply is available when launched from the RTS workflow menu.')
+    page=page.replace('the RTS adapter is not installed.', 'Apply validates operational settings and snapshots linked files.')
+    if context:
+        bridge="""<script>
+const applyButton=document.querySelector('button[disabled]');applyButton.disabled=false;applyButton.title='Validate, snapshot and apply to the selected forecast';
+const metadata=document.createElement('p');metadata.textContent=CONTEXT;metadata.className='notice';document.querySelector('.toolbar').after(metadata);
+applyButton.onclick=async()=>{if(!confirm('Finish all computes and close the forecast in RTS before applying. Apply this set, disable augmentation, and require a new unaugmented compute?'))return;applyButton.disabled=true;try{let response=await fetch('/apply',{method:'POST',headers:{'Content-Type':'application/json','X-Editor-Token':TOKEN},body:JSON.stringify(config)});let data=await response.json();if(!response.ok)throw Error(data.error);status('Applied '+data.name+'. Augmentation is off. Reopen the forecast and compute in RTS; check RTS baseline init messages.');alert('Settings are staged. Reopen the forecast and compute in RTS. Then accept completed baseline results. Do not re-extract.')}catch(e){status('Apply failed: '+e.message);alert(e.message)}finally{applyButton.disabled=false}};
+</script>""".replace('CONTEXT',json.dumps('Apply target: '+context['forecast_name']+' / '+context['run_name']+' / '+str(root))).replace('TOKEN',json.dumps(token))
+        page=page.replace('</html>',bridge+'</html>')
+    library_bridge="""<script>
+const exportJSON=document.createElement('button');exportJSON.textContent='Export JSON';exportJSON.onclick=$('save').onclick;$('save').after(exportJSON);$('save').textContent='Save Configuration';$('open').textContent='Import JSON';
+const savedSets=document.createElement('select');savedSets.setAttribute('aria-label','Saved configurations');const loadSet=document.createElement('button');loadSet.textContent='Open Saved Configuration';document.querySelector('.toolbar').append(savedSets,loadSet);
+async function libraryRequest(path,body){const response=await fetch(path,{method:'POST',headers:{'Content-Type':'application/json','X-Editor-Token':TOKEN},body:JSON.stringify(body)});const result=await response.json();if(!response.ok)throw Error(result.error);return result}
+async function refreshLibrary(id){const items=await libraryRequest('/library',{});savedSets.replaceChildren();const placeholder=document.createElement('option');placeholder.value='';placeholder.textContent='Choose a saved configuration';savedSets.append(placeholder);for(const item of items){const option=document.createElement('option');option.value=item.id;option.textContent=item.name+' · '+item.id.slice(0,8);savedSets.append(option)}if(id)savedSets.value=id}
+$('save').onclick=async()=>{try{const saved=await libraryRequest('/save',config);await refreshLibrary(saved.id);status('Saved '+saved.name+' in the watershed configuration library. No settings were activated. Each save preserves a new version.')}catch(e){status('Save failed: '+e.message);alert(e.message)}};
+loadSet.onclick=async()=>{if(!savedSets.value)return;if(!confirm('Replace the settings currently displayed with the saved configuration?'))return;try{config=await libraryRequest('/load',{id:savedSets.value});selected='overview';render();status('Saved configuration opened. Apply separately to activate it.')}catch(e){status('Open failed: '+e.message)}};refreshLibrary().catch(e=>status('Library unavailable: '+e.message));
+</script>""".replace('TOKEN',json.dumps(token))
+    page=page.replace('</html>',library_bridge+'</html>')
+    close_bridge="""<script>const closeEditor=document.createElement('button');closeEditor.textContent='Close Editor';document.querySelector('.toolbar').append(closeEditor);closeEditor.onclick=async()=>{await fetch('/close',{method:'POST',headers:{'X-Editor-Token':TOKEN}});document.body.textContent='Editor closed. You can close this browser tab.'};</script>""".replace('TOKEN',json.dumps(token))
+    page=page.replace('</html>',close_bridge+'</html>')
+    if standalone:
+        page=page.replace('RTS baseline editor', 'Standalone baseline editor')
+        workflow_bridge="""<script>
+const standaloneJobDefaults=DEFAULTS;
+const baseRender=render;render=function(){if(!config.standalone_workflow)config.standalone_workflow=JSON.parse(JSON.stringify(standaloneJobDefaults));config.standalone_workflow.run_type=standaloneJobDefaults.run_type||'ensemble';baseRender()};render();
+</script>""".replace('DEFAULTS',json.dumps(config['standalone_workflow']).replace('</','<\\/'))
+        page=page.replace('</html>',workflow_bridge+'</html>')
+        page=page.replace('Finish all computes and close the forecast in RTS before applying. Apply this set, disable augmentation, and require a new unaugmented compute?', 'Finish all computes before applying. Apply these settings to the displayed standalone simulation and alternative? Recompute affected trials afterward.')
+        page=page.replace('Augmentation is off. Reopen the forecast and compute in RTS; check RTS baseline init messages.', 'Settings will load at the next initialization. Compute manually in ResSim; retain earlier results separately.')
+        page=page.replace('Settings are staged. Reopen the forecast and compute in RTS. Then accept completed baseline results. Do not re-extract.', 'Standalone settings are staged. Recompute the baseline and affected augmentation trials manually. Do not re-extract for settings changes.')
+        page=page.replace('Apply for Baseline Compute', 'Apply to Standalone Alternative')
+        page=page.replace('Apply target: '+context['forecast_name']+' / '+context['run_name'], 'Standalone target: '+context['run_name']+' / '+context['model_alternative'])
+        page=page.replace('Baseline Configuration</', 'Standalone Baseline Configuration</')
+        legacy_bridge="""<script>
+const presets=document.createElement('select');const importPreset=document.createElement('button');importPreset.textContent='Import legacy alternative settings';document.querySelector('.toolbar').append(presets,importPreset);
+for(const name of LEGACY){const option=document.createElement('option');option.value=name;option.textContent=name;presets.append(option)}
+importPreset.onclick=async()=>{try{const jobSettings=config.standalone_workflow;config=await libraryRequest('/legacy',{alternative:presets.value});if(jobSettings)config.standalone_workflow=jobSettings;selected='overview';render();status('Imported baseline rule settings only. Save and Apply separately; operation sets and augmentation mappings are unchanged.')}catch(e){alert(e.message)}};
+</script>""".replace('LEGACY',json.dumps(sorted(path.stem for path in (scripts.parent/'alt_config').glob('*.txt') if path.stem!='_default')))
+        page=page.replace('</html>',legacy_bridge+'</html>')
+    class Handler(BaseHTTPRequestHandler):
+        def log_message(self,*args): pass
+        def do_GET(self):
+            if self.path != '/'+token: self.send_error(404);return
+            self.send_response(200);self.send_header('Content-Type','text/html; charset=utf-8');self.end_headers();self.wfile.write(page.encode('utf-8'))
+        def do_POST(self):
+            if self.path=='/close' and self.headers.get('X-Editor-Token')==token:
+                self.send_response(200);self.end_headers();self.wfile.write(b'closed')
+                threading.Thread(target=server.shutdown,daemon=True).start();return
+            if self.path not in ('/apply','/save','/load','/library','/legacy') or (self.path=='/apply' and not root) or self.headers.get('X-Editor-Token')!=token:
+                self.send_error(403);return
+            try:
+                length=int(self.headers.get('Content-Length','0'))
+                if not 0 < length < 8*1024*1024: raise ValueError('Invalid configuration size')
+                payload=json.loads(self.rfile.read(length))
+                if self.path=='/apply': result=apply_configuration(root,context,payload,scripts)
+                elif self.path=='/save': result=save_library_configuration(scripts,payload)
+                elif self.path=='/library': result=list_library_configurations(scripts)
+                elif self.path=='/legacy' and standalone:
+                    from standalone_configuration import import_legacy
+                    result=import_legacy(root,scripts,payload['alternative'])
+                else:
+                    identity=payload.get('id','')
+                    if not re.fullmatch('[a-f0-9]{32}',identity): raise ValueError('Invalid saved configuration identifier')
+                    result=json.loads((configuration_library(scripts)/(identity+'.json')).read_text())
+                if standalone and self.path in ('/load','/legacy'):
+                    result.setdefault('standalone_workflow',copy.deepcopy(config['standalone_workflow']))
+                    from standalone_jobs import include
+                    result=include(result,scripts)
+                code=200
+            except Exception as exc: result={'error':str(exc)};code=400
+            self.send_response(code);self.send_header('Content-Type','application/json');self.end_headers();self.wfile.write(json.dumps(result).encode())
+    server=ThreadingHTTPServer(('127.0.0.1',0),Handler)
+    url='http://127.0.0.1:'+str(server.server_port)+'/'+token
+    print('Baseline editor opened. Use Close Editor when finished.',flush=True)
+    webbrowser.open(url)
+    try: server.serve_forever()
+    finally: server.server_close()
+
+
+def main():
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--editor',action='store_true');parser.add_argument('--context');parser.add_argument('--configuration')
+    args=parser.parse_args();scripts=Path(__file__).resolve().parent
+    context=json.loads(Path(args.context).read_text()) if args.context else None
+    if args.editor: serve_editor(scripts,context)
+    elif args.configuration and context:
+        apply_configuration(Path(context['dss_path']).parent,context,json.loads(Path(args.configuration).read_text()),scripts)
+    else: parser.error('Use --editor, or --context and --configuration')
+
+
+if __name__=='__main__': main()

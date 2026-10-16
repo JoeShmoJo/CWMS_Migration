@@ -1,0 +1,124 @@
+reservoir,rule,saved_as,days_with_value,days_in_control,in_control_pct
+Blue River,Dam-Max Evacuation Release,max,1461,96,6.6
+Blue River,Flood Min,min,1461,241,16.5
+Blue River,Vida Flood Max,max,1461,100,6.8
+Blue River,Combined Min Trib,script,1461,762,52.2
+Blue River,MainstemFlowAug,script,1461,0,0.0
+Blue River,FIRO_SPACE,script,1461,215,14.7
+Blue River,Draft to RC,script,1458,449,30.8
+Blue River,(no rule equals the outflow),,1461,19,1.3
+Cottage Grove,Spillway-Uncontrolled Spill,min,1461,0,0.0
+Cottage Grove,Dam-Max Evacuation Release,max,1461,41,2.8
+Cottage Grove,Flood Min,min,1461,65,4.4
+Cottage Grove,Goshen Bankfull Max,max,1461,39,2.7
+Cottage Grove,Harrisburg Bankfull Simplified Max,max,1461,3,0.2
+Cottage Grove,Combined Min Trib,script,1461,859,58.8
+Cottage Grove,MainstemFlowAug,script,1461,0,0.0
+Cottage Grove,FIRO_SPACE,script,1461,277,19.0
+Cottage Grove,Harrisburg Regulation Goal Simplified,max,1461,8,0.5
+Cottage Grove,Draft to RC,script,1458,440,30.2
+Cottage Grove,(no rule equals the outflow),,1461,19,1.3
+Cougar,No Draft,script,1461,177,12.1
+Cougar,IRRM,script,1461,0,0.0
+Cougar,Max Evacuation Release,max,1461,44,3.0
+Cougar,Flood Min,min,1461,118,8.1
+Cougar,Vida Flood Max,max,1461,213,14.6
+Cougar,Deep Drawdown,script,1461,153,10.5
+Cougar,Spring Spill,script,1461,316,21.6
+Cougar,Combined Min Trib,script,1461,593,40.6
+Cougar,MainstemFlowAug,script,1461,0,0.0
+Cougar,FIRO_SPACE,script,1461,125,8.6
+Cougar,Draft to RC,script,1458,96,6.6
+Cougar,(no rule equals the outflow),,1461,1,0.1
+Detroit,No Draft,script,1461,82,5.6
+Detroit,Regulating Outlet Upper-Upper RO use 1400 to 1542 ft,max,1461,0,0.0
+Detroit,Regulating Outlet Lower-No Lower RO Flow,max,1461,0,0.0
+Detroit,Dam-Max Evacuation Release,max,1461,68,4.7
+Detroit,Secondary Flood Draft Limit,script,687,1,0.1
+Detroit,Mehama Winter Ops Max,max,1461,6,0.4
+Detroit,Jefferson Winter Ops Max,max,1461,4,0.3
+Detroit,Deep Drawdown,script,1461,193,13.2
+Detroit,Min for BCL,min,1461,112,7.7
+Detroit,IRRM,script,1461,87,6.0
+Detroit,Combined Min Trib,script,1461,766,52.4
+Detroit,MainstemFlowAug,script,1461,0,0.0
+Detroit,FIRO_SPACE,script,1461,144,9.9
+Detroit,Draft to RC,script,1458,19,1.3
+Detroit,(no rule equals the outflow),,1461,0,0.0
+Dorena,Spillway-Uncontrolled Spill,min,1461,0,0.0
+Dorena,Dam-Max Evacuation Release,max,1461,73,5.0
+Dorena,Flood Min,min,1461,13,0.9
+Dorena,Goshen Bankfull Max,max,1461,86,5.9
+Dorena,Harrisburg Bankfull Simplified Max,max,1461,5,0.3
+Dorena,Combined Min Trib,script,1461,724,49.6
+Dorena,MainstemFlowAug,script,1461,0,0.0
+Dorena,FIRO_SPACE,script,1461,235,16.1
+Dorena,Harrisburg Regulation Goal Simplified,max,1461,14,1.0
+Dorena,Draft to RC,script,1458,477,32.7
+Dorena,(no rule equals the outflow),,1461,37,2.5
+Fall Creek,Max Evacuation Release,max,1461,52,3.6
+Fall Creek,Flood Min,min,1461,0,0.0
+Fall Creek,Harrisburg Bankfull Simplified Max,max,1461,0,0.0
+Fall Creek,Medium Fish Horn Min,min,1461,125,8.6
+Fall Creek,Combined Min Trib,script,1461,673,46.1
+Fall Creek,Drawdown Max,max,1461,0,0.0
+Fall Creek,MainstemFlowAug,script,1461,0,0.0
+Fall Creek,Deep Drawdown,script,1461,260,17.8
+Fall Creek,Draft to RC,script,1458,345,23.7
+Fall Creek,FIRO_SPACE,script,1461,0,0.0
+Fall Creek,Harrisburg Regulation Goal Simplified Max,max,1461,0,0.0
+Fall Creek,(no rule equals the outflow),,1461,15,1.0
+Fern Ridge,Dam-Max Evacuation Release,max,1461,109,7.5
+Fern Ridge,Flood Min,min,1461,370,25.3
+Fern Ridge,Monroe Regulation Goal Max,max,1461,7,0.5
+Fern Ridge,Combined Min Trib,script,1461,840,57.5
+Fern Ridge,MainstemFlowAug,script,1461,0,0.0
+Fern Ridge,FIRO_SPACE,script,1461,185,12.7
+Fern Ridge,Draft to RC,script,1458,303,20.8
+Fern Ridge,(no rule equals the outflow),,1461,6,0.4
+Foster,Waterloo Flood Simple,script,1461,3,0.2
+Foster,FIRO_SPACE,script,1461,1086,74.3
+Foster,(no rule equals the outflow),,1461,373,25.5
+Green Peter,No Draft,script,1461,38,2.6
+Green Peter,Con Max,max,1461,165,11.3
+Green Peter,Secondary Flood Draft Limit,script,802,95,11.8
+Green Peter,Flood Min,min,1461,153,10.5
+Green Peter,Waterloo Flood Max,max,1461,19,1.3
+Green Peter,Jefferson Flood Stage Simplified Max,max,1461,0,0.0
+Green Peter,Deep Drawdown,script,1461,98,6.7
+Green Peter,Combined Min Trib,script,1461,709,48.5
+Green Peter,MainstemFlowAug,script,1461,26,1.8
+Green Peter,FIRO_SPACE,script,1461,148,10.1
+Green Peter,Max Evacuation Release,max,1461,13,0.9
+Green Peter,BiOp Max Flow Winter GPR FOS,max,1461,0,0.0
+Green Peter,Draft to RC,script,1458,134,9.2
+Green Peter,(no rule equals the outflow),,1461,26,1.8
+Hills Creek,No Draft,script,1461,0,0.0
+Hills Creek,Max Evacuation Rate,max,1461,193,13.2
+Hills Creek,Flood Min,min,1461,214,14.6
+Hills Creek,Harrisburg Regulation Goal Simplified,max,1461,10,0.7
+Hills Creek,IRRM,script,1461,118,8.1
+Hills Creek,Combined Min Trib,script,1461,673,46.1
+Hills Creek,Fill_LOP_First_Script,script,1461,107,7.3
+Hills Creek,HCR_LOP_Balance,script,736,59,8.0
+Hills Creek,FIRO_SPACE,script,1461,87,6.0
+Hills Creek,Draft to RC,script,1458,261,17.9
+Hills Creek,(no rule equals the outflow),,1461,6,0.4
+Lookout Point,NoDraft,script,1461,0,0.0
+Lookout Point,ROC Down,min,1461,14,1.0
+Lookout Point,ROC Up,max,1461,18,1.2
+Lookout Point,Regulated Outlet-No RO use above 900 ft,max,1461,0,0.0
+Lookout Point,Secondary Flood Draft Limit,script,555,11,2.0
+Lookout Point,Flood Min,min,1461,15,1.0
+Lookout Point,Jasper Bankfull Max,max,1461,14,1.0
+Lookout Point,Harrisburg Regulation Goal Simplified,max,1461,11,0.8
+Lookout Point,Min for DEX,min,1461,383,26.2
+Lookout Point,IRRM,script,1461,53,3.6
+Lookout Point,Deep Drawdown,script,1461,341,23.3
+Lookout Point,Spring Spill,script,1461,23,1.6
+Lookout Point,Combined Min Trib,script,1461,511,35.0
+Lookout Point,MainstemFlowAug,script,1461,0,0.0
+Lookout Point,Draft to RC,script,1458,137,9.4
+Lookout Point,FIRO_SPACE,script,1461,32,2.2
+Lookout Point,Dam-Max Evacuation Release,max,1461,62,4.2
+Lookout Point,(no rule equals the outflow),,1461,2,0.1

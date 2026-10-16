@@ -1,0 +1,12 @@
+basin,control_point,junction,maximum_cfs,days_above_max,largest_excess_cfs,days_below_min,largest_shortfall_cfs
+Coast Fork,Goshen,CF WIllamette_nr Goshen,12100.0,0,0.0,n/a,n/a
+Middle Fork,Jasper,MF Willamette_at Jasper,20000.0,0,0.0,n/a,n/a
+McKenzie,Vida,McKenzie_at Vida,14500.0,8,5089.0,n/a,n/a
+Long Tom,Monroe,Long Tom_at Monroe,5660.0,0,0.0,n/a,n/a
+South Santiam,Waterloo,So Santiam_at Waterloo,19000.0,0,0.0,n/a,n/a
+North Santiam,Mehama,No Santiam_at Mehama,17000.0,1,1349.0,n/a,n/a
+Santiam,Jefferson,Santiam_at Jefferson,43000.0,3,14240.0,n/a,n/a
+Mainstem Willamette,Eugene,Willamette_at Eugene,39500.0,0,0.0,n/a,n/a
+Mainstem Willamette,Harrisburg,Willamette_at Harrisburg,52000.0,3,3433.0,n/a,n/a
+Mainstem Willamette,Albany,Willamette_at Albany,67300.0,4,5015.0,144,753.0
+Mainstem Willamette,Salem,Willamette_at Salem,94000.0,17,26321.0,186,5967.0

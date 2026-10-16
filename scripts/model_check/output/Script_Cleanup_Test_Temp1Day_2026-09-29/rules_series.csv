@@ -1,0 +1,123 @@
+column,B,C,units,n_values,example_path
+Blue River-Combined Min Trib Flow-SPEC,Blue River-Combined Min Trib,Flow-SPEC,cfs,1461,//Blue River-Combined Min Trib/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Blue River-Dam-Max Evacuation Release Flow-MAX,Blue River-Dam-Max Evacuation Release,Flow-MAX,cfs,1461,//Blue River-Dam-Max Evacuation Release/Flow-MAX/01Jan2012/1Day/Temp1Day--0/
+Blue River-Draft to RC Flow-SPEC,Blue River-Draft to RC,Flow-SPEC,cfs,1458,//Blue River-Draft to RC/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Blue River-FIRO_SPACE Flow-SPEC,Blue River-FIRO_SPACE,Flow-SPEC,cfs,1461,//Blue River-FIRO_SPACE/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Blue River-Flood Min Flow-MIN,Blue River-Flood Min,Flow-MIN,cfs,1461,//Blue River-Flood Min/Flow-MIN/01Jan2012/1Day/Temp1Day--0/
+Blue River-MainstemFlowAug Flow-SPEC,Blue River-MainstemFlowAug,Flow-SPEC,cfs,1461,//Blue River-MainstemFlowAug/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Blue River-Special Curves Flow-MIN,Blue River-Special Curves,Flow-MIN,,0,//Blue River-Special Curves/Flow-MIN/01Jan2012/1Day/Temp1Day--0/
+Blue River-Vida Flood Max Flow-MAX,Blue River-Vida Flood Max,Flow-MAX,cfs,1461,//Blue River-Vida Flood Max/Flow-MAX/01Jan2012/1Day/Temp1Day--0/
+Cottage Grove-Combined Min Trib Flow-SPEC,Cottage Grove-Combined Min Trib,Flow-SPEC,cfs,1461,//Cottage Grove-Combined Min Trib/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Cottage Grove-Dam-Max Evacuation Release Flow-MAX,Cottage Grove-Dam-Max Evacuation Release,Flow-MAX,cfs,1461,//Cottage Grove-Dam-Max Evacuation Release/Flow-MAX/01Jan2012/1Day/Temp1Day--0/
+Cottage Grove-Draft to RC Flow-SPEC,Cottage Grove-Draft to RC,Flow-SPEC,cfs,1458,//Cottage Grove-Draft to RC/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Cottage Grove-FIRO_SPACE Flow-SPEC,Cottage Grove-FIRO_SPACE,Flow-SPEC,cfs,1461,//Cottage Grove-FIRO_SPACE/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Cottage Grove-Flood Min Flow-MIN,Cottage Grove-Flood Min,Flow-MIN,cfs,1461,//Cottage Grove-Flood Min/Flow-MIN/01Jan2012/1Day/Temp1Day--0/
+Cottage Grove-Goshen Bankfull Max Flow-MAX,Cottage Grove-Goshen Bankfull Max,Flow-MAX,cfs,1461,//Cottage Grove-Goshen Bankfull Max/Flow-MAX/01Jan2012/1Day/Temp1Day--0/
+Cottage Grove-Harrisburg Bankfull Simplified Max Flow-MAX,Cottage Grove-Harrisburg Bankfull Simplified Max,Flow-MAX,cfs,1461,//Cottage Grove-Harrisburg Bankfull Simplified Max/Flow-MAX/01Jan2012/1Day/Temp1Day--0/
+Cottage Grove-Harrisburg Regulation Goal Simplified Flow-MAX,Cottage Grove-Harrisburg Regulation Goal Simplified,Flow-MAX,cfs,1461,//Cottage Grove-Harrisburg Regulation Goal Simplified/Flow-MAX/01Jan2012/1Day/Temp1Day--0/
+Cottage Grove-MainstemFlowAug Flow-SPEC,Cottage Grove-MainstemFlowAug,Flow-SPEC,cfs,1461,//Cottage Grove-MainstemFlowAug/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Cottage Grove-Special Curves Flow-MIN,Cottage Grove-Special Curves,Flow-MIN,,0,//Cottage Grove-Special Curves/Flow-MIN/01Jan2012/1Day/Temp1Day--0/
+Cottage Grove-Spillway-Uncontrolled Spill Flow-MIN,Cottage Grove-Spillway-Uncontrolled Spill,Flow-MIN,cfs,1461,//Cottage Grove-Spillway-Uncontrolled Spill/Flow-MIN/01Jan2012/1Day/Temp1Day--0/
+Cougar-Combined Min Trib Flow-SPEC,Cougar-Combined Min Trib,Flow-SPEC,cfs,1461,//Cougar-Combined Min Trib/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Cougar-Deep Drawdown Flow-SPEC,Cougar-Deep Drawdown,Flow-SPEC,cfs,1461,//Cougar-Deep Drawdown/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Cougar-Draft to RC Flow-SPEC,Cougar-Draft to RC,Flow-SPEC,cfs,1458,//Cougar-Draft to RC/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Cougar-FIRO_SPACE Flow-SPEC,Cougar-FIRO_SPACE,Flow-SPEC,cfs,1461,//Cougar-FIRO_SPACE/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Cougar-Flood Min Flow-MIN,Cougar-Flood Min,Flow-MIN,cfs,1461,//Cougar-Flood Min/Flow-MIN/01Jan2012/1Day/Temp1Day--0/
+Cougar-IRRM Flow-SPEC,Cougar-IRRM,Flow-SPEC,cfs,1461,//Cougar-IRRM/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Cougar-MainstemFlowAug Flow-SPEC,Cougar-MainstemFlowAug,Flow-SPEC,cfs,1461,//Cougar-MainstemFlowAug/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Cougar-Max Evacuation Release Flow-MAX,Cougar-Max Evacuation Release,Flow-MAX,cfs,1461,//Cougar-Max Evacuation Release/Flow-MAX/01Jan2012/1Day/Temp1Day--0/
+Cougar-No Draft Flow-SPEC,Cougar-No Draft,Flow-SPEC,cfs,1461,//Cougar-No Draft/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Cougar-Special Curves Flow-MIN,Cougar-Special Curves,Flow-MIN,,0,//Cougar-Special Curves/Flow-MIN/01Jan2012/1Day/Temp1Day--0/
+Cougar-Spring Spill Flow-SPEC,Cougar-Spring Spill,Flow-SPEC,cfs,1461,//Cougar-Spring Spill/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Cougar-Vida Flood Max Flow-MAX,Cougar-Vida Flood Max,Flow-MAX,cfs,1461,//Cougar-Vida Flood Max/Flow-MAX/01Jan2012/1Day/Temp1Day--0/
+Detroit-Combined Min Trib Flow-SPEC,Detroit-Combined Min Trib,Flow-SPEC,cfs,1461,//Detroit-Combined Min Trib/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Detroit-Dam-Max Evacuation Release Flow-MAX,Detroit-Dam-Max Evacuation Release,Flow-MAX,cfs,1461,//Detroit-Dam-Max Evacuation Release/Flow-MAX/01Jan2012/1Day/Temp1Day--0/
+Detroit-Deep Drawdown Flow-SPEC,Detroit-Deep Drawdown,Flow-SPEC,cfs,1461,//Detroit-Deep Drawdown/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Detroit-Draft to RC Flow-SPEC,Detroit-Draft to RC,Flow-SPEC,cfs,1458,//Detroit-Draft to RC/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Detroit-FIRO_SPACE Flow-SPEC,Detroit-FIRO_SPACE,Flow-SPEC,cfs,1461,//Detroit-FIRO_SPACE/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Detroit-IRRM Flow-SPEC,Detroit-IRRM,Flow-SPEC,cfs,1461,//Detroit-IRRM/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Detroit-Jefferson Winter Ops Max Flow-MAX,Detroit-Jefferson Winter Ops Max,Flow-MAX,cfs,1461,//Detroit-Jefferson Winter Ops Max/Flow-MAX/01Jan2012/1Day/Temp1Day--0/
+Detroit-MainstemFlowAug Flow-SPEC,Detroit-MainstemFlowAug,Flow-SPEC,cfs,1461,//Detroit-MainstemFlowAug/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Detroit-Mehama Winter Ops Max Flow-MAX,Detroit-Mehama Winter Ops Max,Flow-MAX,cfs,1461,//Detroit-Mehama Winter Ops Max/Flow-MAX/01Jan2012/1Day/Temp1Day--0/
+Detroit-Min for BCL Flow-MIN,Detroit-Min for BCL,Flow-MIN,cfs,1461,//Detroit-Min for BCL/Flow-MIN/01Jan2012/1Day/Temp1Day--0/
+Detroit-No Draft Flow-SPEC,Detroit-No Draft,Flow-SPEC,cfs,1461,//Detroit-No Draft/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Detroit-Regulating Outlet Lower-No Lower RO Flow Flow-MAX,Detroit-Regulating Outlet Lower-No Lower RO Flow,Flow-MAX,cfs,1461,//Detroit-Regulating Outlet Lower-No Lower RO Flow/Flow-MAX/01Jan2012/1Day/Temp1Day--0/
+Detroit-Regulating Outlet Upper-Upper RO use 1400 to 1542 ft Flow-MAX,Detroit-Regulating Outlet Upper-Upper RO use 1400 to 1542 ft,Flow-MAX,cfs,1461,//Detroit-Regulating Outlet Upper-Upper RO use 1400 to 1542 ft/Flow-MAX/01Jan2012/1Day/Temp1Day--0/
+Detroit-Secondary Flood Draft Limit Flow-SPEC,Detroit-Secondary Flood Draft Limit,Flow-SPEC,cfs,687,//Detroit-Secondary Flood Draft Limit/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Detroit-Special Curves Flow-MIN,Detroit-Special Curves,Flow-MIN,,0,//Detroit-Special Curves/Flow-MIN/01Jan2012/1Day/Temp1Day--0/
+Dorena-Combined Min Trib Flow-SPEC,Dorena-Combined Min Trib,Flow-SPEC,cfs,1461,//Dorena-Combined Min Trib/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Dorena-Dam-Max Evacuation Release Flow-MAX,Dorena-Dam-Max Evacuation Release,Flow-MAX,cfs,1461,//Dorena-Dam-Max Evacuation Release/Flow-MAX/01Jan2012/1Day/Temp1Day--0/
+Dorena-Draft to RC Flow-SPEC,Dorena-Draft to RC,Flow-SPEC,cfs,1458,//Dorena-Draft to RC/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Dorena-FIRO_SPACE Flow-SPEC,Dorena-FIRO_SPACE,Flow-SPEC,cfs,1461,//Dorena-FIRO_SPACE/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Dorena-Flood Min Flow-MIN,Dorena-Flood Min,Flow-MIN,cfs,1461,//Dorena-Flood Min/Flow-MIN/01Jan2012/1Day/Temp1Day--0/
+Dorena-Goshen Bankfull Max Flow-MAX,Dorena-Goshen Bankfull Max,Flow-MAX,cfs,1461,//Dorena-Goshen Bankfull Max/Flow-MAX/01Jan2012/1Day/Temp1Day--0/
+Dorena-Harrisburg Bankfull Simplified Max Flow-MAX,Dorena-Harrisburg Bankfull Simplified Max,Flow-MAX,cfs,1461,//Dorena-Harrisburg Bankfull Simplified Max/Flow-MAX/01Jan2012/1Day/Temp1Day--0/
+Dorena-Harrisburg Regulation Goal Simplified Flow-MAX,Dorena-Harrisburg Regulation Goal Simplified,Flow-MAX,cfs,1461,//Dorena-Harrisburg Regulation Goal Simplified/Flow-MAX/01Jan2012/1Day/Temp1Day--0/
+Dorena-MainstemFlowAug Flow-SPEC,Dorena-MainstemFlowAug,Flow-SPEC,cfs,1461,//Dorena-MainstemFlowAug/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Dorena-Special Curves Flow-MIN,Dorena-Special Curves,Flow-MIN,,0,//Dorena-Special Curves/Flow-MIN/01Jan2012/1Day/Temp1Day--0/
+Dorena-Spillway-Uncontrolled Spill Flow-MIN,Dorena-Spillway-Uncontrolled Spill,Flow-MIN,cfs,1461,//Dorena-Spillway-Uncontrolled Spill/Flow-MIN/01Jan2012/1Day/Temp1Day--0/
+Fall Creek-Combined Min Trib Flow-SPEC,Fall Creek-Combined Min Trib,Flow-SPEC,cfs,1461,//Fall Creek-Combined Min Trib/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Fall Creek-Deep Drawdown Flow-SPEC,Fall Creek-Deep Drawdown,Flow-SPEC,cfs,1461,//Fall Creek-Deep Drawdown/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Fall Creek-Draft to RC Flow-SPEC,Fall Creek-Draft to RC,Flow-SPEC,cfs,1458,//Fall Creek-Draft to RC/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Fall Creek-Drawdown Max Flow-MAX,Fall Creek-Drawdown Max,Flow-MAX,cfs,1461,//Fall Creek-Drawdown Max/Flow-MAX/01Jan2012/1Day/Temp1Day--0/
+Fall Creek-FIRO_SPACE Flow-SPEC,Fall Creek-FIRO_SPACE,Flow-SPEC,cfs,1461,//Fall Creek-FIRO_SPACE/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Fall Creek-Flood Min Flow-MIN,Fall Creek-Flood Min,Flow-MIN,cfs,1461,//Fall Creek-Flood Min/Flow-MIN/01Jan2012/1Day/Temp1Day--0/
+Fall Creek-Harrisburg Bankfull Simplified Max Flow-MAX,Fall Creek-Harrisburg Bankfull Simplified Max,Flow-MAX,cfs,1461,//Fall Creek-Harrisburg Bankfull Simplified Max/Flow-MAX/01Jan2012/1Day/Temp1Day--0/
+Fall Creek-Harrisburg Regulation Goal Simplified Max Flow-MAX,Fall Creek-Harrisburg Regulation Goal Simplified Max,Flow-MAX,cfs,1461,//Fall Creek-Harrisburg Regulation Goal Simplified Max/Flow-MAX/01Jan2012/1Day/Temp1Day--0/
+Fall Creek-MainstemFlowAug Flow-SPEC,Fall Creek-MainstemFlowAug,Flow-SPEC,cfs,1461,//Fall Creek-MainstemFlowAug/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Fall Creek-Max Evacuation Release Flow-MAX,Fall Creek-Max Evacuation Release,Flow-MAX,cfs,1461,//Fall Creek-Max Evacuation Release/Flow-MAX/01Jan2012/1Day/Temp1Day--0/
+Fall Creek-Medium Fish Horn Min Flow-MIN,Fall Creek-Medium Fish Horn Min,Flow-MIN,cfs,1461,//Fall Creek-Medium Fish Horn Min/Flow-MIN/01Jan2012/1Day/Temp1Day--0/
+Fall Creek-Special Curves Flow-MIN,Fall Creek-Special Curves,Flow-MIN,,0,//Fall Creek-Special Curves/Flow-MIN/01Jan2012/1Day/Temp1Day--0/
+Fern Ridge-Combined Min Trib Flow-SPEC,Fern Ridge-Combined Min Trib,Flow-SPEC,cfs,1461,//Fern Ridge-Combined Min Trib/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Fern Ridge-Dam-Max Evacuation Release Flow-MAX,Fern Ridge-Dam-Max Evacuation Release,Flow-MAX,cfs,1461,//Fern Ridge-Dam-Max Evacuation Release/Flow-MAX/01Jan2012/1Day/Temp1Day--0/
+Fern Ridge-Draft to RC Flow-SPEC,Fern Ridge-Draft to RC,Flow-SPEC,cfs,1458,//Fern Ridge-Draft to RC/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Fern Ridge-FIRO_SPACE Flow-SPEC,Fern Ridge-FIRO_SPACE,Flow-SPEC,cfs,1461,//Fern Ridge-FIRO_SPACE/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Fern Ridge-Flood Min Flow-MIN,Fern Ridge-Flood Min,Flow-MIN,cfs,1461,//Fern Ridge-Flood Min/Flow-MIN/01Jan2012/1Day/Temp1Day--0/
+Fern Ridge-MainstemFlowAug Flow-SPEC,Fern Ridge-MainstemFlowAug,Flow-SPEC,cfs,1461,//Fern Ridge-MainstemFlowAug/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Fern Ridge-Monroe Regulation Goal Max Flow-MAX,Fern Ridge-Monroe Regulation Goal Max,Flow-MAX,cfs,1461,//Fern Ridge-Monroe Regulation Goal Max/Flow-MAX/01Jan2012/1Day/Temp1Day--0/
+Fern Ridge-Special Curves Flow-MIN,Fern Ridge-Special Curves,Flow-MIN,,0,//Fern Ridge-Special Curves/Flow-MIN/01Jan2012/1Day/Temp1Day--0/
+Foster-FIRO_SPACE Flow-SPEC,Foster-FIRO_SPACE,Flow-SPEC,cfs,1461,//Foster-FIRO_SPACE/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Foster-Waterloo Flood Simple Flow-SPEC,Foster-Waterloo Flood Simple,Flow-SPEC,cfs,1461,//Foster-Waterloo Flood Simple/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Green Peter-BiOp Max Flow Winter GPR FOS Flow-MAX,Green Peter-BiOp Max Flow Winter GPR FOS,Flow-MAX,cfs,1461,//Green Peter-BiOp Max Flow Winter GPR FOS/Flow-MAX/01Jan2012/1Day/Temp1Day--0/
+Green Peter-Combined Min Trib Flow-SPEC,Green Peter-Combined Min Trib,Flow-SPEC,cfs,1461,//Green Peter-Combined Min Trib/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Green Peter-Con Max Flow-MAX,Green Peter-Con Max,Flow-MAX,cfs,1461,//Green Peter-Con Max/Flow-MAX/01Jan2012/1Day/Temp1Day--0/
+Green Peter-Deep Drawdown Flow-SPEC,Green Peter-Deep Drawdown,Flow-SPEC,cfs,1461,//Green Peter-Deep Drawdown/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Green Peter-Draft to RC Flow-SPEC,Green Peter-Draft to RC,Flow-SPEC,cfs,1458,//Green Peter-Draft to RC/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Green Peter-FIRO_SPACE Flow-SPEC,Green Peter-FIRO_SPACE,Flow-SPEC,cfs,1461,//Green Peter-FIRO_SPACE/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Green Peter-Flood Min Flow-MIN,Green Peter-Flood Min,Flow-MIN,cfs,1461,//Green Peter-Flood Min/Flow-MIN/01Jan2012/1Day/Temp1Day--0/
+Green Peter-Jefferson Flood Stage Simplified Max Flow-MAX,Green Peter-Jefferson Flood Stage Simplified Max,Flow-MAX,cfs,1461,//Green Peter-Jefferson Flood Stage Simplified Max/Flow-MAX/01Jan2012/1Day/Temp1Day--0/
+Green Peter-MainstemFlowAug Flow-SPEC,Green Peter-MainstemFlowAug,Flow-SPEC,cfs,1461,//Green Peter-MainstemFlowAug/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Green Peter-Max Evacuation Release Flow-MAX,Green Peter-Max Evacuation Release,Flow-MAX,cfs,1461,//Green Peter-Max Evacuation Release/Flow-MAX/01Jan2012/1Day/Temp1Day--0/
+Green Peter-No Draft Flow-SPEC,Green Peter-No Draft,Flow-SPEC,cfs,1461,//Green Peter-No Draft/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Green Peter-Secondary Flood Draft Limit Flow-SPEC,Green Peter-Secondary Flood Draft Limit,Flow-SPEC,cfs,802,//Green Peter-Secondary Flood Draft Limit/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Green Peter-Special Curves Flow-MIN,Green Peter-Special Curves,Flow-MIN,,0,//Green Peter-Special Curves/Flow-MIN/01Jan2012/1Day/Temp1Day--0/
+Green Peter-Waterloo Flood Max Flow-MAX,Green Peter-Waterloo Flood Max,Flow-MAX,cfs,1461,//Green Peter-Waterloo Flood Max/Flow-MAX/01Jan2012/1Day/Temp1Day--0/
+Hills Creek-Combined Min Trib Flow-SPEC,Hills Creek-Combined Min Trib,Flow-SPEC,cfs,1461,//Hills Creek-Combined Min Trib/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Hills Creek-Draft to RC Flow-SPEC,Hills Creek-Draft to RC,Flow-SPEC,cfs,1458,//Hills Creek-Draft to RC/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Hills Creek-Fill_LOP_First_Script Flow-SPEC,Hills Creek-Fill_LOP_First_Script,Flow-SPEC,cfs,1461,//Hills Creek-Fill_LOP_First_Script/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Hills Creek-FIRO_SPACE Flow-SPEC,Hills Creek-FIRO_SPACE,Flow-SPEC,cfs,1461,//Hills Creek-FIRO_SPACE/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Hills Creek-Flood Min Flow-MIN,Hills Creek-Flood Min,Flow-MIN,cfs,1461,//Hills Creek-Flood Min/Flow-MIN/01Jan2012/1Day/Temp1Day--0/
+Hills Creek-Harrisburg Regulation Goal Simplified Flow-MAX,Hills Creek-Harrisburg Regulation Goal Simplified,Flow-MAX,cfs,1461,//Hills Creek-Harrisburg Regulation Goal Simplified/Flow-MAX/01Jan2012/1Day/Temp1Day--0/
+Hills Creek-HCR_LOP_Balance Flow-SPEC,Hills Creek-HCR_LOP_Balance,Flow-SPEC,cfs,736,//Hills Creek-HCR_LOP_Balance/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Hills Creek-IRRM Flow-SPEC,Hills Creek-IRRM,Flow-SPEC,cfs,1461,//Hills Creek-IRRM/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Hills Creek-Max Evacuation Rate Flow-MAX,Hills Creek-Max Evacuation Rate,Flow-MAX,cfs,1461,//Hills Creek-Max Evacuation Rate/Flow-MAX/01Jan2012/1Day/Temp1Day--0/
+Hills Creek-No Draft Flow-SPEC,Hills Creek-No Draft,Flow-SPEC,cfs,1461,//Hills Creek-No Draft/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Hills Creek-Special Curves Flow-MIN,Hills Creek-Special Curves,Flow-MIN,,0,//Hills Creek-Special Curves/Flow-MIN/01Jan2012/1Day/Temp1Day--0/
+Lookout Point-Combined Min Trib Flow-SPEC,Lookout Point-Combined Min Trib,Flow-SPEC,cfs,1461,//Lookout Point-Combined Min Trib/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Lookout Point-Dam-Max Evacuation Release Flow-MAX,Lookout Point-Dam-Max Evacuation Release,Flow-MAX,cfs,1461,//Lookout Point-Dam-Max Evacuation Release/Flow-MAX/01Jan2012/1Day/Temp1Day--0/
+Lookout Point-Deep Drawdown Flow-SPEC,Lookout Point-Deep Drawdown,Flow-SPEC,cfs,1461,//Lookout Point-Deep Drawdown/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Lookout Point-Draft to RC Flow-SPEC,Lookout Point-Draft to RC,Flow-SPEC,cfs,1458,//Lookout Point-Draft to RC/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Lookout Point-FIRO_SPACE Flow-SPEC,Lookout Point-FIRO_SPACE,Flow-SPEC,cfs,1461,//Lookout Point-FIRO_SPACE/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Lookout Point-Flood Min Flow-MIN,Lookout Point-Flood Min,Flow-MIN,cfs,1461,//Lookout Point-Flood Min/Flow-MIN/01Jan2012/1Day/Temp1Day--0/
+Lookout Point-Harrisburg Regulation Goal Simplified Flow-MAX,Lookout Point-Harrisburg Regulation Goal Simplified,Flow-MAX,cfs,1461,//Lookout Point-Harrisburg Regulation Goal Simplified/Flow-MAX/01Jan2012/1Day/Temp1Day--0/
+Lookout Point-IRRM Flow-SPEC,Lookout Point-IRRM,Flow-SPEC,cfs,1461,//Lookout Point-IRRM/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Lookout Point-Jasper Bankfull Max Flow-MAX,Lookout Point-Jasper Bankfull Max,Flow-MAX,cfs,1461,//Lookout Point-Jasper Bankfull Max/Flow-MAX/01Jan2012/1Day/Temp1Day--0/
+Lookout Point-MainstemFlowAug Flow-SPEC,Lookout Point-MainstemFlowAug,Flow-SPEC,cfs,1461,//Lookout Point-MainstemFlowAug/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Lookout Point-Min for DEX Flow-MIN,Lookout Point-Min for DEX,Flow-MIN,cfs,1461,//Lookout Point-Min for DEX/Flow-MIN/01Jan2012/1Day/Temp1Day--0/
+Lookout Point-NoDraft Flow-SPEC,Lookout Point-NoDraft,Flow-SPEC,cfs,1461,//Lookout Point-NoDraft/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Lookout Point-Regulated Outlet-No RO use above 900 ft Flow-MAX,Lookout Point-Regulated Outlet-No RO use above 900 ft,Flow-MAX,cfs,1461,//Lookout Point-Regulated Outlet-No RO use above 900 ft/Flow-MAX/01Jan2012/1Day/Temp1Day--0/
+Lookout Point-ROC Down Flow-MIN,Lookout Point-ROC Down,Flow-MIN,cfs,1461,//Lookout Point-ROC Down/Flow-MIN/01Jan2012/1Day/Temp1Day--0/
+Lookout Point-ROC Up Flow-MAX,Lookout Point-ROC Up,Flow-MAX,cfs,1461,//Lookout Point-ROC Up/Flow-MAX/01Jan2012/1Day/Temp1Day--0/
+Lookout Point-Secondary Flood Draft Limit Flow-SPEC,Lookout Point-Secondary Flood Draft Limit,Flow-SPEC,cfs,555,//Lookout Point-Secondary Flood Draft Limit/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/
+Lookout Point-Special Curves Flow-MIN,Lookout Point-Special Curves,Flow-MIN,,0,//Lookout Point-Special Curves/Flow-MIN/01Jan2012/1Day/Temp1Day--0/
+Lookout Point-Spring Spill Flow-SPEC,Lookout Point-Spring Spill,Flow-SPEC,cfs,1461,//Lookout Point-Spring Spill/Flow-SPEC/01Jan2012/1Day/Temp1Day--0/

@@ -1,0 +1,70 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Standalone ResSim follow-up</title><style>body{font:17px/1.6 system-ui,sans-serif;color:#213346;margin:0;background:#f3f6fa}nav{background:#173d56;padding:14px;position:sticky;top:0}nav a{color:white;display:inline-block;margin:4px 12px}main{max-width:1100px;margin:auto;padding:28px;background:white}a{color:#0063a5}h1,h2,h3{line-height:1.25;scroll-margin-top:90px}h2{margin-top:2em;border-bottom:1px solid #cbd5df;padding-bottom:8px}pre{overflow:auto;padding:16px;background:#eef2f6;white-space:pre-wrap;overflow-wrap:anywhere}code{font-family:Consolas,monospace;font-size:.9em;background:#eef2f6}table{border-collapse:collapse;width:100%;font-size:.92em}th,td{border:1px solid #cad3dc;padding:9px;text-align:left;vertical-align:top;overflow-wrap:anywhere}th{background:#e5edf3}.table{overflow:auto}footer{margin-top:3em;color:#546579}@media print{nav{display:none}main{max-width:none;padding:0}body{background:white}pre{white-space:pre-wrap}a{color:inherit}}</style><body><nav><a href="PROJECT_START_HERE.html">Start here</a><a href="PROJECT_RESUME.html">Resume project</a><a href="WORKFLOW_SOP.html">Operator SOP</a><a href="STANDALONE_WORKFLOW_REFERENCE.html">Standalone reference</a><a href="RTS_WORKFLOW_REFERENCE.html">RTS reference</a><a href="STANDALONE_SAVED_RESULTS.html">Standalone saved runs</a><a href="STANDALONE_POR_MODEL_CHECK.html">POR / Model Check</a><a href="WORKFLOW_PACKAGE.html">Import / packaging</a><a href="RTS_IMPORT_VALIDATION.html">Next: RTS validation</a><a href="RTS_DATA_IO.html">Data / archives</a><a href="DIVERSION_POSTPROCESS.html">Diversions (optional)</a></nav><main><h1 id="standalone-ressim-follow-up">Standalone ResSim follow-up</h1>
+<p>This log tracks changes to consider in the maintained standalone watershed after RTS testing. None of the pending items below has been applied to the standalone model. Keep one maintained operation set; do not duplicate it to distinguish augmentation schemes.</p>
+<h2 id="confirmed-calculation-issue">Confirmed calculation issue</h2>
+<ul>
+<li><strong>April 1 usable storage is reduced twice.</strong> In</li>
+</ul>
+<p><code>ExternalPython/MainstemAugmentation.py</code>, <code>calculate_storage_on_date()</code> already subtracts <code>MinConStor</code>. The subsequent <code>April01_conStorage</code> loop subtracts it again. Subtract once in the future standalone correction and test the result. Lookout Point combines Hills Creek storage and its storage floor: usable storage = LOP storage + HCR storage - 118800 - 155400 acre-feet for the supplied configuration. Both floors must be counted once, not twice.</p>
+<h2 id="changes-to-evaluate-after-rts-validation">Changes to evaluate after RTS validation</h2>
+<ul>
+<li><strong>Water-year-type metadata:</strong> the current RTS ALL_ABUNDANT input is constant</li>
+</ul>
+<p>4, but WaterYearTypeVariable exports it under STOR-MAF with AC-FT units. The RTS preparer requires explicit fixed-abundant mode and verifies all values are 4. Review the standalone state-variable units and distinguish categorical codes from physical storage; never divide this code by a million. The existing legacy target selection uses the abundant 1.48 table row for values above 1.2.</p>
+<ul>
+<li><strong>Local minimum-release inputs:</strong> the imported model saves <code>Combined Min Trib</code></li>
+</ul>
+<p>under <code>FLOW-SPEC</code>, replacing the older named <code>FLOW-MIN</code> records expected by the external calculator. Verify the maintained standalone model uses the same current rule before adopting these path mappings there.</p>
+<ul>
+<li><strong>Green Peter/Foster:</strong> <code>MinFlowPlusWithdrawal.py</code> computes a Green Peter</li>
+</ul>
+<p>minimum release as Foster target + Foster rule-curve fill rate - Foster local inflow, clamped at zero. The RTS calculator mapping uses that saved Green Peter release, not an assumed Foster <code>Combined Min Trib</code> record. Validate the appropriate replacement for the legacy standalone GPR input.</p>
+<ul>
+<li><strong>Baseline and scheme archives:</strong> preserve immutable unaugmented baseline</li>
+</ul>
+<p>versions; calculate every scheme from its named baseline. Save configuration, calculated minimum releases, Salem/Albany targets, and resulting simulation outputs with each scheme. Do not mistake prepared releases for successfully computed model results.</p>
+<ul>
+<li><strong>Input validation:</strong> reject missing values, wrong units, incomplete seasonal</li>
+</ul>
+<p>coverage, or missing required rule records before calculating releases. Do not replace missing inputs with zero silently.</p>
+<ul>
+<li><strong>Configurable member IDs:</strong> avoid synthetic percentile member IDs overlapping</li>
+</ul>
+<p>real RFC ensemble years. RTS uses 3000/3001/3002 for 25/50/75% daily inflow traces and 3003 for the OSI copy. Standalone now uses the same IDs; native selections/mappings need migration, while old results remain unchanged; coordinate any future change with its alternatives, scripts, and plotting.</p>
+<ul>
+<li><strong>Plotting:</strong> include Salem/Albany targets and the augmentation minimum-release</li>
+</ul>
+<p>series used by each scheme. Distinguish model results from daily percentile inflow traces and from quantiles across historical-member model outputs.</p>
+<h2 id="requirements-to-retain">Requirements to retain</h2>
+<ul>
+<li>Preserve standalone trial behavior, including <code>omitTrialsFromFlowAug</code> and</li>
+</ul>
+<p>baseline-trial lookup. An RTS adaptation must be explicitly scoped to RTS.</p>
+<ul>
+<li>Preserve the April-through-October target season; a shorter test window is</li>
+</ul>
+<p>not a reason to alter the seasonal definition.</p>
+<ul>
+<li>Supplied configuration selects Lookout Point, Fall Creek, Cottage Grove,</li>
+</ul>
+<p>Dorena, Cougar, and Blue River for both Salem and Albany. Hills Creek does not augment independently; the calculator combines it with Lookout Point.</p>
+<ul>
+<li>Retain release limits and travel-time handling. Review any changes to those</li>
+</ul>
+<p>assumptions separately from file-path and run-ID changes.</p>
+<h2 id="current-validation-limits">Current validation limits</h2>
+<p>ForecastTest_1055 records for members 1981-1991 and 3000-3002 passed checks of 33 core input series and 10 Combined Min Trib series through September 30,</p>
+<ol start="2027">
+<li>This validates the checked daily records, not the future augmentation</li>
+</ol>
+<p>calculation or every model output. RTS reported a Java null-pointer error for 1981 despite readable checked outputs; its cause remains unresolved.</p>
+<p>The RTS preparation and loading scripts and the explicit RTS activation switch are implemented on the review branch. They have cloud unit tests but have not yet been validated against actual Windows DSS/RTS. The maintained standalone calculator remains unchanged. Scheme-result capture and comparison plotting are implemented; actual Windows validation is still required. The user has loaded scheme_02 and run a compute, but successful augmented completion has not yet been confirmed from RTS logs.</p>
+<p>The RTS travel shift limits reservoir release dates to the declared target window shifted earlier by each reservoir&#x27;s travel time; it does not leave NaNs at the tail and then silently turn them into zero on write. Consider adopting this explicit boundary handling in standalone after validation. A September 30 test end does not change the full model&#x27;s April-October seasonal requirement.</p>
+<p>The RTS Swing workflow menu is now implemented using the supplied DP menu pattern. It runs extraction, archive loading, preparation, scheme loading/reset, and plotting as background hydro39 jobs; compute remains manual in RTS. It is an RTS-only launcher, not a replacement for the standalone Simulation module menus. Existing forecast baselines need a one-time explicit context link.</p>
+<p>RTS now records explicit baseline loads and saves. Unchanged logical elevation, flow, storage, rule, and input series keep the baseline version even after an operation-set edit. Changed series create a new version; older augmented results are labelled Previous baseline and retain their original data pairing. Consider this action-driven result comparison for standalone trials later. It is not a snapshot/restore mechanism for operation sets. Result deletion preserves all baselines, scheme inputs, and the action history. None of this changes the standalone model&#x27;s existing trial workflow.</p>
+<p>The RTS menu now has four main actions: Initial Extract, Augmentation Configuration, Plot Results, Reset Baseline. Its configuration editor saves portable JSON and supplies a temporary CSV to the RTS preparer; it does not overwrite the maintained configuration CSV. Reusable configurations contain no forecast or baseline IDs. Actual computed membership/season coverage are inferred for each pairing. Reset disables augmentation without restoring an old DSS, then completed unaugmented results are explicitly accepted after manual compute. Consider this configuration/result separation for standalone later while retaining its existing trial workflow and keeping operation-set changes separate.</p>
+<h3 id="optional-plotting-performance-improvement">Optional plotting performance improvement</h3>
+<p>The RTS workflow now keeps disposable compressed-array caches beside immutable DSS result archives, preserving units, times, gaps and provenance. A similar cache could be added to standalone trial plotting later. This is an optional standalone follow-up; the current implementation changes only the RTS workflow. RTS saved-run plots use the supplied annual rule-curve CSV instead of probing DSS curves with different coverage, and snapshot that CSV with each plot set.</p>
+<h2 id="compact-run-archiving-rts-implementation">Compact run archiving (RTS implementation)</h2>
+<p>RTS completed-run capture now stores selected full time series in compressed NPZ plus a versioned manifest rather than copying the full DSS. See RTS_DATA_IO.md. Consider the same archive reader for standalone plotting/augmentation later. Keep peaks-only PostProcess_CSV behavior for large ensemble studies. Direct per-member in-memory time-series export, if needed, is a separate optimization; this RTS change does not alter the cleanup script or reduce native DSS output.</p>
+<h2 id="standalone-configuration-menu-implemented">Standalone configuration menu implemented</h2>
+<p>See STANDALONE_CONFIGURATION.md and Install-StandaloneConfiguration.py. The shared baseline JSON editor now supports importing alternative-named presets and applying a named set to one standalone simulation/alternative. Existing standalone augmentation/trial and plot scripts remain separate; the full RTS archive workflow has not been ported. No application JAR changes are required.</p><footer>Offline watershed documentation · <a href="../STANDALONE_FOLLOW_UP.md">Markdown source</a> · Use browser Print to save as PDF.</footer></main></body></html>

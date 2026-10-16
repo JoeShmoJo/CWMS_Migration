@@ -1,0 +1,41 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>RTS workflow documentation</title><style>body{font:17px/1.6 system-ui,sans-serif;color:#213346;margin:0;background:#f3f6fa}nav{background:#173d56;padding:14px;position:sticky;top:0}nav a{color:white;display:inline-block;margin:4px 12px}main{max-width:1100px;margin:auto;padding:28px;background:white}a{color:#0063a5}h1,h2,h3{line-height:1.25;scroll-margin-top:90px}h2{margin-top:2em;border-bottom:1px solid #cbd5df;padding-bottom:8px}pre{overflow:auto;padding:16px;background:#eef2f6;white-space:pre-wrap;overflow-wrap:anywhere}code{font-family:Consolas,monospace;font-size:.9em;background:#eef2f6}table{border-collapse:collapse;width:100%;font-size:.92em}th,td{border:1px solid #cad3dc;padding:9px;text-align:left;vertical-align:top;overflow-wrap:anywhere}th{background:#e5edf3}.table{overflow:auto}footer{margin-top:3em;color:#546579}@media print{nav{display:none}main{max-width:none;padding:0}body{background:white}pre{white-space:pre-wrap}a{color:inherit}}</style><body><nav><a href="PROJECT_START_HERE.html">Start here</a><a href="PROJECT_RESUME.html">Resume project</a><a href="WORKFLOW_SOP.html">Operator SOP</a><a href="STANDALONE_WORKFLOW_REFERENCE.html">Standalone reference</a><a href="RTS_WORKFLOW_REFERENCE.html">RTS reference</a><a href="STANDALONE_SAVED_RESULTS.html">Standalone saved runs</a><a href="STANDALONE_POR_MODEL_CHECK.html">POR / Model Check</a><a href="WORKFLOW_PACKAGE.html">Import / packaging</a><a href="RTS_IMPORT_VALIDATION.html">Next: RTS validation</a><a href="RTS_DATA_IO.html">Data / archives</a><a href="DIVERSION_POSTPROCESS.html">Diversions (optional)</a></nav><main><h1 id="rts-workflow-documentation">RTS workflow documentation</h1>
+<p>Use these current documents together:</p>
+<ul>
+<li><a href="RTS_OPERATOR_SOP.html">Operator SOP</a>: the short procedure from initial extract</li>
+</ul>
+<p>through baseline, augmentation, a new baseline/scheme, and plotting.</p>
+<ul>
+<li><a href="RTS_WORKFLOW_REFERENCE.html">Process and file reference</a>: inputs, outputs,</li>
+</ul>
+<p>locations, producing/consuming programs, configuration provenance and limitations.</p>
+<ul>
+<li><a href="RTS_DATA_IO.html">Data I/O audit</a>: compact archives, legacy DSS compatibility,</li>
+</ul>
+<p>staging/backup behavior and the focused backend update.</p>
+<p>These supersede earlier descriptions of the larger multi-button menu, routine full-DSS result snapshots, broad baseline fingerprints, and Reset Baseline as a main-window button.</p>
+<h2 id="current-menu">Current menu</h2>
+<p>Run installed <code>scripts\RTS_WORKFLOW_MENU.py</code> from the RTS watershed Script Editor. The four main actions are:</p>
+<div class="table"><table><thead><tr><th>Action</th><th>Purpose</th></tr></thead><tbody>
+<tr><td>Initial Extract</td><td>Download/archive inputs and load the completed extract; compute manually afterward</td></tr>
+<tr><td>Baseline Configuration</td><td>Edit/save reusable scripted-rule settings and apply a forecast-scoped set with augmentation disabled</td></tr>
+<tr><td>Augmentation Configuration</td><td>Accept completed results if requested, configure/process/load releases against the saved baseline</td></tr>
+<tr><td>Plot Results</td><td>Accept completed results if requested, choose one/two archived runs, plot or delete an augmented result</td></tr>
+</tbody></table></div>
+<p>Greyed-out metadata identify the selected forecast. Refresh after selection/date changes. Compute remains a normal RTS/ResSim action; no menu task starts it. “Yes” in the completion question means the operator confirms successful compute and requests capture. “No” uses saved results without accepting current live outputs. “Cancel” stops. Finish compute and close DSS views before file operations.</p>
+<p>Saving configuration, applying/loading it, computing, and accepting outputs are separate steps. Use the SOP for their order. New captures retain selected full series in <code>series.npz</code> plus <code>run-archive.json</code>. These are primary data; do not remove them as disposable caches. Older full-DSS archives and their rebuildable <code>run-data-cache-C0</code> folders remain supported.</p>
+<p>Baseline equality compares pool elevation/outflow timestamps, values, units and types, not every model/configuration/input variable. It preserves the existing ID when those outputs match. The reference documents the input-only-change caveat, including water-year type. No operation-set selection/stack order is restored from result archives.</p>
+<h2 id="related-installationdevelopment-material">Related installation/development material</h2>
+<ul>
+<li><a href="FORECAST_EXTRACTION.html">Forecast extraction</a>: original plan/test launcher and</li>
+</ul>
+<p>downloader details; the operator SOP describes the menu&#x27;s extract-and-load action.</p>
+<ul>
+<li><a href="RTS_BASELINE_CONFIGURATION.html">Baseline configuration</a>: adapter/editor setup and</li>
+</ul>
+<p>historical performance diagnostics.</p>
+<ul>
+<li><a href="RTS_AUGMENTATION.html">Augmentation backend</a>: calculator/background CLI material.</li>
+</ul>
+<p>Installer scripts print backup locations. A repository pull does not update installed watershed scripts. See the reference for installation boundaries and shared versus per-forecast files. This workflow does not require the experimental application JAR patch.</p>
+<p>Optional developer Swing smoke check (not an operator step):</p>
+<pre><code>java -Djava.awt.headless=true -jar /path/to/jython-standalone-2.7.3.jar tests/check_swing_configuration.py</code></pre><footer>Offline watershed documentation · <a href="../RTS_WORKFLOW_MENU.md">Markdown source</a> · Use browser Print to save as PDF.</footer></main></body></html>
