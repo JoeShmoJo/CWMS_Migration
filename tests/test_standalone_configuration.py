@@ -90,7 +90,7 @@ class StandaloneTests(unittest.TestCase):
         installer.install(self.root)
         self.assertIn('TARGET_ENSEMBLE_YEAR = 3003',(self.scripts/'OSI_Ensemble_Year.py').read_text())
         self.assertIn('computed_standalone_members',(self.scripts/'MainstemAugmentation.py').read_text())
-        self.assertIn('GROUP_TO_SITES',(self.scripts/'RFC_Downloader_Module.py').read_text())
+        self.assertIn('GROUP_TO_BPART',(self.scripts/'RFC_Downloader_Module.py').read_text())
         self.assertNotIn('df1d[2026] = pct.quantile',(self.scripts/'RFC_Downloader_Module.py').read_text())
 
     def test_normal_workflow_installs_and_opens_without_config_py(self):
