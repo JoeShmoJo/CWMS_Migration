@@ -218,6 +218,37 @@ class StandaloneTests(unittest.TestCase):
         self.assertEqual(setup.count('configDict.update(alternative_overrides(network))'),1)
         self.assertEqual((self.scripts/'CONFIG.py').read_text(),'SIM_NAME="Test simulation"\n')
 
+    def test_installed_archive_works_in_fresh_python_without_repository_imports(self):
+        import subprocess
+        # -I excludes PYTHONPATH and repository/test imports. Only the installed
+        # watershed supplies workflow modules; DSS itself is a controlled fixture.
+        script=r"""
+import sys
+from pathlib import Path
+from types import SimpleNamespace
+import pandas as pd
+sys.path.insert(0,sys.argv[1])
+import standalone_results
+root=Path(sys.argv[2]);source=root/'simulation.dss';source.write_bytes(b'native results')
+paths=['//LOOKOUT POINT-POOL/'+parameter+'/01Jan2026/1DAY/C:001985|CON_SEASON0/' for parameter in ('ELEV','FLOW-OUT')]
+class DSS:
+    def __enter__(self):return self
+    def __exit__(self,*args):pass
+    def getPathnameList(self,*args):return paths
+    def read_ts(self,path,**kwargs):
+        return SimpleNamespace(pytimes=pd.date_range('2026-10-16',periods=3),values=[100.,101.,102.],
+            units='FT' if '/ELEV/' in path else 'CFS',type='INST-VAL' if '/ELEV/' in path else 'PER-AVER')
+sys.modules['pydsstools.heclib.dss']=SimpleNamespace(HecDss=SimpleNamespace(Open=lambda filename:DSS()))
+assert standalone_results.outputs(root,'ensemble')==['CON_SEASON0']
+result=standalone_results.capture(root,'Con_Season','Installed archive test','CON_SEASON0','baseline',confirmed=True)
+assert result['members']==[1985]
+assert (root/'standalone-results'/result['id']/'capture.json').is_file()
+assert source.read_bytes()==b'native results'
+"""
+        result=subprocess.run([sys.executable,'-I','-c',script,str(self.scripts),str(self.sim)],
+                              cwd=self.root,capture_output=True,text=True)
+        self.assertEqual(result.returncode,0,result.stdout+'\n'+result.stderr)
+
     def test_portable_package_embedded_installer_and_manifest(self):
         spec=importlib.util.spec_from_file_location('workflow_package',ROOT/'migration-review/Package-Workflow.py')
         builder=importlib.util.module_from_spec(spec);spec.loader.exec_module(builder)

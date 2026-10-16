@@ -137,3 +137,14 @@ are preserved from the actual installed scripts.
 with a saved baseline. It does not change POR/ensemble mode or native operations.
 Those archive controls are not required for Model Check, which has a separate
 page bound to the simulation and alternative selected in the main menu.
+
+### Installed archive dependencies
+
+The installer includes `scripts/ExternalPython/extraction_context.py`, required
+by `write_rule_curves.py` when saved-result selection imports the shared reservoir
+list. This helper must be installed alongside the archive modules, even for
+standalone results with no forecast extraction. A browser message “No module
+named 'extraction_context'” indicates an incomplete script installation, not
+missing simulation records. Repackage/update the watershed and reopen its menu;
+existing native results need not be recomputed. Installed archive selection and
+capture are tested in a fresh isolated Python process without repository imports.
