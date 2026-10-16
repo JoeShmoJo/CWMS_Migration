@@ -1,0 +1,217 @@
+reservoir,zone,pool_in_zone_pct,position,rule,in_results
+Blue River,Top of Dam,31.8,1,Special Curves,no
+Blue River,Top of Dam,31.8,2,Max Evacuation Release,yes
+Blue River,Top of Dam,31.8,3,Flood Min,yes
+Blue River,Top of Dam,31.8,4,Vida Flood Max,yes
+Blue River,Top of Dam,31.8,5,Combined Min Trib,yes
+Blue River,Top of Dam,31.8,6,MainstemFlowAug,yes
+Blue River,Top of Dam,31.8,7,Draft to RC,yes
+Blue River,Top of Dam,31.8,8,FIRO_SPACE,yes
+Blue River,Rule Curve,68.2,1,Special Curves,no
+Blue River,Rule Curve,68.2,2,Max Evacuation Release,yes
+Blue River,Rule Curve,68.2,3,Flood Min,yes
+Blue River,Rule Curve,68.2,4,Vida Flood Max,yes
+Blue River,Rule Curve,68.2,5,Combined Min Trib,yes
+Blue River,Rule Curve,68.2,6,MainstemFlowAug,yes
+Blue River,Rule Curve,68.2,7,FIRO_SPACE,yes
+Cottage Grove,Top of Dam,22.2,1,Uncontrolled Spill,yes
+Cottage Grove,Top of Dam,22.2,2,Special Curves,no
+Cottage Grove,Top of Dam,22.2,3,Max Evacuation Release,yes
+Cottage Grove,Top of Dam,22.2,4,Flood Min,yes
+Cottage Grove,Top of Dam,22.2,5,Goshen Bankfull Max,yes
+Cottage Grove,Top of Dam,22.2,6,Harrisburg Regulation Goal Simplified,yes
+Cottage Grove,Top of Dam,22.2,7,MainstemFlowAug,yes
+Cottage Grove,Top of Dam,22.2,8,Draft to RC,yes
+Cottage Grove,Top of Dam,22.2,9,FIRO_SPACE,yes
+Cottage Grove,Top of Dam,22.2,10,Combined Min Trib,yes
+Cottage Grove,Rule Curve,77.8,1,Uncontrolled Spill,yes
+Cottage Grove,Rule Curve,77.8,2,Special Curves,no
+Cottage Grove,Rule Curve,77.8,3,Max Evacuation Release,yes
+Cottage Grove,Rule Curve,77.8,4,Flood Min,yes
+Cottage Grove,Rule Curve,77.8,5,Goshen Bankfull Max,yes
+Cottage Grove,Rule Curve,77.8,6,Harrisburg Bankfull Simplified Max,yes
+Cottage Grove,Rule Curve,77.8,7,Combined Min Trib,yes
+Cottage Grove,Rule Curve,77.8,8,MainstemFlowAug,yes
+Cottage Grove,Rule Curve,77.8,9,FIRO_SPACE,yes
+Cougar,Top of Dam,5.0,1,Special Curves,no
+Cougar,Top of Dam,5.0,2,IRRM,yes
+Cougar,Top of Dam,5.0,3,Max Evacuation Release,yes
+Cougar,Top of Dam,5.0,4,Flood Min,yes
+Cougar,Top of Dam,5.0,5,Vida Flood Max,yes
+Cougar,Top of Dam,5.0,6,Deep Drawdown,yes
+Cougar,Top of Dam,5.0,7,Spring Spill,yes
+Cougar,Top of Dam,5.0,8,Combined Min Trib,yes
+Cougar,Top of Dam,5.0,9,MainstemFlowAug,yes
+Cougar,Top of Dam,5.0,10,Draft to RC,yes
+Cougar,Top of Dam,5.0,11,FIRO_SPACE,yes
+Cougar,Rule Curve,95.0,1,No Draft,yes
+Cougar,Rule Curve,95.0,2,Special Curves,no
+Cougar,Rule Curve,95.0,3,IRRM,yes
+Cougar,Rule Curve,95.0,4,Max Evacuation Release,yes
+Cougar,Rule Curve,95.0,5,Flood Min,yes
+Cougar,Rule Curve,95.0,6,Vida Flood Max,yes
+Cougar,Rule Curve,95.0,7,Deep Drawdown,yes
+Cougar,Rule Curve,95.0,8,Spring Spill,yes
+Cougar,Rule Curve,95.0,9,Combined Min Trib,yes
+Cougar,Rule Curve,95.0,10,MainstemFlowAug,yes
+Cougar,Rule Curve,95.0,11,FIRO_SPACE,yes
+Detroit,Top of Dam,20.9,1,No Lower RO Flow,yes
+Detroit,Top of Dam,20.9,2,Upper RO use 1400 to 1542 ft,yes
+Detroit,Top of Dam,20.9,3,Special Curves,no
+Detroit,Top of Dam,20.9,4,Max Evacuation Release,yes
+Detroit,Top of Dam,20.9,5,Secondary Flood Draft Limit,yes
+Detroit,Top of Dam,20.9,6,Mehama Winter Ops Max,yes
+Detroit,Top of Dam,20.9,7,Jefferson Winter Ops Max,yes
+Detroit,Top of Dam,20.9,8,Min for BCL,yes
+Detroit,Top of Dam,20.9,9,IRRM,yes
+Detroit,Top of Dam,20.9,10,Deep Drawdown,yes
+Detroit,Top of Dam,20.9,11,Combined Min Trib,yes
+Detroit,Top of Dam,20.9,12,MainstemFlowAug,yes
+Detroit,Top of Dam,20.9,13,Draft to RC,yes
+Detroit,Top of Dam,20.9,14,FIRO_SPACE,yes
+Detroit,Rule Curve,79.1,1,No Draft,yes
+Detroit,Rule Curve,79.1,2,Upper RO use 1400 to 1542 ft,yes
+Detroit,Rule Curve,79.1,3,No Lower RO Flow,yes
+Detroit,Rule Curve,79.1,4,Special Curves,no
+Detroit,Rule Curve,79.1,5,Max Evacuation Release,yes
+Detroit,Rule Curve,79.1,6,Secondary Flood Draft Limit,yes
+Detroit,Rule Curve,79.1,7,Mehama Winter Ops Max,yes
+Detroit,Rule Curve,79.1,8,Jefferson Winter Ops Max,yes
+Detroit,Rule Curve,79.1,9,Deep Drawdown,yes
+Detroit,Rule Curve,79.1,10,Min for BCL,yes
+Detroit,Rule Curve,79.1,11,IRRM,yes
+Detroit,Rule Curve,79.1,12,Combined Min Trib,yes
+Detroit,Rule Curve,79.1,13,MainstemFlowAug,yes
+Detroit,Rule Curve,79.1,14,FIRO_SPACE,yes
+Dorena,Top of Dam,29.4,1,Uncontrolled Spill,yes
+Dorena,Top of Dam,29.4,2,Special Curves,no
+Dorena,Top of Dam,29.4,3,Max Evacuation Release,yes
+Dorena,Top of Dam,29.4,4,Flood Min,yes
+Dorena,Top of Dam,29.4,5,Goshen Bankfull Max,yes
+Dorena,Top of Dam,29.4,6,Harrisburg Regulation Goal Simplified,yes
+Dorena,Top of Dam,29.4,7,MainstemFlowAug,yes
+Dorena,Top of Dam,29.4,8,Draft to RC,yes
+Dorena,Top of Dam,29.4,9,FIRO_SPACE,yes
+Dorena,Top of Dam,29.4,10,Combined Min Trib,yes
+Dorena,Rule Curve,70.6,1,Uncontrolled Spill,yes
+Dorena,Rule Curve,70.6,2,Special Curves,no
+Dorena,Rule Curve,70.6,3,Max Evacuation Release,yes
+Dorena,Rule Curve,70.6,4,Flood Min,yes
+Dorena,Rule Curve,70.6,5,Goshen Bankfull Max,yes
+Dorena,Rule Curve,70.6,6,Harrisburg Bankfull Simplified Max,yes
+Dorena,Rule Curve,70.6,7,Combined Min Trib,yes
+Dorena,Rule Curve,70.6,8,MainstemFlowAug,yes
+Dorena,Rule Curve,70.6,9,FIRO_SPACE,yes
+Fall Creek,Top of Dam,21.5,1,Special Curves,no
+Fall Creek,Top of Dam,21.5,2,Max Evacuation Release,yes
+Fall Creek,Top of Dam,21.5,3,Flood Min,yes
+Fall Creek,Top of Dam,21.5,4,Harrisburg Regulation Goal Simplified Max,yes
+Fall Creek,Top of Dam,21.5,5,Medium Fish Horn Min,yes
+Fall Creek,Top of Dam,21.5,6,Combined Min Trib,yes
+Fall Creek,Top of Dam,21.5,7,Drawdown Max,yes
+Fall Creek,Top of Dam,21.5,8,MainstemFlowAug,yes
+Fall Creek,Top of Dam,21.5,9,Deep Drawdown,yes
+Fall Creek,Top of Dam,21.5,10,Draft to RC,yes
+Fall Creek,Top of Dam,21.5,11,FIRO_SPACE,yes
+Fall Creek,Rule Curve,78.5,1,Special Curves,no
+Fall Creek,Rule Curve,78.5,2,Max Evacuation Release,yes
+Fall Creek,Rule Curve,78.5,3,Flood Min,yes
+Fall Creek,Rule Curve,78.5,4,Harrisburg Bankfull Simplified Max,yes
+Fall Creek,Rule Curve,78.5,5,Medium Fish Horn Min,yes
+Fall Creek,Rule Curve,78.5,6,Combined Min Trib,yes
+Fall Creek,Rule Curve,78.5,7,Drawdown Max,yes
+Fall Creek,Rule Curve,78.5,8,MainstemFlowAug,yes
+Fall Creek,Rule Curve,78.5,9,Deep Drawdown,yes
+Fall Creek,Rule Curve,78.5,10,Draft to RC,yes
+Fall Creek,Rule Curve,78.5,11,FIRO_SPACE,yes
+Fern Ridge,Top of Dam,23.1,1,Special Curves,no
+Fern Ridge,Top of Dam,23.1,2,Max Evacuation Release,yes
+Fern Ridge,Top of Dam,23.1,3,Flood Min,yes
+Fern Ridge,Top of Dam,23.1,4,Monroe Regulation Goal Max,yes
+Fern Ridge,Top of Dam,23.1,5,Combined Min Trib,yes
+Fern Ridge,Top of Dam,23.1,6,MainstemFlowAug,yes
+Fern Ridge,Top of Dam,23.1,7,Draft to RC,yes
+Fern Ridge,Top of Dam,23.1,8,FIRO_SPACE,yes
+Fern Ridge,Rule Curve,76.9,1,Special Curves,no
+Fern Ridge,Rule Curve,76.9,2,Max Evacuation Release,yes
+Fern Ridge,Rule Curve,76.9,3,Flood Min,yes
+Fern Ridge,Rule Curve,76.9,4,Monroe Regulation Goal Max,yes
+Fern Ridge,Rule Curve,76.9,5,Combined Min Trib,yes
+Fern Ridge,Rule Curve,76.9,6,MainstemFlowAug,yes
+Fern Ridge,Rule Curve,76.9,7,FIRO_SPACE,yes
+Foster,Top of Dam,13.2,1,Waterloo Flood Simple,yes
+Foster,Top of Dam,13.2,2,FIRO_SPACE,yes
+Foster,Rule Curve,86.8,1,Waterloo Flood Simple,yes
+Foster,Rule Curve,86.8,2,FIRO_SPACE,yes
+Green Peter,Top of Dam,5.5,1,Special Curves,no
+Green Peter,Top of Dam,5.5,2,Max Evacuation Release,yes
+Green Peter,Top of Dam,5.5,3,Secondary Flood Draft Limit,yes
+Green Peter,Top of Dam,5.5,4,Flood Min,yes
+Green Peter,Top of Dam,5.5,5,Waterloo Flood Max,yes
+Green Peter,Top of Dam,5.5,6,Jefferson Flood Stage Simplified Max,yes
+Green Peter,Top of Dam,5.5,7,BiOp Max Flow Winter GPR FOS,yes
+Green Peter,Top of Dam,5.5,8,Deep Drawdown,yes
+Green Peter,Top of Dam,5.5,9,Combined Min Trib,yes
+Green Peter,Top of Dam,5.5,10,MainstemFlowAug,yes
+Green Peter,Top of Dam,5.5,11,Draft to RC,yes
+Green Peter,Top of Dam,5.5,12,FIRO_SPACE,yes
+Green Peter,Rule Curve,94.5,1,No Draft,yes
+Green Peter,Rule Curve,94.5,2,Special Curves,no
+Green Peter,Rule Curve,94.5,3,Con Max,yes
+Green Peter,Rule Curve,94.5,4,Secondary Flood Draft Limit,yes
+Green Peter,Rule Curve,94.5,5,Flood Min,yes
+Green Peter,Rule Curve,94.5,6,Waterloo Flood Max,yes
+Green Peter,Rule Curve,94.5,7,Jefferson Flood Stage Simplified Max,yes
+Green Peter,Rule Curve,94.5,8,Deep Drawdown,yes
+Green Peter,Rule Curve,94.5,9,Combined Min Trib,yes
+Green Peter,Rule Curve,94.5,10,MainstemFlowAug,yes
+Green Peter,Rule Curve,94.5,11,FIRO_SPACE,yes
+Hills Creek,Top of Dam,29.8,1,Special Curves,no
+Hills Creek,Top of Dam,29.8,2,Max Evacuation Rate,yes
+Hills Creek,Top of Dam,29.8,3,Flood Min,yes
+Hills Creek,Top of Dam,29.8,4,Harrisburg Regulation Goal Simplified,yes
+Hills Creek,Top of Dam,29.8,5,IRRM,yes
+Hills Creek,Top of Dam,29.8,6,Combined Min Trib,yes
+Hills Creek,Top of Dam,29.8,7,Fill_LOP_First_Script,yes
+Hills Creek,Top of Dam,29.8,8,HCR_LOP_Balance,yes
+Hills Creek,Top of Dam,29.8,9,Draft to RC,yes
+Hills Creek,Top of Dam,29.8,10,FIRO_SPACE,yes
+Hills Creek,Rule Curve,70.2,1,No Draft,yes
+Hills Creek,Rule Curve,70.2,2,Special Curves,no
+Hills Creek,Rule Curve,70.2,3,Max Evacuation Rate,yes
+Hills Creek,Rule Curve,70.2,4,Flood Min,yes
+Hills Creek,Rule Curve,70.2,5,Harrisburg Regulation Goal Simplified,yes
+Hills Creek,Rule Curve,70.2,6,IRRM,yes
+Hills Creek,Rule Curve,70.2,7,Combined Min Trib,yes
+Hills Creek,Rule Curve,70.2,8,Fill_LOP_First_Script,yes
+Hills Creek,Rule Curve,70.2,9,HCR_LOP_Balance,yes
+Hills Creek,Rule Curve,70.2,10,FIRO_SPACE,yes
+Lookout Point,Top of Dam,11.4,1,No RO use above 900 ft,yes
+Lookout Point,Top of Dam,11.4,2,Special Curves,no
+Lookout Point,Top of Dam,11.4,3,Max Evacuation Release,yes
+Lookout Point,Top of Dam,11.4,4,Secondary Flood Draft Limit,yes
+Lookout Point,Top of Dam,11.4,5,Flood Min,yes
+Lookout Point,Top of Dam,11.4,6,Jasper Bankfull Max,yes
+Lookout Point,Top of Dam,11.4,7,Harrisburg Regulation Goal Simplified,yes
+Lookout Point,Top of Dam,11.4,8,Deep Drawdown,yes
+Lookout Point,Top of Dam,11.4,9,MainstemFlowAug,yes
+Lookout Point,Top of Dam,11.4,10,Draft to RC,yes
+Lookout Point,Top of Dam,11.4,11,FIRO_SPACE,yes
+Lookout Point,Top of Dam,11.4,12,Combined Min Trib,yes
+Lookout Point,Rule Curve,88.6,1,NoDraft,yes
+Lookout Point,Rule Curve,88.6,2,ROC Down,yes
+Lookout Point,Rule Curve,88.6,3,ROC Up,yes
+Lookout Point,Rule Curve,88.6,4,No RO use above 900 ft,yes
+Lookout Point,Rule Curve,88.6,5,Special Curves,no
+Lookout Point,Rule Curve,88.6,6,Secondary Flood Draft Limit,yes
+Lookout Point,Rule Curve,88.6,7,Flood Min,yes
+Lookout Point,Rule Curve,88.6,8,Jasper Bankfull Max,yes
+Lookout Point,Rule Curve,88.6,9,Harrisburg Regulation Goal Simplified,yes
+Lookout Point,Rule Curve,88.6,10,Min for DEX,yes
+Lookout Point,Rule Curve,88.6,11,IRRM,yes
+Lookout Point,Rule Curve,88.6,12,Deep Drawdown,yes
+Lookout Point,Rule Curve,88.6,13,Spring Spill,yes
+Lookout Point,Rule Curve,88.6,14,Combined Min Trib,yes
+Lookout Point,Rule Curve,88.6,15,MainstemFlowAug,yes
+Lookout Point,Rule Curve,88.6,16,Draft to RC,yes
+Lookout Point,Rule Curve,88.6,17,FIRO_SPACE,yes

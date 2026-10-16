@@ -1,0 +1,124 @@
+column,B,C,units,n_values,example_path
+AURO Pudding_at Aurora Flow-Local,AURO Pudding_at Aurora,Flow-Local,cfs,1463,//AURO Pudding_at Aurora/Flow-Local/01Jan2012/1Day/Temp1Day--0/
+AURO Pudding_at Aurora Flow-CUMLOC,AURO Pudding_at Aurora,Flow-CUMLOC,cfs,1463,//AURO Pudding_at Aurora/Flow-CUMLOC/01Jan2012/1Day/Temp1Day--0/
+AURO Pudding_at Aurora Flow,AURO Pudding_at Aurora,Flow,cfs,1463,//AURO Pudding_at Aurora/Flow/01Jan2012/1Day/Temp1Day--0/
+Big Cliff_IN Flow-Local,Big Cliff_IN,Flow-Local,cfs,1463,//Big Cliff_IN/Flow-Local/01Jan2012/1Day/Temp1Day--0/
+Big Cliff_IN Flow-CUMLOC,Big Cliff_IN,Flow-CUMLOC,cfs,1463,//Big Cliff_IN/Flow-CUMLOC/01Jan2012/1Day/Temp1Day--0/
+Big Cliff_IN Flow,Big Cliff_IN,Flow,cfs,1463,//Big Cliff_IN/Flow/01Jan2012/1Day/Temp1Day--0/
+Blue River_IN Flow-Local,Blue River_IN,Flow-Local,cfs,1463,//Blue River_IN/Flow-Local/01Jan2012/1Day/Temp1Day--0/
+Blue River_IN Flow-CUMLOC,Blue River_IN,Flow-CUMLOC,cfs,1463,//Blue River_IN/Flow-CUMLOC/01Jan2012/1Day/Temp1Day--0/
+Blue River_IN Flow,Blue River_IN,Flow,cfs,1463,//Blue River_IN/Flow/01Jan2012/1Day/Temp1Day--0/
+CANO Molalla_nr Canby Flow-Local,CANO Molalla_nr Canby,Flow-Local,cfs,1463,//CANO Molalla_nr Canby/Flow-Local/01Jan2012/1Day/Temp1Day--0/
+CANO Molalla_nr Canby Flow-CUMLOC,CANO Molalla_nr Canby,Flow-CUMLOC,cfs,1463,//CANO Molalla_nr Canby/Flow-CUMLOC/01Jan2012/1Day/Temp1Day--0/
+CANO Molalla_nr Canby Flow,CANO Molalla_nr Canby,Flow,cfs,1463,//CANO Molalla_nr Canby/Flow/01Jan2012/1Day/Temp1Day--0/
+CF WIllamette_nr Goshen Flow-Local,CF WIllamette_nr Goshen,Flow-Local,cfs,1463,//CF WIllamette_nr Goshen/Flow-Local/01Jan2012/1Day/Temp1Day--0/
+CF WIllamette_nr Goshen Flow-CUMLOC,CF WIllamette_nr Goshen,Flow-CUMLOC,cfs,1463,//CF WIllamette_nr Goshen/Flow-CUMLOC/01Jan2012/1Day/Temp1Day--0/
+CF WIllamette_nr Goshen Flow,CF WIllamette_nr Goshen,Flow,cfs,1463,//CF WIllamette_nr Goshen/Flow/01Jan2012/1Day/Temp1Day--0/
+Cottage Grove_IN Flow-Local,Cottage Grove_IN,Flow-Local,cfs,1463,//Cottage Grove_IN/Flow-Local/01Jan2012/1Day/Temp1Day--0/
+Cottage Grove_IN Flow-CUMLOC,Cottage Grove_IN,Flow-CUMLOC,cfs,1463,//Cottage Grove_IN/Flow-CUMLOC/01Jan2012/1Day/Temp1Day--0/
+Cottage Grove_IN Flow,Cottage Grove_IN,Flow,cfs,1463,//Cottage Grove_IN/Flow/01Jan2012/1Day/Temp1Day--0/
+Cougar_IN Flow-Local,Cougar_IN,Flow-Local,cfs,1463,//Cougar_IN/Flow-Local/01Jan2012/1Day/Temp1Day--0/
+Cougar_IN Flow-CUMLOC,Cougar_IN,Flow-CUMLOC,cfs,1463,//Cougar_IN/Flow-CUMLOC/01Jan2012/1Day/Temp1Day--0/
+Cougar_IN Flow,Cougar_IN,Flow,cfs,1463,//Cougar_IN/Flow/01Jan2012/1Day/Temp1Day--0/
+Detroit_IN Flow-Local,Detroit_IN,Flow-Local,cfs,1463,//Detroit_IN/Flow-Local/01Jan2012/1Day/Temp1Day--0/
+Detroit_IN Flow-CUMLOC,Detroit_IN,Flow-CUMLOC,cfs,1463,//Detroit_IN/Flow-CUMLOC/01Jan2012/1Day/Temp1Day--0/
+Detroit_IN Flow,Detroit_IN,Flow,cfs,1463,//Detroit_IN/Flow/01Jan2012/1Day/Temp1Day--0/
+Dexter_IN Flow-Local,Dexter_IN,Flow-Local,cfs,1463,//Dexter_IN/Flow-Local/01Jan2012/1Day/Temp1Day--0/
+Dexter_IN Flow-CUMLOC,Dexter_IN,Flow-CUMLOC,cfs,1463,//Dexter_IN/Flow-CUMLOC/01Jan2012/1Day/Temp1Day--0/
+Dexter_IN Flow,Dexter_IN,Flow,cfs,1463,//Dexter_IN/Flow/01Jan2012/1Day/Temp1Day--0/
+Dorena_IN Flow-Local,Dorena_IN,Flow-Local,cfs,1463,//Dorena_IN/Flow-Local/01Jan2012/1Day/Temp1Day--0/
+Dorena_IN Flow-CUMLOC,Dorena_IN,Flow-CUMLOC,cfs,1463,//Dorena_IN/Flow-CUMLOC/01Jan2012/1Day/Temp1Day--0/
+Dorena_IN Flow,Dorena_IN,Flow,cfs,1463,//Dorena_IN/Flow/01Jan2012/1Day/Temp1Day--0/
+Fall Creek_IN Flow-Local,Fall Creek_IN,Flow-Local,cfs,1463,//Fall Creek_IN/Flow-Local/01Jan2012/1Day/Temp1Day--0/
+Fall Creek_IN Flow-CUMLOC,Fall Creek_IN,Flow-CUMLOC,cfs,1463,//Fall Creek_IN/Flow-CUMLOC/01Jan2012/1Day/Temp1Day--0/
+Fall Creek_IN Flow,Fall Creek_IN,Flow,cfs,1463,//Fall Creek_IN/Flow/01Jan2012/1Day/Temp1Day--0/
+Fern Ridge_IN Flow-Local,Fern Ridge_IN,Flow-Local,cfs,1463,//Fern Ridge_IN/Flow-Local/01Jan2012/1Day/Temp1Day--0/
+Fern Ridge_IN Flow-CUMLOC,Fern Ridge_IN,Flow-CUMLOC,cfs,1463,//Fern Ridge_IN/Flow-CUMLOC/01Jan2012/1Day/Temp1Day--0/
+Fern Ridge_IN Flow,Fern Ridge_IN,Flow,cfs,1463,//Fern Ridge_IN/Flow/01Jan2012/1Day/Temp1Day--0/
+Foster_IN Flow-Local,Foster_IN,Flow-Local,cfs,1463,//Foster_IN/Flow-Local/01Jan2012/1Day/Temp1Day--0/
+Foster_IN Flow-CUMLOC,Foster_IN,Flow-CUMLOC,cfs,1463,//Foster_IN/Flow-CUMLOC/01Jan2012/1Day/Temp1Day--0/
+Foster_IN Flow,Foster_IN,Flow,cfs,1463,//Foster_IN/Flow/01Jan2012/1Day/Temp1Day--0/
+Green Peter_IN Flow-Local,Green Peter_IN,Flow-Local,cfs,1463,//Green Peter_IN/Flow-Local/01Jan2012/1Day/Temp1Day--0/
+Green Peter_IN Flow-CUMLOC,Green Peter_IN,Flow-CUMLOC,cfs,1463,//Green Peter_IN/Flow-CUMLOC/01Jan2012/1Day/Temp1Day--0/
+Green Peter_IN Flow,Green Peter_IN,Flow,cfs,1463,//Green Peter_IN/Flow/01Jan2012/1Day/Temp1Day--0/
+GreensBridge_nr Jefferson Flow-Local,GreensBridge_nr Jefferson,Flow-Local,cfs,1463,//GreensBridge_nr Jefferson/Flow-Local/01Jan2012/1Day/Temp1Day--0/
+GreensBridge_nr Jefferson Flow-CUMLOC,GreensBridge_nr Jefferson,Flow-CUMLOC,cfs,1463,//GreensBridge_nr Jefferson/Flow-CUMLOC/01Jan2012/1Day/Temp1Day--0/
+GreensBridge_nr Jefferson Flow,GreensBridge_nr Jefferson,Flow,cfs,1463,//GreensBridge_nr Jefferson/Flow/01Jan2012/1Day/Temp1Day--0/
+Hills Creek_IN Flow-Local,Hills Creek_IN,Flow-Local,cfs,1463,//Hills Creek_IN/Flow-Local/01Jan2012/1Day/Temp1Day--0/
+Hills Creek_IN Flow-CUMLOC,Hills Creek_IN,Flow-CUMLOC,cfs,1463,//Hills Creek_IN/Flow-CUMLOC/01Jan2012/1Day/Temp1Day--0/
+Hills Creek_IN Flow,Hills Creek_IN,Flow,cfs,1463,//Hills Creek_IN/Flow/01Jan2012/1Day/Temp1Day--0/
+Long Tom_at Monroe Flow-Local,Long Tom_at Monroe,Flow-Local,cfs,1463,//Long Tom_at Monroe/Flow-Local/01Jan2012/1Day/Temp1Day--0/
+Long Tom_at Monroe Flow-CUMLOC,Long Tom_at Monroe,Flow-CUMLOC,cfs,1463,//Long Tom_at Monroe/Flow-CUMLOC/01Jan2012/1Day/Temp1Day--0/
+Long Tom_at Monroe Flow,Long Tom_at Monroe,Flow,cfs,1463,//Long Tom_at Monroe/Flow/01Jan2012/1Day/Temp1Day--0/
+Lookout Point_IN Flow-Local,Lookout Point_IN,Flow-Local,cfs,1463,//Lookout Point_IN/Flow-Local/01Jan2012/1Day/Temp1Day--0/
+Lookout Point_IN Flow-CUMLOC,Lookout Point_IN,Flow-CUMLOC,cfs,1463,//Lookout Point_IN/Flow-CUMLOC/01Jan2012/1Day/Temp1Day--0/
+Lookout Point_IN Flow,Lookout Point_IN,Flow,cfs,1463,//Lookout Point_IN/Flow/01Jan2012/1Day/Temp1Day--0/
+McKenzie+SF McKenzie Flow-Local,McKenzie+SF McKenzie,Flow-Local,cfs,1463,//McKenzie+SF McKenzie/Flow-Local/01Jan2012/1Day/Temp1Day--0/
+McKenzie+SF McKenzie Flow-CUMLOC,McKenzie+SF McKenzie,Flow-CUMLOC,cfs,1463,//McKenzie+SF McKenzie/Flow-CUMLOC/01Jan2012/1Day/Temp1Day--0/
+McKenzie+SF McKenzie Flow,McKenzie+SF McKenzie,Flow,cfs,1463,//McKenzie+SF McKenzie/Flow/01Jan2012/1Day/Temp1Day--0/
+McKenzie_at Vida Flow-Local,McKenzie_at Vida,Flow-Local,cfs,1463,//McKenzie_at Vida/Flow-Local/01Jan2012/1Day/Temp1Day--0/
+McKenzie_at Vida Flow-CUMLOC,McKenzie_at Vida,Flow-CUMLOC,cfs,1463,//McKenzie_at Vida/Flow-CUMLOC/01Jan2012/1Day/Temp1Day--0/
+McKenzie_at Vida Flow,McKenzie_at Vida,Flow,cfs,1463,//McKenzie_at Vida/Flow/01Jan2012/1Day/Temp1Day--0/
+McKenzie_nr Coburg Flow-Local,McKenzie_nr Coburg,Flow-Local,cfs,1463,//McKenzie_nr Coburg/Flow-Local/01Jan2012/1Day/Temp1Day--0/
+McKenzie_nr Coburg Flow-CUMLOC,McKenzie_nr Coburg,Flow-CUMLOC,cfs,1463,//McKenzie_nr Coburg/Flow-CUMLOC/01Jan2012/1Day/Temp1Day--0/
+McKenzie_nr Coburg Flow,McKenzie_nr Coburg,Flow,cfs,1463,//McKenzie_nr Coburg/Flow/01Jan2012/1Day/Temp1Day--0/
+MCMO South Yamill_at McMinnville Flow-Local,MCMO South Yamill_at McMinnville,Flow-Local,cfs,1463,//MCMO South Yamill_at McMinnville/Flow-Local/01Jan2012/1Day/Temp1Day--0/
+MCMO South Yamill_at McMinnville Flow-CUMLOC,MCMO South Yamill_at McMinnville,Flow-CUMLOC,cfs,1463,//MCMO South Yamill_at McMinnville/Flow-CUMLOC/01Jan2012/1Day/Temp1Day--0/
+MCMO South Yamill_at McMinnville Flow,MCMO South Yamill_at McMinnville,Flow,cfs,1463,//MCMO South Yamill_at McMinnville/Flow/01Jan2012/1Day/Temp1Day--0/
+MF Willamette+NF Willamette Flow-Local,MF Willamette+NF Willamette,Flow-Local,cfs,1463,//MF Willamette+NF Willamette/Flow-Local/01Jan2012/1Day/Temp1Day--0/
+MF Willamette+NF Willamette Flow-CUMLOC,MF Willamette+NF Willamette,Flow-CUMLOC,cfs,1463,//MF Willamette+NF Willamette/Flow-CUMLOC/01Jan2012/1Day/Temp1Day--0/
+MF Willamette+NF Willamette Flow,MF Willamette+NF Willamette,Flow,cfs,1463,//MF Willamette+NF Willamette/Flow/01Jan2012/1Day/Temp1Day--0/
+MF Willamette_at Jasper Flow-Local,MF Willamette_at Jasper,Flow-Local,cfs,1463,//MF Willamette_at Jasper/Flow-Local/01Jan2012/1Day/Temp1Day--0/
+MF Willamette_at Jasper Flow-CUMLOC,MF Willamette_at Jasper,Flow-CUMLOC,cfs,1463,//MF Willamette_at Jasper/Flow-CUMLOC/01Jan2012/1Day/Temp1Day--0/
+MF Willamette_at Jasper Flow,MF Willamette_at Jasper,Flow,cfs,1463,//MF Willamette_at Jasper/Flow/01Jan2012/1Day/Temp1Day--0/
+Mkenzie_nr Walterville Flow-Local,Mkenzie_nr Walterville,Flow-Local,cfs,1463,//Mkenzie_nr Walterville/Flow-Local/01Jan2012/1Day/Temp1Day--0/
+Mkenzie_nr Walterville Flow-CUMLOC,Mkenzie_nr Walterville,Flow-CUMLOC,cfs,1463,//Mkenzie_nr Walterville/Flow-CUMLOC/01Jan2012/1Day/Temp1Day--0/
+Mkenzie_nr Walterville Flow,Mkenzie_nr Walterville,Flow,cfs,1463,//Mkenzie_nr Walterville/Flow/01Jan2012/1Day/Temp1Day--0/
+No Santiam+So Santiam Flow-Local,No Santiam+So Santiam,Flow-Local,cfs,1463,//No Santiam+So Santiam/Flow-Local/01Jan2012/1Day/Temp1Day--0/
+No Santiam+So Santiam Flow-CUMLOC,No Santiam+So Santiam,Flow-CUMLOC,cfs,1463,//No Santiam+So Santiam/Flow-CUMLOC/01Jan2012/1Day/Temp1Day--0/
+No Santiam+So Santiam Flow,No Santiam+So Santiam,Flow,cfs,1463,//No Santiam+So Santiam/Flow/01Jan2012/1Day/Temp1Day--0/
+No Santiam_at Mehama Flow-Local,No Santiam_at Mehama,Flow-Local,cfs,1463,//No Santiam_at Mehama/Flow-Local/01Jan2012/1Day/Temp1Day--0/
+No Santiam_at Mehama Flow-CUMLOC,No Santiam_at Mehama,Flow-CUMLOC,cfs,1463,//No Santiam_at Mehama/Flow-CUMLOC/01Jan2012/1Day/Temp1Day--0/
+No Santiam_at Mehama Flow,No Santiam_at Mehama,Flow,cfs,1463,//No Santiam_at Mehama/Flow/01Jan2012/1Day/Temp1Day--0/
+Santiam_at Jefferson Flow-Local,Santiam_at Jefferson,Flow-Local,cfs,1463,//Santiam_at Jefferson/Flow-Local/01Jan2012/1Day/Temp1Day--0/
+Santiam_at Jefferson Flow-CUMLOC,Santiam_at Jefferson,Flow-CUMLOC,cfs,1463,//Santiam_at Jefferson/Flow-CUMLOC/01Jan2012/1Day/Temp1Day--0/
+Santiam_at Jefferson Flow,Santiam_at Jefferson,Flow,cfs,1463,//Santiam_at Jefferson/Flow/01Jan2012/1Day/Temp1Day--0/
+So Santiam+Thomas Cr Flow-Local,So Santiam+Thomas Cr,Flow-Local,cfs,1463,//So Santiam+Thomas Cr/Flow-Local/01Jan2012/1Day/Temp1Day--0/
+So Santiam+Thomas Cr Flow-CUMLOC,So Santiam+Thomas Cr,Flow-CUMLOC,cfs,1463,//So Santiam+Thomas Cr/Flow-CUMLOC/01Jan2012/1Day/Temp1Day--0/
+So Santiam+Thomas Cr Flow,So Santiam+Thomas Cr,Flow,cfs,1463,//So Santiam+Thomas Cr/Flow/01Jan2012/1Day/Temp1Day--0/
+So Santiam_at Waterloo Flow-Local,So Santiam_at Waterloo,Flow-Local,cfs,1463,//So Santiam_at Waterloo/Flow-Local/01Jan2012/1Day/Temp1Day--0/
+So Santiam_at Waterloo Flow-CUMLOC,So Santiam_at Waterloo,Flow-CUMLOC,cfs,1463,//So Santiam_at Waterloo/Flow-CUMLOC/01Jan2012/1Day/Temp1Day--0/
+So Santiam_at Waterloo Flow,So Santiam_at Waterloo,Flow,cfs,1463,//So Santiam_at Waterloo/Flow/01Jan2012/1Day/Temp1Day--0/
+SUVO Luckiamute_nr Suver Flow-Local,SUVO Luckiamute_nr Suver,Flow-Local,cfs,1463,//SUVO Luckiamute_nr Suver/Flow-Local/01Jan2012/1Day/Temp1Day--0/
+SUVO Luckiamute_nr Suver Flow-CUMLOC,SUVO Luckiamute_nr Suver,Flow-CUMLOC,cfs,1463,//SUVO Luckiamute_nr Suver/Flow-CUMLOC/01Jan2012/1Day/Temp1Day--0/
+SUVO Luckiamute_nr Suver Flow,SUVO Luckiamute_nr Suver,Flow,cfs,1463,//SUVO Luckiamute_nr Suver/Flow/01Jan2012/1Day/Temp1Day--0/
+TRBO McKenzie_nr Trail Bridge Dam Flow-Local,TRBO McKenzie_nr Trail Bridge Dam,Flow-Local,cfs,1463,//TRBO McKenzie_nr Trail Bridge Dam/Flow-Local/01Jan2012/1Day/Temp1Day--0/
+TRBO McKenzie_nr Trail Bridge Dam Flow-CUMLOC,TRBO McKenzie_nr Trail Bridge Dam,Flow-CUMLOC,cfs,1463,//TRBO McKenzie_nr Trail Bridge Dam/Flow-CUMLOC/01Jan2012/1Day/Temp1Day--0/
+TRBO McKenzie_nr Trail Bridge Dam Flow,TRBO McKenzie_nr Trail Bridge Dam,Flow,cfs,1463,//TRBO McKenzie_nr Trail Bridge Dam/Flow/01Jan2012/1Day/Temp1Day--0/
+Tualitan+Scoggins Flow-Local,Tualitan+Scoggins,Flow-Local,cfs,1463,//Tualitan+Scoggins/Flow-Local/01Jan2012/1Day/Temp1Day--0/
+Tualitan+Scoggins Flow-CUMLOC,Tualitan+Scoggins,Flow-CUMLOC,cfs,1463,//Tualitan+Scoggins/Flow-CUMLOC/01Jan2012/1Day/Temp1Day--0/
+Tualitan+Scoggins Flow,Tualitan+Scoggins,Flow,cfs,1463,//Tualitan+Scoggins/Flow/01Jan2012/1Day/Temp1Day--0/
+Willamette+Marys Flow-Local,Willamette+Marys,Flow-Local,cfs,1463,//Willamette+Marys/Flow-Local/01Jan2012/1Day/Temp1Day--0/
+Willamette+Marys Flow-CUMLOC,Willamette+Marys,Flow-CUMLOC,cfs,1463,//Willamette+Marys/Flow-CUMLOC/01Jan2012/1Day/Temp1Day--0/
+Willamette+Marys Flow,Willamette+Marys,Flow,cfs,1463,//Willamette+Marys/Flow/01Jan2012/1Day/Temp1Day--0/
+Willamette_abv Falls at Oregon City Flow-Local,Willamette_abv Falls at Oregon City,Flow-Local,cfs,1463,//Willamette_abv Falls at Oregon City/Flow-Local/01Jan2012/1Day/Temp1Day--0/
+Willamette_abv Falls at Oregon City Flow-CUMLOC,Willamette_abv Falls at Oregon City,Flow-CUMLOC,cfs,1463,//Willamette_abv Falls at Oregon City/Flow-CUMLOC/01Jan2012/1Day/Temp1Day--0/
+Willamette_abv Falls at Oregon City Flow,Willamette_abv Falls at Oregon City,Flow,cfs,1463,//Willamette_abv Falls at Oregon City/Flow/01Jan2012/1Day/Temp1Day--0/
+Willamette_at Albany Flow-Local,Willamette_at Albany,Flow-Local,cfs,1463,//Willamette_at Albany/Flow-Local/01Jan2012/1Day/Temp1Day--0/
+Willamette_at Albany Flow-CUMLOC,Willamette_at Albany,Flow-CUMLOC,cfs,1463,//Willamette_at Albany/Flow-CUMLOC/01Jan2012/1Day/Temp1Day--0/
+Willamette_at Albany Flow,Willamette_at Albany,Flow,cfs,1463,//Willamette_at Albany/Flow/01Jan2012/1Day/Temp1Day--0/
+Willamette_at Eugene Flow-Local,Willamette_at Eugene,Flow-Local,cfs,1463,//Willamette_at Eugene/Flow-Local/01Jan2012/1Day/Temp1Day--0/
+Willamette_at Eugene Flow-CUMLOC,Willamette_at Eugene,Flow-CUMLOC,cfs,1463,//Willamette_at Eugene/Flow-CUMLOC/01Jan2012/1Day/Temp1Day--0/
+Willamette_at Eugene Flow,Willamette_at Eugene,Flow,cfs,1463,//Willamette_at Eugene/Flow/01Jan2012/1Day/Temp1Day--0/
+Willamette_at Harrisburg Flow-Local,Willamette_at Harrisburg,Flow-Local,cfs,1463,//Willamette_at Harrisburg/Flow-Local/01Jan2012/1Day/Temp1Day--0/
+Willamette_at Harrisburg Flow-CUMLOC,Willamette_at Harrisburg,Flow-CUMLOC,cfs,1463,//Willamette_at Harrisburg/Flow-CUMLOC/01Jan2012/1Day/Temp1Day--0/
+Willamette_at Harrisburg Flow,Willamette_at Harrisburg,Flow,cfs,1463,//Willamette_at Harrisburg/Flow/01Jan2012/1Day/Temp1Day--0/
+Willamette_at Newberg Flow-Local,Willamette_at Newberg,Flow-Local,cfs,1463,//Willamette_at Newberg/Flow-Local/01Jan2012/1Day/Temp1Day--0/
+Willamette_at Newberg Flow-CUMLOC,Willamette_at Newberg,Flow-CUMLOC,cfs,1463,//Willamette_at Newberg/Flow-CUMLOC/01Jan2012/1Day/Temp1Day--0/
+Willamette_at Newberg Flow,Willamette_at Newberg,Flow,cfs,1463,//Willamette_at Newberg/Flow/01Jan2012/1Day/Temp1Day--0/
+Willamette_at Salem Flow-Local,Willamette_at Salem,Flow-Local,cfs,1463,//Willamette_at Salem/Flow-Local/01Jan2012/1Day/Temp1Day--0/
+Willamette_at Salem Flow-CUMLOC,Willamette_at Salem,Flow-CUMLOC,cfs,1463,//Willamette_at Salem/Flow-CUMLOC/01Jan2012/1Day/Temp1Day--0/
+Willamette_at Salem Flow,Willamette_at Salem,Flow,cfs,1463,//Willamette_at Salem/Flow/01Jan2012/1Day/Temp1Day--0/
+Willamette_at Wilsonville Flow-Local,Willamette_at Wilsonville,Flow-Local,cfs,1463,//Willamette_at Wilsonville/Flow-Local/01Jan2012/1Day/Temp1Day--0/
+Willamette_at Wilsonville Flow-CUMLOC,Willamette_at Wilsonville,Flow-CUMLOC,cfs,1463,//Willamette_at Wilsonville/Flow-CUMLOC/01Jan2012/1Day/Temp1Day--0/
+Willamette_at Wilsonville Flow,Willamette_at Wilsonville,Flow,cfs,1463,//Willamette_at Wilsonville/Flow/01Jan2012/1Day/Temp1Day--0/

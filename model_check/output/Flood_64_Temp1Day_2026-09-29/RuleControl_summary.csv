@@ -1,0 +1,113 @@
+reservoir,rule,saved_as,days_with_value,days_in_control,in_control_pct
+Blue River,Dam-Max Evacuation Release,max,881,108,12.3
+Blue River,Flood Min,min,881,230,26.1
+Blue River,Vida Flood Max,max,881,82,9.3
+Blue River,Dam-BiOp MinTrib and Withdrawals by WY,min,881,288,32.7
+Blue River,MainstemFlowAug,script,881,0,0.0
+Blue River,FIRO_SPACE,script,881,319,36.2
+Blue River,(no rule equals the outflow),,881,167,19.0
+Cottage Grove,Spillway-Uncontrolled Spill,min,881,0,0.0
+Cottage Grove,Dam-Max Evacuation Release,max,881,79,9.0
+Cottage Grove,Flood Min,min,881,32,3.6
+Cottage Grove,Goshen Bankfull Max,max,881,93,10.6
+Cottage Grove,Harrisburg Bankfull Simplified Max,max,881,7,0.8
+Cottage Grove,Dam-BiOp MinTrib and Withdrawals by WY,min,881,406,46.1
+Cottage Grove,MainstemFlowAug,script,881,0,0.0
+Cottage Grove,FIRO_SPACE,script,881,230,26.1
+Cottage Grove,Harrisburg Regulation Goal Simplified,max,881,17,1.9
+Cottage Grove,(no rule equals the outflow),,881,159,18.0
+Cougar,No Draft,script,881,0,0.0
+Cougar,IRRM,script,881,16,1.8
+Cougar,Max Evacuation Release,max,881,51,5.8
+Cougar,Flood Min,min,881,124,14.1
+Cougar,Vida Flood Max,max,881,44,5.0
+Cougar,Deep Drawdown,script,881,134,15.2
+Cougar,Spring Spill,script,881,245,27.8
+Cougar,Dam-BiOp MinTrib and Withdrawals by WY,min,881,333,37.8
+Cougar,MainstemFlowAug,script,881,0,0.0
+Cougar,FIRO_SPACE,script,881,73,8.3
+Cougar,(no rule equals the outflow),,881,23,2.6
+Detroit,No Draft,script,881,1,0.1
+Detroit,Regulating Outlet Upper-Upper RO use 1400 to 1542 ft,max,881,2,0.2
+Detroit,Regulating Outlet Lower-No Lower RO Flow,max,881,0,0.0
+Detroit,Dam-Max Evacuation Release,max,881,68,7.7
+Detroit,Secondary Flood Draft Limit,script,276,6,2.2
+Detroit,Min for BCL,min,881,112,12.7
+Detroit,Mehama Winter Ops Max,max,881,8,0.9
+Detroit,Jefferson Winter Ops Max,max,881,6,0.7
+Detroit,Deep Drawdown,script,881,112,12.7
+Detroit,IRRM,script,881,61,6.9
+Detroit,Combined Min Trib,script,881,492,55.8
+Detroit,MainstemFlowAug,script,881,0,0.0
+Detroit,FIRO_SPACE,script,881,20,2.3
+Detroit,(no rule equals the outflow),,881,2,0.2
+Dorena,Spillway-Uncontrolled Spill,min,881,1,0.1
+Dorena,Dam-Max Evacuation Release,max,881,91,10.3
+Dorena,Flood Min,min,881,11,1.2
+Dorena,Goshen Bankfull Max,max,881,103,11.7
+Dorena,Harrisburg Bankfull Simplified Max,max,881,4,0.5
+Dorena,Dam-BiOp MinTrib and Withdrawals by WY,min,881,272,30.9
+Dorena,MainstemFlowAug,script,881,0,0.0
+Dorena,FIRO_SPACE,script,881,296,33.6
+Dorena,Harrisburg Regulation Goal Simplified,max,881,11,1.2
+Dorena,(no rule equals the outflow),,881,210,23.8
+Fall Creek,Max Evacuation Release,max,881,84,9.5
+Fall Creek,Flood Min,min,881,0,0.0
+Fall Creek,Harrisburg Bankfull Simplified Max,max,881,5,0.6
+Fall Creek,Medium Fish Horn Min,min,881,214,24.3
+Fall Creek,Dam-BiOp MinTrib and Withdrawals by WY,min,881,108,12.3
+Fall Creek,Drawdown Max,max,881,0,0.0
+Fall Creek,MainstemFlowAug,script,881,0,0.0
+Fall Creek,Deep Drawdown,script,881,124,14.1
+Fall Creek,FIRO_SPACE,script,881,0,0.0
+Fall Creek,Harrisburg Regulation Goal Simplified Max,max,881,5,0.6
+Fall Creek,(no rule equals the outflow),,881,351,39.8
+Fern Ridge,Dam-Max Evacuation Release,max,881,102,11.6
+Fern Ridge,Flood Min,min,881,467,53.0
+Fern Ridge,Monroe Regulation Goal Max,max,881,27,3.1
+Fern Ridge,Dam-BiOp MinTrib and Withdrawals by WY,min,881,444,50.4
+Fern Ridge,MainstemFlowAug,script,881,0,0.0
+Fern Ridge,FIRO_SPACE,script,881,149,16.9
+Fern Ridge,(no rule equals the outflow),,881,96,10.9
+Foster,Waterloo Flood Simple,script,881,12,1.4
+Foster,(no rule equals the outflow),,881,869,98.6
+Green Peter,No Draft,script,881,2,0.2
+Green Peter,Con Max,max,881,63,7.2
+Green Peter,Secondary Flood Draft Limit,script,308,79,25.6
+Green Peter,Flood Min,min,881,99,11.2
+Green Peter,Waterloo Flood Max,max,881,23,2.6
+Green Peter,Jefferson Flood Stage Simplified Max,max,881,0,0.0
+Green Peter,Deep Drawdown,script,881,29,3.3
+Green Peter,Combined Min Trib,script,881,415,47.1
+Green Peter,MainstemFlowAug,script,881,0,0.0
+Green Peter,FIRO_SPACE,script,881,106,12.0
+Green Peter,Max Evacuation Release,max,881,33,3.7
+Green Peter,BiOp Max Flow Winter GPR FOS,max,881,1,0.1
+Green Peter,(no rule equals the outflow),,881,45,5.1
+Hills Creek,No Draft,script,881,0,0.0
+Hills Creek,Max Evacuation Rate,max,881,126,14.3
+Hills Creek,Flood Min,min,881,180,20.4
+Hills Creek,Harrisburg Regulation Goal Simplified,max,881,12,1.4
+Hills Creek,IRRM,script,881,145,16.5
+Hills Creek,Dam-BiOp MinTrib and Withdrawals by WY,min,881,271,30.8
+Hills Creek,Fill_LOP_First_Script,script,881,115,13.1
+Hills Creek,HCR_LOP_Balance,script,399,44,11.0
+Hills Creek,FIRO_SPACE,script,881,45,5.1
+Hills Creek,(no rule equals the outflow),,881,130,14.8
+Lookout Point,NoDraft,script,881,0,0.0
+Lookout Point,ROC Down,min,881,13,1.5
+Lookout Point,ROC Up,max,881,8,0.9
+Lookout Point,Regulated Outlet-No RO use above 900 ft,max,881,0,0.0
+Lookout Point,Secondary Flood Draft Limit,script,267,14,5.2
+Lookout Point,Flood Min,min,881,5,0.6
+Lookout Point,Jasper Bankfull Max,max,881,23,2.6
+Lookout Point,Harrisburg Regulation Goal Simplified,max,881,40,4.5
+Lookout Point,Min for DEX,min,881,435,49.4
+Lookout Point,IRRM,script,881,117,13.3
+Lookout Point,Deep Drawdown,script,881,164,18.6
+Lookout Point,Spring Spill,script,881,26,3.0
+Lookout Point,Dam-BiOp MinTrib and Withdrawals by WY,min,881,5,0.6
+Lookout Point,MainstemFlowAug,script,881,0,0.0
+Lookout Point,FIRO_SPACE,script,881,19,2.2
+Lookout Point,Dam-Max Evacuation Release,max,881,45,5.1
+Lookout Point,(no rule equals the outflow),,881,5,0.6

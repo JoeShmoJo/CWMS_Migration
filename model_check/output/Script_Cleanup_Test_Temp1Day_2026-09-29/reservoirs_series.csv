@@ -1,0 +1,79 @@
+column,B,C,units,n_values,example_path
+Big Cliff-Pool Flow-IN,Big Cliff-Pool,Flow-IN,cfs,1463,//Big Cliff-Pool/Flow-IN/01Jan2012/1Day/Temp1Day--0/
+Big Cliff-Pool Flow-OUT,Big Cliff-Pool,Flow-OUT,cfs,1463,//Big Cliff-Pool/Flow-OUT/01Jan2012/1Day/Temp1Day--0/
+Big Cliff-Pool Elev,Big Cliff-Pool,Elev,ft,1463,//Big Cliff-Pool/Elev/01Jan2012/1Day/Temp1Day--0/
+Blue River-Pool Flow-IN,Blue River-Pool,Flow-IN,cfs,1463,//Blue River-Pool/Flow-IN/01Jan2012/1Day/Temp1Day--0/
+Blue River-Pool Flow-OUT,Blue River-Pool,Flow-OUT,cfs,1463,//Blue River-Pool/Flow-OUT/01Jan2012/1Day/Temp1Day--0/
+Blue River-Pool Elev,Blue River-Pool,Elev,ft,1463,//Blue River-Pool/Elev/01Jan2012/1Day/Temp1Day--0/
+Cottage Grove-Pool Flow-IN,Cottage Grove-Pool,Flow-IN,cfs,1463,//Cottage Grove-Pool/Flow-IN/01Jan2012/1Day/Temp1Day--0/
+Cottage Grove-Pool Flow-OUT,Cottage Grove-Pool,Flow-OUT,cfs,1463,//Cottage Grove-Pool/Flow-OUT/01Jan2012/1Day/Temp1Day--0/
+Cottage Grove-Pool Elev,Cottage Grove-Pool,Elev,ft,1463,//Cottage Grove-Pool/Elev/01Jan2012/1Day/Temp1Day--0/
+Cougar-Pool Flow-IN,Cougar-Pool,Flow-IN,cfs,1463,//Cougar-Pool/Flow-IN/01Jan2012/1Day/Temp1Day--0/
+Cougar-Pool Flow-OUT,Cougar-Pool,Flow-OUT,cfs,1463,//Cougar-Pool/Flow-OUT/01Jan2012/1Day/Temp1Day--0/
+Cougar-Pool Elev,Cougar-Pool,Elev,ft,1463,//Cougar-Pool/Elev/01Jan2012/1Day/Temp1Day--0/
+Detroit-Pool Flow-IN,Detroit-Pool,Flow-IN,cfs,1463,//Detroit-Pool/Flow-IN/01Jan2012/1Day/Temp1Day--0/
+Detroit-Pool Flow-OUT,Detroit-Pool,Flow-OUT,cfs,1463,//Detroit-Pool/Flow-OUT/01Jan2012/1Day/Temp1Day--0/
+Detroit-Pool Elev,Detroit-Pool,Elev,ft,1463,//Detroit-Pool/Elev/01Jan2012/1Day/Temp1Day--0/
+Dexter-Pool Flow-IN,Dexter-Pool,Flow-IN,cfs,1463,//Dexter-Pool/Flow-IN/01Jan2012/1Day/Temp1Day--0/
+Dexter-Pool Flow-OUT,Dexter-Pool,Flow-OUT,cfs,1463,//Dexter-Pool/Flow-OUT/01Jan2012/1Day/Temp1Day--0/
+Dexter-Pool Elev,Dexter-Pool,Elev,ft,1463,//Dexter-Pool/Elev/01Jan2012/1Day/Temp1Day--0/
+Dorena-Pool Flow-IN,Dorena-Pool,Flow-IN,cfs,1463,//Dorena-Pool/Flow-IN/01Jan2012/1Day/Temp1Day--0/
+Dorena-Pool Flow-OUT,Dorena-Pool,Flow-OUT,cfs,1463,//Dorena-Pool/Flow-OUT/01Jan2012/1Day/Temp1Day--0/
+Dorena-Pool Elev,Dorena-Pool,Elev,ft,1463,//Dorena-Pool/Elev/01Jan2012/1Day/Temp1Day--0/
+Fall Creek-Pool Flow-IN,Fall Creek-Pool,Flow-IN,cfs,1463,//Fall Creek-Pool/Flow-IN/01Jan2012/1Day/Temp1Day--0/
+Fall Creek-Pool Flow-OUT,Fall Creek-Pool,Flow-OUT,cfs,1463,//Fall Creek-Pool/Flow-OUT/01Jan2012/1Day/Temp1Day--0/
+Fall Creek-Pool Elev,Fall Creek-Pool,Elev,ft,1463,//Fall Creek-Pool/Elev/01Jan2012/1Day/Temp1Day--0/
+Fern Ridge-Pool Flow-IN,Fern Ridge-Pool,Flow-IN,cfs,1463,//Fern Ridge-Pool/Flow-IN/01Jan2012/1Day/Temp1Day--0/
+Fern Ridge-Pool Flow-OUT,Fern Ridge-Pool,Flow-OUT,cfs,1463,//Fern Ridge-Pool/Flow-OUT/01Jan2012/1Day/Temp1Day--0/
+Fern Ridge-Pool Elev,Fern Ridge-Pool,Elev,ft,1463,//Fern Ridge-Pool/Elev/01Jan2012/1Day/Temp1Day--0/
+Foster-Pool Flow-IN,Foster-Pool,Flow-IN,cfs,1463,//Foster-Pool/Flow-IN/01Jan2012/1Day/Temp1Day--0/
+Foster-Pool Flow-OUT,Foster-Pool,Flow-OUT,cfs,1463,//Foster-Pool/Flow-OUT/01Jan2012/1Day/Temp1Day--0/
+Foster-Pool Elev,Foster-Pool,Elev,ft,1463,//Foster-Pool/Elev/01Jan2012/1Day/Temp1Day--0/
+Green Peter-Pool Flow-IN,Green Peter-Pool,Flow-IN,cfs,1463,//Green Peter-Pool/Flow-IN/01Jan2012/1Day/Temp1Day--0/
+Green Peter-Pool Flow-OUT,Green Peter-Pool,Flow-OUT,cfs,1463,//Green Peter-Pool/Flow-OUT/01Jan2012/1Day/Temp1Day--0/
+Green Peter-Pool Elev,Green Peter-Pool,Elev,ft,1463,//Green Peter-Pool/Elev/01Jan2012/1Day/Temp1Day--0/
+Hills Creek-Pool Flow-IN,Hills Creek-Pool,Flow-IN,cfs,1463,//Hills Creek-Pool/Flow-IN/01Jan2012/1Day/Temp1Day--0/
+Hills Creek-Pool Flow-OUT,Hills Creek-Pool,Flow-OUT,cfs,1463,//Hills Creek-Pool/Flow-OUT/01Jan2012/1Day/Temp1Day--0/
+Hills Creek-Pool Elev,Hills Creek-Pool,Elev,ft,1463,//Hills Creek-Pool/Elev/01Jan2012/1Day/Temp1Day--0/
+Lookout Point-Pool Flow-IN,Lookout Point-Pool,Flow-IN,cfs,1463,//Lookout Point-Pool/Flow-IN/01Jan2012/1Day/Temp1Day--0/
+Lookout Point-Pool Flow-OUT,Lookout Point-Pool,Flow-OUT,cfs,1463,//Lookout Point-Pool/Flow-OUT/01Jan2012/1Day/Temp1Day--0/
+Lookout Point-Pool Elev,Lookout Point-Pool,Elev,ft,1463,//Lookout Point-Pool/Elev/01Jan2012/1Day/Temp1Day--0/
+Big Cliff-Inactive Elev-ZONE,Big Cliff-Inactive,Elev-ZONE,ft,1463,//Big Cliff-Inactive/Elev-ZONE/01Jan2012/1Day/Temp1Day--0/
+Big Cliff-Rule Curve Elev-ZONE,Big Cliff-Rule Curve,Elev-ZONE,ft,1463,//Big Cliff-Rule Curve/Elev-ZONE/01Jan2012/1Day/Temp1Day--0/
+Big Cliff-Top of Dam Elev-ZONE,Big Cliff-Top of Dam,Elev-ZONE,ft,1463,//Big Cliff-Top of Dam/Elev-ZONE/01Jan2012/1Day/Temp1Day--0/
+Blue River-Inactive Elev-ZONE,Blue River-Inactive,Elev-ZONE,ft,1463,//Blue River-Inactive/Elev-ZONE/01Jan2012/1Day/Temp1Day--0/
+Blue River-Rule Curve Elev-ZONE,Blue River-Rule Curve,Elev-ZONE,ft,1463,//Blue River-Rule Curve/Elev-ZONE/01Jan2012/1Day/Temp1Day--0/
+Blue River-Top of Dam Elev-ZONE,Blue River-Top of Dam,Elev-ZONE,ft,1463,//Blue River-Top of Dam/Elev-ZONE/01Jan2012/1Day/Temp1Day--0/
+Cottage Grove-Inactive Elev-ZONE,Cottage Grove-Inactive,Elev-ZONE,ft,1463,//Cottage Grove-Inactive/Elev-ZONE/01Jan2012/1Day/Temp1Day--0/
+Cottage Grove-Rule Curve Elev-ZONE,Cottage Grove-Rule Curve,Elev-ZONE,ft,1463,//Cottage Grove-Rule Curve/Elev-ZONE/01Jan2012/1Day/Temp1Day--0/
+Cottage Grove-Top of Dam Elev-ZONE,Cottage Grove-Top of Dam,Elev-ZONE,ft,1463,//Cottage Grove-Top of Dam/Elev-ZONE/01Jan2012/1Day/Temp1Day--0/
+Cougar-Inactive Elev-ZONE,Cougar-Inactive,Elev-ZONE,ft,1463,//Cougar-Inactive/Elev-ZONE/01Jan2012/1Day/Temp1Day--0/
+Cougar-Rule Curve Elev-ZONE,Cougar-Rule Curve,Elev-ZONE,ft,1463,//Cougar-Rule Curve/Elev-ZONE/01Jan2012/1Day/Temp1Day--0/
+Cougar-Top of Dam Elev-ZONE,Cougar-Top of Dam,Elev-ZONE,ft,1463,//Cougar-Top of Dam/Elev-ZONE/01Jan2012/1Day/Temp1Day--0/
+Detroit-Inactive Elev-ZONE,Detroit-Inactive,Elev-ZONE,ft,1463,//Detroit-Inactive/Elev-ZONE/01Jan2012/1Day/Temp1Day--0/
+Detroit-Rule Curve Elev-ZONE,Detroit-Rule Curve,Elev-ZONE,ft,1463,//Detroit-Rule Curve/Elev-ZONE/01Jan2012/1Day/Temp1Day--0/
+Detroit-Top of Dam Elev-ZONE,Detroit-Top of Dam,Elev-ZONE,ft,1463,//Detroit-Top of Dam/Elev-ZONE/01Jan2012/1Day/Temp1Day--0/
+Dexter-Inactive Elev-ZONE,Dexter-Inactive,Elev-ZONE,ft,1463,//Dexter-Inactive/Elev-ZONE/01Jan2012/1Day/Temp1Day--0/
+Dexter-Rule Curve Elev-ZONE,Dexter-Rule Curve,Elev-ZONE,ft,1463,//Dexter-Rule Curve/Elev-ZONE/01Jan2012/1Day/Temp1Day--0/
+Dexter-Top of Dam Elev-ZONE,Dexter-Top of Dam,Elev-ZONE,ft,1463,//Dexter-Top of Dam/Elev-ZONE/01Jan2012/1Day/Temp1Day--0/
+Dorena-Inactive Elev-ZONE,Dorena-Inactive,Elev-ZONE,ft,1463,//Dorena-Inactive/Elev-ZONE/01Jan2012/1Day/Temp1Day--0/
+Dorena-Rule Curve Elev-ZONE,Dorena-Rule Curve,Elev-ZONE,ft,1463,//Dorena-Rule Curve/Elev-ZONE/01Jan2012/1Day/Temp1Day--0/
+Dorena-Top of Dam Elev-ZONE,Dorena-Top of Dam,Elev-ZONE,ft,1463,//Dorena-Top of Dam/Elev-ZONE/01Jan2012/1Day/Temp1Day--0/
+Fall Creek-Inactive Elev-ZONE,Fall Creek-Inactive,Elev-ZONE,ft,1463,//Fall Creek-Inactive/Elev-ZONE/01Jan2012/1Day/Temp1Day--0/
+Fall Creek-Rule Curve Elev-ZONE,Fall Creek-Rule Curve,Elev-ZONE,ft,1463,//Fall Creek-Rule Curve/Elev-ZONE/01Jan2012/1Day/Temp1Day--0/
+Fall Creek-Top of Dam Elev-ZONE,Fall Creek-Top of Dam,Elev-ZONE,ft,1463,//Fall Creek-Top of Dam/Elev-ZONE/01Jan2012/1Day/Temp1Day--0/
+Fern Ridge-Inactive Elev-ZONE,Fern Ridge-Inactive,Elev-ZONE,ft,1463,//Fern Ridge-Inactive/Elev-ZONE/01Jan2012/1Day/Temp1Day--0/
+Fern Ridge-Rule Curve Elev-ZONE,Fern Ridge-Rule Curve,Elev-ZONE,ft,1463,//Fern Ridge-Rule Curve/Elev-ZONE/01Jan2012/1Day/Temp1Day--0/
+Fern Ridge-Top of Dam Elev-ZONE,Fern Ridge-Top of Dam,Elev-ZONE,ft,1463,//Fern Ridge-Top of Dam/Elev-ZONE/01Jan2012/1Day/Temp1Day--0/
+Foster-Inactive Elev-ZONE,Foster-Inactive,Elev-ZONE,ft,1463,//Foster-Inactive/Elev-ZONE/01Jan2012/1Day/Temp1Day--0/
+Foster-Rule Curve Elev-ZONE,Foster-Rule Curve,Elev-ZONE,ft,1463,//Foster-Rule Curve/Elev-ZONE/01Jan2012/1Day/Temp1Day--0/
+Foster-Top of Dam Elev-ZONE,Foster-Top of Dam,Elev-ZONE,ft,1463,//Foster-Top of Dam/Elev-ZONE/01Jan2012/1Day/Temp1Day--0/
+Green Peter-Inactive Elev-ZONE,Green Peter-Inactive,Elev-ZONE,ft,1463,//Green Peter-Inactive/Elev-ZONE/01Jan2012/1Day/Temp1Day--0/
+Green Peter-Rule Curve Elev-ZONE,Green Peter-Rule Curve,Elev-ZONE,ft,1463,//Green Peter-Rule Curve/Elev-ZONE/01Jan2012/1Day/Temp1Day--0/
+Green Peter-Top of Dam Elev-ZONE,Green Peter-Top of Dam,Elev-ZONE,ft,1463,//Green Peter-Top of Dam/Elev-ZONE/01Jan2012/1Day/Temp1Day--0/
+Hills Creek-Inactive Elev-ZONE,Hills Creek-Inactive,Elev-ZONE,ft,1463,//Hills Creek-Inactive/Elev-ZONE/01Jan2012/1Day/Temp1Day--0/
+Hills Creek-Rule Curve Elev-ZONE,Hills Creek-Rule Curve,Elev-ZONE,ft,1463,//Hills Creek-Rule Curve/Elev-ZONE/01Jan2012/1Day/Temp1Day--0/
+Hills Creek-Top of Dam Elev-ZONE,Hills Creek-Top of Dam,Elev-ZONE,ft,1463,//Hills Creek-Top of Dam/Elev-ZONE/01Jan2012/1Day/Temp1Day--0/
+Lookout Point-Inactive Elev-ZONE,Lookout Point-Inactive,Elev-ZONE,ft,1463,//Lookout Point-Inactive/Elev-ZONE/01Jan2012/1Day/Temp1Day--0/
+Lookout Point-Rule Curve Elev-ZONE,Lookout Point-Rule Curve,Elev-ZONE,ft,1463,//Lookout Point-Rule Curve/Elev-ZONE/01Jan2012/1Day/Temp1Day--0/
+Lookout Point-Top of Dam Elev-ZONE,Lookout Point-Top of Dam,Elev-ZONE,ft,1463,//Lookout Point-Top of Dam/Elev-ZONE/01Jan2012/1Day/Temp1Day--0/

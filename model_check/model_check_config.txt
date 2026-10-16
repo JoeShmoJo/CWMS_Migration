@@ -1,0 +1,32 @@
+# Settings for run_model_check.py. One "key: value" per line; # starts a comment.
+
+# The simulation's DSS file: paste its full path. Usually
+# <watershed>\rss\<simulation>\simulation.dss, but any copy of one works; the
+# simulation is named after the folder it sits in.
+simulation_dss: C:\Projects\FIRO\watershed\NWP_Willamette_Master_2026_09_24_ScriptCleanup\rss\Script_Cleanup_Test\simulation.dss
+
+# The alternative to check, as named in ResSim. Its results are the DSS
+# records whose F part starts with this name (Temp1Day -> Temp1Day--0).
+alternative: Temp1Day
+
+# Which steps to run, true or false.
+#   catalog  list every record in simulation.dss (only needed to find new records)
+#   extract  pull the results into CSVs: needed after every model run
+#   check    compare with the configs, and write the report and plots. With
+#            extract false, it checks the newest extract of this simulation
+#            and alternative, e.g. after changing a config file or a setting
+#            in check_model.py
+run_catalog: false
+run_extract: true
+run_check: true
+
+# Optional, with run_check: for each control point, the room left under its
+# maximum on days an upstream reservoir was held back by the point's rule while
+# above its rule curve. Writes ControlPointHeadroom_daily.csv and _summary.csv
+# into the run folder; nothing is added to the report or the plots.
+run_headroom: false
+
+# Optional: check only part of the run (YYYY-MM-DD). Blank means all of it,
+# after ResSim's lookback days.
+start_date:
+end_date:

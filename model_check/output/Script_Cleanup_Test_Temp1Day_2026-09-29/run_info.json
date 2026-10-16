@@ -1,0 +1,8 @@
+{
+  "dss_path": "C:\\Projects\\FIRO\\watershed\\NWP_Willamette_Master_2026_09_24_ScriptCleanup\\rss\\Script_Cleanup_Test\\simulation.dss",
+  "simulation": "Script_Cleanup_Test",
+  "alternative": "Temp1Day",
+  "f_part": "Temp1Day--0",
+  "watershed_dir": "C:\\Projects\\FIRO\\watershed\\NWP_Willamette_Master_2026_09_24_ScriptCleanup",
+  "extracted": "2026-09-29"
+}

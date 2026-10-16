@@ -1,0 +1,33 @@
+element,rule_in_results,days,matches_config_pct,days_different,max_difference_cfs
+Diversion 1 down,yes,1461,100.0,0,0.0
+Diversion 1 up,yes,1461,100.0,0,0.0
+Diversion 2,yes,1461,100.0,0,0.0
+Diversion 3,yes,1461,100.0,0,0.0
+Diversion 4,yes,1461,100.0,0,0.0
+Diversion 5,yes,1461,100.0,0,0.0
+Diversion 6,yes,1461,100.0,0,0.0
+Diversion 7,yes,1461,100.0,0,0.0
+Diversion 8,yes,1461,100.0,0,0.0
+Diversion 9,yes,1461,100.0,0,0.0
+Diversion 10,yes,1461,100.0,0,0.0
+Diversion 11,yes,1461,100.0,0,0.0
+Diversion 12,yes,1461,100.0,0,0.0
+Diversion 13,yes,1461,100.0,0,0.0
+Diversion 14,yes,1461,100.0,0,0.0
+Diversion 15,yes,1461,100.0,0,0.0
+Return 1 down,yes,1461,100.0,0,0.0
+Return 1 up,yes,1461,100.0,0,0.0
+Return 2,yes,1461,100.0,0,0.0
+Return 3,yes,1461,100.0,0,0.0
+Return 4,yes,1461,100.0,0,0.0
+Return 5,yes,1461,100.0,0,0.0
+Return 6,yes,1461,100.0,0,0.0
+Return 7,yes,1461,100.0,0,0.0
+Return 8,yes,1461,100.0,0,0.0
+Return 9,yes,1461,100.0,0,0.0
+Return 10,yes,1461,100.0,0,0.0
+Return 11,yes,1461,100.0,0,0.0
+Return 12,yes,1461,100.0,0,0.0
+Return 13,yes,1461,100.0,0,0.0
+Return 14,yes,1461,100.0,0,0.0
+Return 15,yes,1461,100.0,0,0.0
