@@ -14,8 +14,6 @@ python = os.path.join(str(System.getenv('LOCALAPPDATA')),
                       'miniconda3', 'envs', 'hydro39', 'python.exe')
 if not os.path.isfile(python):
     raise RuntimeError('Python not found: ' + python)
-if not os.path.isfile(os.path.join(scripts, 'CONFIG.py')):
-    raise RuntimeError('ExternalPython/CONFIG.py missing in loaded watershed: ' + root)
 
 class Call(Runnable):
     def __init__(self, fn): self.fn = fn
@@ -31,7 +29,7 @@ class Menu:
         self.text.setEditable(False)
         self.text.setLineWrap(True)
         self.text.setWrapStyleWord(True)
-        self.text.setText('Baseline settings can be saved/loaded/applied through the shared editor. Use one model alternative; recompute after Apply.\nLoaded watershed: ' + root + '\n\nSelect the simulation and alternative below for Baseline Configuration. Other jobs still use ExternalPython/CONFIG.py; these selections do not change CONFIG.py. Finish computes and close DSS views before file-writing steps. Compute manually in ResSim.\n')
+        self.text.setText('Baseline settings can be saved/loaded/applied through the shared editor. Use one model alternative; recompute after Apply.\nLoaded watershed: ' + root + '\n\nSelect the simulation and alternative below for Baseline Configuration. Extraction, augmentation and plots use the same target and the Standalone job settings saved in Baseline Configuration. Apply settings before running jobs. Finish computes and close DSS views before file-writing steps. Compute manually in ResSim.\n')
         buttons = JPanel(GridLayout(0, 2, 5, 5))
         buttons.add(JLabel('Baseline target simulation (select explicitly)'))
         self.simulation = JComboBox()
@@ -46,13 +44,12 @@ class Menu:
         self.alternative = JTextField('')
         buttons.add(self.alternative)
         buttons.add(JButton('Baseline Configuration', actionPerformed=lambda e: self.open_baseline()))
-        jobs = [
-          ('Extract inputs (all four steps)', ['CWMS_Downloader_Module.py', 'RFC_Downloader_Module.py', 'Dummy_0_and_WY_Abundant_Module.py', 'OSI_Ensemble_Year.py']),
-          ('Calculate augmentation', ['MainstemAugmentation.py']),
-          ('Plot ensemble', ['Ensemble_Plots.py']),
-          ('Plot alternative/trial comparison', ['ALT_COMPARISON_PLOTS.py'])]
-        for title, files in jobs:
-            buttons.add(JButton(title, actionPerformed=lambda e, t=title, f=files: self.start(t, f)))
+        jobs = [('Extract inputs (all four steps)', 'extract'),
+                ('Calculate augmentation', 'augmentation'),
+                ('Plot ensemble', 'plot'),
+                ('Plot alternative/trial comparison', 'compare')]
+        for title, job in jobs:
+            buttons.add(JButton(title, actionPerformed=lambda e, t=title, j=job: self.start(t, j)))
         self.frame.add(buttons, BorderLayout.NORTH)
         self.frame.add(JScrollPane(self.text), BorderLayout.CENTER)
         self.frame.pack()
@@ -84,36 +81,42 @@ class Menu:
         builder.redirectOutput(File(self.log))
         builder.start()
         self.message('Configuration editor starting. Browser opens after settings load. Log: ' + self.log)
-    def start(self, title, files):
+    def start(self, title, job):
         if self.busy:
             JOptionPane.showMessageDialog(self.frame, 'A job is already running.')
             return
+        simulation = str(self.simulation.getSelectedItem())
+        alternative = str(self.alternative.getText()).strip()
+        if self.simulation.getSelectedIndex() == 0 or not alternative:
+            JOptionPane.showMessageDialog(self.frame, 'Select the simulation and alternative first. Review and Apply Baseline Configuration before running jobs.')
+            return
         if JOptionPane.showConfirmDialog(self.frame,
-            title + '\nUses CONFIG.py settings in:\n' + scripts + '\n\nConfirm configuration is saved and no compute is running.',
+            title + '\nSimulation: ' + simulation + '\nAlternative: ' + alternative + '\nUses applied Baseline Configuration job settings. Confirm no compute is running.',
             'Run standalone scripts', JOptionPane.OK_CANCEL_OPTION) != JOptionPane.OK_OPTION:
             return
         self.busy = True
-        Thread(Call(lambda: self.run(title, files)), 'Standalone workflow job').start()
-    def run(self, title, files):
+        Thread(Call(lambda: self.run(title, job, simulation, alternative)), 'Standalone workflow job').start()
+    def run(self, title, job, simulation, alternative):
         try:
-            for name in files:
-                if not os.path.isfile(os.path.join(scripts, name)):
-                    raise RuntimeError('Missing script: ' + name)
+            filename = os.path.join(scripts, 'standalone_jobs.py')
+            if not os.path.isfile(filename): raise RuntimeError('Install the updated standalone workflow first.')
             directory = os.path.join(root, 'standalone-workflow-logs')
             if not os.path.isdir(directory): os.makedirs(directory)
             self.log = os.path.join(directory, 'job-' + str(System.currentTimeMillis()) + '.log')
             self.message(title + '\nLog: ' + self.log)
-            for name in files:
-                self.message('Running ' + name)
-                command = ArrayList()
-                for arg in [python, '-u', os.path.join(scripts, name)]: command.add(arg)
-                builder = ProcessBuilder(command)
-                builder.directory(File(scripts))
-                builder.redirectErrorStream(True)
-                builder.redirectOutput(ProcessBuilder.Redirect.appendTo(File(self.log)))
-                code = builder.start().waitFor()
-                if code != 0: raise RuntimeError(name + ' exited with code ' + str(code))
-            self.message('Finished. Review the log for warnings or missing data. Compute remains manual in ResSim.')
+            command = ArrayList()
+            for arg in [python, '-u', filename, '--watershed', root, '--simulation', simulation,
+                        '--alternative', alternative, '--job', job]: command.add(arg)
+            builder = ProcessBuilder(command)
+            builder.directory(File(scripts))
+            builder.redirectErrorStream(True)
+            builder.redirectOutput(File(self.log))
+            code = builder.start().waitFor()
+            if code != 0:
+                with open(self.log, 'r') as handle:
+                    self.message(''.join(handle.readlines()[-12:]))
+                raise RuntimeError(title + ' exited with code ' + str(code) + '. See ' + self.log)
+            self.message('Finished. Compute remains manual in ResSim.')
         except Exception as error:
             self.message('FAILED: ' + str(error))
         finally:

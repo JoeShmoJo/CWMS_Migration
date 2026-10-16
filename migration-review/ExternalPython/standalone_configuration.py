@@ -13,8 +13,9 @@ def current(root,scripts,context):
         pointer=json.loads(marker.read_text())
         if pointer.get('model_alternative') != context['model_alternative']:
             raise ValueError('This simulation has settings applied to another alternative; select that alternative or use another simulation')
-    return editor.current_configuration(root,scripts,context['model_alternative'],
-        'standalone-baseline-config-active.json','_standalone_baseline_originals')
+    from standalone_jobs import include
+    return include(editor.current_configuration(root,scripts,context['model_alternative'],
+        'standalone-baseline-config-active.json','_standalone_baseline_originals'),scripts)
 
 
 def import_legacy(root,scripts,alternative):

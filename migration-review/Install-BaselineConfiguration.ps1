@@ -50,7 +50,7 @@ $items += [pscustomobject]@{Source=Join-Path $PSScriptRoot 'ExternalPython\basel
 $items += [pscustomobject]@{Source=Join-Path $PSScriptRoot 'baseline-editor-design\editor-mockup.html';Target=Join-Path $scripts 'ExternalPython\baseline-editor.html'}
 $items += [pscustomobject]@{Source=Join-Path $PSScriptRoot 'baseline-editor-design\baseline-configuration.example.json';Target=Join-Path $scripts 'ExternalPython\baseline-configuration.example.json'}
 $items += [pscustomobject]@{Source=Join-Path $PSScriptRoot 'RTS_WORKFLOW_MENU.py';Target=Join-Path $scripts 'RTS_WORKFLOW_MENU.py'}
-foreach ($name in @('workflow_simple.py','run_archive.py','run_data_cache.py','baseline_versions.py','prepare_rts_augmentation.py','load_rts_augmentation.py','plot_rts_augmentation.py','plot_rts_runs.py','rts_workflow.py')) {
+foreach ($name in @('workflow_simple.py','run_archive.py','run_data_cache.py','baseline_versions.py','prepare_rts_augmentation.py','load_rts_augmentation.py','plot_rts_augmentation.py','plot_rts_runs.py','rts_workflow.py','standalone_jobs.py')) {
     $items += [pscustomobject]@{Source=Join-Path $PSScriptRoot ('ExternalPython\' + $name);Target=Join-Path $scripts ('ExternalPython\' + $name)}
 }
 $index = 0

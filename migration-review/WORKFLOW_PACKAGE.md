@@ -35,9 +35,10 @@ the editable source; rerunning the embedded packager regenerates HTML.
 3. Open Baseline Configuration, verify the target banner, load/import/edit settings,
    save a named configuration, then Apply. Compute manually in ResSim.
 4. Use the existing standalone augmentation/trial and plotting process. The other
-   menu jobs use `scripts/ExternalPython/CONFIG.py`; verify SIM_NAME, dates, trial
-   settings and input/output paths separately. Baseline target selection does not
-   update CONFIG.py or turn off standalone augmentation automatically.
+   menu jobs use the selected target and applied **Standalone job settings** in the
+   baseline editor. Apply before extraction/augmentation/plotting. Verify additional
+   downloader/date constants and native mappings separately. Apply does not turn
+   off standalone augmentation automatically.
 5. See [standalone instructions](STANDALONE_CONFIGURATION.md) for validation,
    trial conventions, receipts and rollback. The user has verified standalone
    configuration in ResSim; new environment transitions still need local testing.

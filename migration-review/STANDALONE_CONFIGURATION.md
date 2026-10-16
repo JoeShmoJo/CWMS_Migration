@@ -47,8 +47,9 @@ from hec.script import ClientAppWrapper; import os; execfile(os.path.join(str(Cl
    in ResSim. Choose **Baseline Configuration** and confirm both names.
 3. Verify the browser's target simulation, alternative and directory before Apply.
    The menu passes these explicitly; it does not infer the selected GUI simulation.
-   Extraction, augmentation and plotting jobs still use CONFIG.py, which must be
-   configured separately for those jobs. Baseline target selections do not edit it.
+   Extraction, augmentation and plotting job options are
+   managed in **Standalone job settings** inside Baseline Configuration. Menu jobs
+   use the selected target and applied settings, not CONFIG.py.
 4. For the initial state, the editor reads watershed `_default.txt` plus the target
    alternative's `.txt` file. Use **Import legacy alternative settings** to import
    a preset such as HCR1511 or HCR1531 without changing the target Con_Season.
@@ -83,19 +84,28 @@ baseline/augmented trial conventions rather than assuming Apply disables all
 augmentation as it does in RTS. The Apply message explicitly states that the
 existing standalone augmentation/trial settings remain unchanged.
 
-The menu retains Extract inputs, Calculate augmentation, Plot ensemble
-and Plot alternative/trial comparison. These
-still use the current watershed's existing external Python scripts. CONFIG.py
-remains an input to those jobs; edit scripts/ExternalPython/CONFIG.py directly
-when their simulation/alternative/trial settings need changing. In particular,
-Calculate augmentation still uses the existing standalone MainstemAugmentation.py
-and its inputs; this feature does not add RTS's separate augmentation JSON editor.
+The menu retains Extract inputs, Calculate augmentation, Plot ensemble and
+Plot alternative/trial comparison. **Configuration Overview → Standalone job
+settings** holds plot_trial, comparison_trials, osi_source_member and
+plot_reference_lines. Review these and Apply before launching a job. The job uses
+the same selected simulation/alternative as the editor; changing the menu target
+requires applying to that target before its jobs can run.
+
+CONFIG.py is read as literal initial defaults only when an older configuration
+lacks job settings. The original file is not rewritten or opened. Each job gets
+a private temporary CONFIG compatibility module so existing scripts and their
+reload calls use the applied settings. You do not edit CONFIG.py for menu jobs.
+Existing direct manual launches outside the menu still have their legacy behavior.
+Calculate augmentation remains the existing standalone calculator, not RTS's
+acceptance/scheme process. Its additional hardcoded controls remain outside this
+job-settings panel.
 
 ## Files and isolation
 
 | Artifact | Location relative to standalone watershed |
 | --- | --- |
 | Menu | `scripts/STANDALONE_WORKFLOW_MENU.py` |
+| Standalone job runner | `scripts/ExternalPython/standalone_jobs.py` |
 | Standalone editor launcher/backend | `scripts/ExternalPython/standalone_configuration.py` |
 | Shared editor/validation | `scripts/ExternalPython/baseline_configuration.py`, `baseline-editor.html`, `baseline-configuration.example.json` |
 | Configuration library | `scripts/baseline-configuration-library/<id>.json` |

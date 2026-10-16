@@ -24,6 +24,8 @@ a local edit makes behavior differ from these documents.
 
 ## What was completed / where work stopped
 
+- Standalone menu jobs use the browser’s applied job settings and selected target;
+  CONFIG.py is only a source of initial legacy defaults, not a separate user step.
 - A shared browser baseline editor supports eleven scripted-rule groups and
   reusable named JSON sets, with separate Save and Apply actions.
 - Standalone targeting now explicitly asks for simulation and alternative. The

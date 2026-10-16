@@ -26,10 +26,12 @@ use the [standalone/shared reference](STANDALONE_WORKFLOW_REFERENCE.md) and
 from hec.script import ClientAppWrapper; import os; execfile(os.path.join(str(ClientAppWrapper.getWatershed().getWkspDir()), 'scripts', 'STANDALONE_WORKFLOW_MENU.py'))
 ```
 
-3. **For extraction, augmentation and plotting:** Open `scripts/ExternalPython/CONFIG.py` in a text editor and
-   check SIM_NAME, ALTERNATIVE_NAME_STEP1, TRIAL, TRIAL_SUFFIXES and OSI member
-   selection. Save it. These jobs use CONFIG.py independently of baseline selectors.
-   Check downloader dates/mappings and rule-curve coverage in installed scripts/model.
+3. Select the intended simulation and alternative, then open **Baseline
+   Configuration**. In Configuration Overview, review **Standalone job settings**:
+   plot trial, comparison trials, OSI source member and plot reference lines.
+   Save/Apply these settings before any menu job, including initial extraction.
+   No separate CONFIG.py editing is required. Individual downloader/date/member
+   constants and native mappings must still fit the intended study.
 4. If inputs are needed, run **Extract inputs (all four steps)**. Wait for successful
    completion and inspect the job log and actual simulation.dss input coverage.
    Do not extract again merely to change baseline operating settings.
@@ -42,10 +44,10 @@ from hec.script import ClientAppWrapper; import os; execfile(os.path.join(str(Cl
 7. Compute the baseline trial manually. Verify current log completion, ensemble
    coverage and initialization receipts. Preserve the baseline results if needed.
 8. Configure the existing standalone augmentation reservoir/target CSVs and trials.
-   **Calculate augmentation** reads the CONFIG-selected baseline outputs and writes
+   **Calculate augmentation** reads the selected target’s baseline outputs and writes
    release requirements into that simulation DSS. Verify the log and paths.
-9. Compute the augmented trial manually. Use **Plot ensemble** for CONFIG.TRIAL or
-   **Plot alternative/trial comparison** for CONFIG.TRIAL_SUFFIXES. These plot live
+9. Compute the augmented trial manually. Use **Plot ensemble** for the applied plot_trial or
+   **Plot alternative/trial comparison** for the applied comparison_trials. These plot live
    standalone DSS outputs; they do not select RTS accepted archives.
 10. For a new baseline, open/load/edit/save/apply another set to the same target,
     recompute baseline, recalculate augmentation and recompute augmented trials.

@@ -205,6 +205,9 @@ def validate_settings(settings, defaults, prefix=''):
 
 def resolve(config, scripts, watershed):
     defaults = template(scripts)
+    if 'standalone_workflow' in config:
+        from standalone_jobs import validate
+        validate(config['standalone_workflow'])
     if config.get('format') != defaults['format'] or config.get('schema_version') != 1 or not str(config.get('name','')).strip():
         raise ValueError('Invalid baseline configuration header')
     if set(config['rules']) != set(defaults['rules']):
@@ -331,6 +334,9 @@ def apply_configuration(root, context, config, scripts):
     if (root/'baseline-execution-test.json').exists():
         raise ValueError('Restore configured execution mode before applying settings.')
     standalone=context.get('mode')=='standalone'
+    if standalone:
+        from standalone_jobs import include
+        config=include(config,scripts)
     originals='_standalone_baseline_originals' if standalone else '_rts_baseline_originals'
     config=with_null_reservoirs(config)
     resolved,linked=resolve(config,scripts,watershed)
@@ -470,6 +476,11 @@ loadSet.onclick=async()=>{if(!savedSets.value)return;if(!confirm('Replace the se
     page=page.replace('</html>',close_bridge+'</html>')
     if standalone:
         page=page.replace('RTS baseline editor', 'Standalone baseline editor')
+        workflow_bridge="""<script>
+const standaloneJobDefaults=DEFAULTS;
+const baseRender=render;render=function(){if(!config.standalone_workflow)config.standalone_workflow=JSON.parse(JSON.stringify(standaloneJobDefaults));baseRender()};render();
+</script>""".replace('DEFAULTS',json.dumps(config['standalone_workflow']).replace('</','<\\/'))
+        page=page.replace('</html>',workflow_bridge+'</html>')
         page=page.replace('Finish all computes and close the forecast in RTS before applying. Apply this set, disable augmentation, and require a new unaugmented compute?', 'Finish all computes before applying. Apply these settings to the displayed standalone simulation and alternative? Recompute affected trials afterward.')
         page=page.replace('Augmentation is off. Reopen the forecast and compute in RTS; check RTS baseline init messages.', 'Settings will load at the next initialization. Compute manually in ResSim; retain earlier results separately.')
         page=page.replace('Settings are staged. Reopen the forecast and compute in RTS. Then accept completed baseline results. Do not re-extract.', 'Standalone settings are staged. Recompute the baseline and affected augmentation trials manually. Do not re-extract for settings changes.')
@@ -479,7 +490,7 @@ loadSet.onclick=async()=>{if(!savedSets.value)return;if(!confirm('Replace the se
         legacy_bridge="""<script>
 const presets=document.createElement('select');const importPreset=document.createElement('button');importPreset.textContent='Import legacy alternative settings';document.querySelector('.toolbar').append(presets,importPreset);
 for(const name of LEGACY){const option=document.createElement('option');option.value=name;option.textContent=name;presets.append(option)}
-importPreset.onclick=async()=>{try{config=await libraryRequest('/legacy',{alternative:presets.value});selected='overview';render();status('Imported baseline rule settings only. Save and Apply separately; operation sets and augmentation mappings are unchanged.')}catch(e){alert(e.message)}};
+importPreset.onclick=async()=>{try{const jobSettings=config.standalone_workflow;config=await libraryRequest('/legacy',{alternative:presets.value});if(jobSettings)config.standalone_workflow=jobSettings;selected='overview';render();status('Imported baseline rule settings only. Save and Apply separately; operation sets and augmentation mappings are unchanged.')}catch(e){alert(e.message)}};
 </script>""".replace('LEGACY',json.dumps(sorted(path.stem for path in (scripts.parent/'alt_config').glob('*.txt') if path.stem!='_default')))
         page=page.replace('</html>',legacy_bridge+'</html>')
     class Handler(BaseHTTPRequestHandler):
@@ -507,6 +518,8 @@ importPreset.onclick=async()=>{try{config=await libraryRequest('/legacy',{altern
                     identity=payload.get('id','')
                     if not re.fullmatch('[a-f0-9]{32}',identity): raise ValueError('Invalid saved configuration identifier')
                     result=json.loads((configuration_library(scripts)/(identity+'.json')).read_text())
+                if standalone and self.path in ('/load','/legacy'):
+                    result.setdefault('standalone_workflow',copy.deepcopy(config['standalone_workflow']))
                 code=200
             except Exception as exc: result={'error':str(exc)};code=400
             self.send_response(code);self.send_header('Content-Type','application/json');self.end_headers();self.wfile.write(json.dumps(result).encode())

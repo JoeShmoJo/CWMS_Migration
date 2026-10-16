@@ -21,8 +21,9 @@ Simulation, native alternative, trial, historical ensemble member and RTS foreca
 alternative/run code are different identifiers. In standalone, the browser menu
 requires a simulation folder and alternative name explicitly. It does not detect
 the active GUI selection. The command-line editor requires --simulation and
---alternative as well. Existing external jobs use CONFIG.py; the baseline selectors
-do not update it. A simulation with spaces is normalized to underscores by the
+--alternative as well. Menu jobs use the same selected target and the applied standalone_workflow
+settings in the baseline snapshot. CONFIG.py supplies initial literal defaults
+only for old configurations without these settings; it is not a menu job target. A simulation with spaces is normalized to underscores by the
 backend. Output DSS is used to locate the active pointer at compute initialization.
 The runtime also checks the native alternative name before applying overrides.
 
@@ -31,6 +32,7 @@ The runtime also checks the native alternative name before applying overrides.
 | Component | Runtime / producer-consumer role |
 | --- | --- |
 | `scripts/STANDALONE_WORKFLOW_MENU.py` | ResSim Jython/Swing; chooses target, starts external jobs, displays log path |
+| `EP/standalone_jobs.py` | External Python; validates applied job settings and supplies private CONFIG compatibility modules to child jobs |
 | `EP/standalone_configuration.py` | External Python; resolves standalone target and starts shared editor |
 | `EP/baseline_configuration.py` | External Python HTTP/browser editor; imports, validates, saves and applies settings |
 | `EP/baseline-editor.html` | Editor UI served locally; keep backend and UI versions together |
@@ -54,7 +56,8 @@ browser editor; close the old editor before opening a different target.
 | Input | Location | Created/maintained by | Used by / effect |
 | --- | --- | --- | --- |
 | Native simulation/alternative/trials | S and native watershed model files | ResSim editor/operator | Compute dates, operation sets, rule bindings and DSS mappings |
-| External job settings | EP/CONFIG.py | Operator | Extraction/augmentation/plot target and trial selection |
+| External job settings | Applied configuration standalone_workflow section | Baseline editor Save/Apply | Plot trial/comparison trials, OSI member and reference lines; job target comes from menu selection |
+| Legacy job defaults | EP/CONFIG.py | Existing model | Literal initial defaults when old configs have no job settings; not opened or rewritten by the menu |
 | Default legacy settings | scripts/alt_config/_default.txt | Existing model/operator | Base scripted settings |
 | Alternative legacy settings | scripts/alt_config/<alternative>.txt | Existing model/operator | Override defaults; @alias can refer to another preset |
 | Rule CSV schedules | Usually scripts/externalRules/*.csv | Existing model/operator | Initial imported settings; actual paths come from alt_config |
@@ -73,10 +76,13 @@ all trials of the selected alternative receive the applied baseline settings.
 Only one selected alternative is bound by the active pointer in a simulation;
 the editor refuses opening that pointer as a different alternative.
 
-CONFIG.py fields reviewed: SIM_NAME, ALTERNATIVE_NAME_STEP1, TRIAL,
+Legacy CONFIG.py compatibility fields reviewed: SIM_NAME, ALTERNATIVE_NAME_STEP1, TRIAL,
 TRIAL_SUFFIXES, H_LINE_DICT and ENSEMBLE_YEAR_TO_COPY. Additional dates, member
 ranges, mappings and plot constants may remain in individual legacy scripts.
-Do not assume the menu consolidates every script parameter into CONFIG.py.
+The browser consolidates the reviewed job settings, not every constant in legacy
+scripts. Temporary CONFIG modules are deleted after each child job; the source
+CONFIG.py remains unchanged. Saved standalone_workflow is portable with the
+baseline JSON; RTS preserves it but its menus do not consume those job controls.
 Do not assume standalone download windows are the RTS forecast window: legacy
 CWMS scripts use current-date-based logic unless locally adapted. Review them for
 historical simulations. The existing menu does not supply historical RFC archives.
@@ -146,7 +152,9 @@ or atomic RTS extract-promotion behavior is implied by their menu buttons.
 | External job/editor logs | W/standalone-workflow-logs/*.log | Menu → diagnosis; log paths appear in menu output |
 | Native compute logs | Usually S, application logs may differ | ResSim → per-worker/member completion diagnosis |
 
-Reviewed augmentation code uses CONFIG.SIM_NAME and ALTERNATIVE_NAME_STEP1,
+Reviewed augmentation code uses CONFIG.SIM_NAME and ALTERNATIVE_NAME_STEP1;
+menu jobs supply these from the selected target through a private temporary
+compatibility module. The calculator
 reads/writes the same simulation.dss, has a 10-day short horizon, and uses
 April 1–October 31 season constants. It derives full-series inputs including
 storage/flows/requirements and writes FLOW-MIN-EXTERNALFLOWAUG and diagnostic
