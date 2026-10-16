@@ -143,7 +143,7 @@ or atomic RTS extract-promotion behavior is implied by their menu buttons.
 | Augmentation profile | EP/MainstemAugmentation.pstats | Reviewed calculator → performance diagnosis |
 | Ensemble HTML plots | W/output_plots/plotly_html/<timestamp>/ | Ensemble_Plots.py → browser/operator |
 | Trial comparison HTML plots | W/output_plots/plotly_html_trials/<timestamp>/ | ALT_COMPARISON_PLOTS.py → browser/operator |
-| External job/editor logs | W/standalone-workflow-logs/*.log | Menu → diagnosis; Open last job log |
+| External job/editor logs | W/standalone-workflow-logs/*.log | Menu → diagnosis; log paths appear in menu output |
 | Native compute logs | Usually S, application logs may differ | ResSim → per-worker/member completion diagnosis |
 
 Reviewed augmentation code uses CONFIG.SIM_NAME and ALTERNATIVE_NAME_STEP1,

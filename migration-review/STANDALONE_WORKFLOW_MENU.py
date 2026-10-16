@@ -3,7 +3,7 @@ import os
 from java.lang import Thread, Runnable, System, ProcessBuilder
 from java.io import File
 from java.util import ArrayList
-from java.awt import Desktop, GridLayout, BorderLayout
+from java.awt import GridLayout, BorderLayout
 from javax.swing import (JFrame, JPanel, JButton, JTextArea, JScrollPane,
                          JOptionPane, SwingUtilities, WindowConstants, JLabel, JTextField, JComboBox)
 from hec.script import ClientAppWrapper
@@ -53,7 +53,6 @@ class Menu:
           ('Plot alternative/trial comparison', ['ALT_COMPARISON_PLOTS.py'])]
         for title, files in jobs:
             buttons.add(JButton(title, actionPerformed=lambda e, t=title, f=files: self.start(t, f)))
-        buttons.add(JButton('Open last job log', actionPerformed=lambda e: self.open_log()))
         self.frame.add(buttons, BorderLayout.NORTH)
         self.frame.add(JScrollPane(self.text), BorderLayout.CENTER)
         self.frame.pack()
@@ -85,8 +84,6 @@ class Menu:
         builder.redirectOutput(File(self.log))
         builder.start()
         self.message('Configuration editor starting. Browser opens after settings load. Log: ' + self.log)
-    def open_log(self):
-        if self.log: Desktop.getDesktop().open(File(self.log))
     def start(self, title, files):
         if self.busy:
             JOptionPane.showMessageDialog(self.frame, 'A job is already running.')
