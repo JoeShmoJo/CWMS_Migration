@@ -105,7 +105,7 @@ def plot(root,identities):
     root=Path(root);saved={row['id']:row for row in catalog(root)}
     if len(identities) not in (1,2) or len(set(identities))!=len(identities):raise ValueError('Choose one or two distinct saved runs')
     selected=[saved[identity] for identity in identities]
-    frames={};units={};references={};reference_notes=[]
+    frames={};units={};references={};reference_notes=[];reference_failures=[]
     for row in selected:
         directory=root/'standalone-results'/row['id']
         if digest_file(directory/'run-archive.json')!=row['archive_sha256']:raise ValueError('Archive manifest changed')
@@ -134,7 +134,7 @@ def plot(root,identities):
                     member=int(match[1])
                 try:record=handle.read_ts(path)
                 except ValueError as error:
-                    reference_notes.append(row['label']+' / '+target[2]+': '+str(error));continue
+                    reference_failures.append({'run':row['label'],'reference':target[2],'location':target[0],'member':member,'path':path,'error':str(error)});continue
                 refkey=(row['id'],target[0],target[1],parts[5].upper(),target[2])
                 entry=references.setdefault(refkey,{'series':{},'units':record.units})
                 if entry['units']!=record.units:raise ValueError('Mixed reference units')
@@ -198,8 +198,19 @@ def plot(root,identities):
         figure.update_layout(title=location+' '+parameter,yaxis_title=str(units[key]))
         filename='plot-'+str(number)+'.html';figure.write_html(destination/filename,include_plotlyjs='plotly.min.js')
         links.append('<li><a href="'+filename+'">'+escape(location+' '+parameter)+'</a></li>')
+    import csv
+    from collections import defaultdict
+    failure_groups=defaultdict(list)
+    for failure in reference_failures:
+        failure_groups[failure['run'],failure['reference']].append(failure)
+    for (run,label),failures in sorted(failure_groups.items()):
+        locations=len({item['location'] for item in failures})
+        reference_notes.append(run+' / '+label+': '+str(len(failures))+' unavailable archived member records across '+str(locations)+' location(s). The line is omitted where no usable values exist; missing is not zero. Details: reference-read-report.csv.')
+    with (destination/'reference-read-report.csv').open('w',newline='',encoding='utf-8') as stream:
+        writer=csv.DictWriter(stream,fieldnames=['run','reference','location','member','path','error'])
+        writer.writeheader();writer.writerows(reference_failures)
     paired=len(selected)==2 and selected[0]['baseline_id']==selected[1]['baseline_id']
-    (destination/'index.html').write_text('<!doctype html><meta charset="utf-8"><title>Saved standalone results</title><h1>Saved standalone results</h1><p>'+escape(' / '.join(row['label'] for row in selected))+'</p><p>'+('Same baseline pairing' if paired else 'One run, or different baseline pairings: differences may include baseline changes')+'</p><ul>'+''.join('<li>'+escape(note)+'</li>' for note in reference_notes)+'</ul><ul>'+''.join(links)+'</ul>',encoding='utf-8')
+    (destination/'index.html').write_text('<!doctype html><meta charset="utf-8"><title>Saved standalone results</title><h1>Saved standalone results</h1><p>'+escape(' / '.join(row['label'] for row in selected))+'</p><p>'+('Same baseline pairing' if paired else 'One run, or different baseline pairings: differences may include baseline changes')+'</p><ul>'+''.join(links)+'</ul><details><summary>Reference availability ('+str(len(reference_notes))+' notices)</summary><p><a href="reference-read-report.csv">Detailed reference read report</a></p><ul>'+''.join('<li>'+escape(note)+'</li>' for note in reference_notes)+'</ul></details>',encoding='utf-8')
     atomic_json(destination/'selection.json',{'runs':selected,'same_baseline':paired,'reference_notes':reference_notes})
     return destination/'index.html'
 

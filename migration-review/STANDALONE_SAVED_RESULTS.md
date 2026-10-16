@@ -177,3 +177,11 @@ archive the still-available completed native results again under a new name.
 No new compute is needed if the required native records are already present.
 If the model did not save a required reference, its plot cannot show it; do not
 infer a rule curve or requirement from actual elevations/outflows.
+
+Empty cataloged optional reference records do not invalidate otherwise usable
+pool/outflow archives. The plot index lists plots first, then groups availability
+notices by run/reference in a collapsible section. Every failed reference read,
+including location, member, original pathname and error, is retained in
+`reference-read-report.csv`. A missing minimum-limit record does not imply a zero
+minimum. It is not replaced with observed outflow; available prepared demand and
+combined-minimum traces remain separately labeled.

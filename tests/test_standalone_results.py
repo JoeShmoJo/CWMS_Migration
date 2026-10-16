@@ -55,7 +55,7 @@ class StandaloneResultTests(unittest.TestCase):
         self.assertTrue(plot.is_file())
         self.assertTrue((plot.parent/'plotly.min.js').is_file())
         self.assertTrue(json.loads((plot.parent/'selection.json').read_text())['same_baseline'])
-        self.assertEqual(len(list(plot.parent.glob('*.csv'))),6)
+        self.assertEqual(len(list(plot.parent.glob('plot-*.csv'))),6)
 
     def test_capture_records_common_synthetic_ids_without_relabeling_legacy_archives(self):
         self.paths += [path.replace('002000','003003') for path in self.paths]
@@ -76,7 +76,7 @@ class StandaloneResultTests(unittest.TestCase):
         self.source.unlink()
         path=results.plot(self.root,[baseline['id'],result['id']])
         self.assertTrue(path.is_file())
-        frame=pd.read_csv(next(path.parent.glob('*.csv')))
+        frame=pd.read_csv(next(path.parent.glob('plot-*.csv')))
         self.assertIn('POR',frame.columns)
         figure=next(path.parent.glob('plot-*.html')).read_text()
         self.assertNotIn('5–95%',figure)
@@ -92,7 +92,7 @@ class StandaloneResultTests(unittest.TestCase):
         figures=''.join(item.read_text() for item in path.parent.glob('plot-*.html'))
         self.assertIn('Rule curve',figures)
         self.assertIn('Applied minimum release (FLOW-MINLIM)',figures)
-        self.assertEqual(len(list(path.parent.glob('reference-*.csv'))),2)
+        self.assertEqual(len(list(path.parent.glob('reference-[0-9]*.csv'))),2)
         self.assertEqual(json.loads((path.parent/'selection.json').read_text())['reference_notes'],[])
 
     def test_prepared_augmentation_and_mainstem_targets_are_archived_and_plotted(self):
@@ -107,7 +107,7 @@ class StandaloneResultTests(unittest.TestCase):
         figures=''.join(item.read_text() for item in path.parent.glob('plot-*.html'))
         self.assertIn('Prepared augmentation minimum release',figures)
         self.assertIn('Prepared mainstem flow target',figures)
-        self.assertEqual(len(list(path.parent.glob('reference-*.csv'))),2)
+        self.assertEqual(len(list(path.parent.glob('reference-[0-9]*.csv'))),2)
         baseline_plot=results.plot(self.root,[baseline['id']])
         baseline_figures=''.join(item.read_text() for item in baseline_plot.parent.glob('plot-*.html'))
         self.assertNotIn('Prepared augmentation minimum release',baseline_figures)
@@ -128,9 +128,28 @@ class StandaloneResultTests(unittest.TestCase):
         self.assertIn('minimum across members',figures)
         self.assertIn('maximum across members',figures)
         self.assertIn('median across members',figures)
-        reference=pd.read_csv(next(path.parent.glob('reference-*.csv')))
+        reference=pd.read_csv(next(path.parent.glob('reference-[0-9]*.csv')))
         self.assertEqual(reference['2000'].tolist(),[100.]*3)
         self.assertEqual(reference['2001'].tolist(),[200.]*3)
+
+    def test_empty_optional_reference_is_reported_once_with_member_details(self):
+        self.paths+=['//Lookout Point/FLOW-MINLIM/01Jan2027/1DAY/C:002000|CON_SEASON0/']
+        self.paths += [path.replace('002000','002001') for path in self.paths]
+        cls=self.fake.HecDss.Open;original=cls.read_ts
+        def read(handle,path,**kwargs):
+            record=original(handle,path,**kwargs)
+            if '/FLOW-MINLIM/' in path:record.values=[float('nan')]*3
+            return record
+        with patch.object(cls,'read_ts',read):
+            captured=results.capture(self.root,'Con_Season','Empty optional limits','CON_SEASON0','baseline',confirmed=True)
+        self.source.unlink()
+        path=results.plot(self.root,[captured['id']]);html=path.read_text()
+        self.assertEqual(html.count('2 unavailable archived member records'),1)
+        self.assertLess(html.index('plot-0.html'),html.index('<details>'))
+        audit=pd.read_csv(path.parent/'reference-read-report.csv')
+        self.assertEqual(len(audit),2)
+        self.assertEqual(set(audit['member']),{2000,2001})
+        self.assertTrue(all('Empty or wholly missing' in error for error in audit['error']))
 
     def test_old_archive_explains_missing_references(self):
         baseline=results.capture(self.root,'Con_Season','Old archive','CON_SEASON0','baseline',confirmed=True)
