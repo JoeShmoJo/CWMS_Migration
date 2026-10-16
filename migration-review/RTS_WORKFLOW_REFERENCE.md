@@ -12,7 +12,7 @@ Examples below use these roots; substitute the paths shown by your selected fore
 
 | Symbol | Example | Purpose |
 | --- | --- | --- |
-| `REPO` | `C:\Projects\A_REPOSITORIES\CWMS_Migration` | Maintained code and documentation |
+| `REPO` | `C:\Projects\A_Recent_Projects\CWMS_Migration` | Maintained code and documentation |
 | `WS` | `C:\CWMS\watershed\ResSimMaster` | Imported RTS watershed and shared installed scripts |
 | `EP` | `WS\scripts\ExternalPython` | Installed external Python backend and maintained data inputs |
 | `F` | `C:\CWMS\forecast\Ensemble_Test\ResSimMaster` | One forecast's model directory; parent of its live DSS |
@@ -362,17 +362,18 @@ configuration-driven SOP. No archived operation-set file is restored by applying
 a baseline configuration. The imported alternative and rule bindings still need
 to be correct.
 
-[Install-ForecastExtraction.ps1](Install-ForecastExtraction.ps1) installs the general
-workflow/extraction backend and launchers;
-[Install-BaselineConfiguration.ps1](Install-BaselineConfiguration.ps1) installs
-baseline adapters/editor; [Install-RunArchives.ps1](Install-RunArchives.ps1) updates
-the compact-archive backend only. Each prints its script-backup location, normally
-below `%LOCALAPPDATA%\CWMS_Migration_Backups`. A model reimport may require
-reinstallation. A repository `git pull` alone does not update the installed scripts.
-Application JAR modification is not a prerequisite for this workflow. See the
-separate [archive/restore procedure](diagnostics/compiler-isolation/ARCHIVE_AND_RESTORE.md)
-for the previously experimental compiler modification; do not reinstall that
-patch as part of this SOP.
+For this portable watershed use the embedded
+`WS\scripts\workflow-kit\Install-StandaloneConfiguration.py --mode rts` as
+explained in [package/import instructions](WORKFLOW_PACKAGE.md). It installs the
+required workflow helpers and converts recognized standalone adapters in the
+imported copy. Script backups are printed under that watershed's
+`standalone-configuration-backups`; preserve the inventory for rollback.
+Older separate repository PowerShell installers remain historical maintenance
+entry points; they are not the recommended conversion procedure for this package.
+A Git pull alone does not update installed watershed scripts. No repository is
+needed for the embedded installer. Application JAR modification is not required;
+use the original HEC application. No experimental compiler patch is installed by
+the package or this SOP.
 
 ## Known limitations and troubleshooting
 

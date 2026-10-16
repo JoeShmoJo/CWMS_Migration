@@ -112,8 +112,17 @@ class StandaloneTests(unittest.TestCase):
     def test_portable_package_embedded_installer_and_manifest(self):
         spec=importlib.util.spec_from_file_location('workflow_package',ROOT/'migration-review/Package-Workflow.py')
         builder=importlib.util.module_from_spec(spec);spec.loader.exec_module(builder)
+        notes=self.root/'PROJECT_LOCAL_NOTES.md'
+        notes.write_text('Keep my local findings')
         kit=builder.package(self.root)
-        self.assertTrue((kit/'WORKFLOW_PACKAGE.md').is_file())
+        self.assertEqual(notes.read_text(),'Keep my local findings')
+        for name in ('WORKFLOW_PACKAGE.md','PROJECT_START_HERE.md','WORKFLOW_SOP.md','STANDALONE_WORKFLOW_REFERENCE.md','RTS_WORKFLOW_REFERENCE.md','Package-Workflow.py'):
+            self.assertTrue((kit/name).is_file(),name)
+        self.assertTrue((self.root/'WORKFLOW_README.md').is_file())
+        inventory=json.loads((kit/'installation-inventory.json').read_text())
+        self.assertEqual(inventory['watershed'],str(self.root))
+        self.assertIn('Test_simulation',[item['folder'] for item in inventory['simulations']])
+        self.assertTrue(any(item['path'].replace('\\','/')=='scripts/ExternalPython/CONFIG.py' for item in inventory['installed_script_data_files']))
         import hashlib
         for name,digest in json.loads((kit/'manifest.json').read_text()).items():
             self.assertEqual(hashlib.sha256((kit/name).read_bytes()).hexdigest(),digest)

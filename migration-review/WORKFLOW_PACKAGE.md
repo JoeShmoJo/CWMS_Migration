@@ -11,6 +11,12 @@ alternatives and DSS mappings when transferring the watershed. The kit supplemen
 those model-specific files; it is not a replacement watershed or a universal model
 installer. Keep the standalone watershed and imported RTS copy separate.
 
+For repository-free reopening, begin with [project handoff](PROJECT_START_HERE.md),
+the [combined operator SOP](WORKFLOW_SOP.md), and the
+[standalone technical reference](STANDALONE_WORKFLOW_REFERENCE.md). Packaging adds
+a root WORKFLOW_README.md, preserves PROJECT_LOCAL_NOTES.md, and records actual
+local script paths/checksums and Python versions in installation-inventory.json.
+
 ## Standalone SOP
 
 1. Finish compute and close ResSim before installing/updating scripts. Package the
