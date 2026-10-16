@@ -7,7 +7,7 @@ import html
 from pathlib import Path
 import re
 
-NAV=(('PROJECT_START_HERE','Start here'),('PROJECT_RESUME','Resume project'),('WORKFLOW_SOP','Operator SOP'),
+NAV=(('index','Overview'),('PIPELINE','Pipeline / file map'),('PROJECT_START_HERE','Start here'),('PROJECT_RESUME','Resume project'),('WORKFLOW_SOP','Operator SOP'),
      ('STANDALONE_WORKFLOW_REFERENCE','Standalone reference'),
      ('RTS_WORKFLOW_REFERENCE','RTS reference'),('STANDALONE_SAVED_RESULTS','Standalone saved runs'),('STANDALONE_POR_MODEL_CHECK','POR / Model Check'),('WORKFLOW_PACKAGE','Import / packaging'),('RTS_IMPORT_VALIDATION','Next: RTS validation'),
      ('RTS_DATA_IO','Data / archives'),('DIVERSION_POSTPROCESS','Diversions (optional)'))
@@ -76,13 +76,25 @@ def render(text,sources):
 
 def build(directory):
     directory=Path(directory);output=directory/'documentation';output.mkdir(exist_ok=True)
-    docs=sorted(directory.glob('*.md'))
+    source = directory/'documentation/sources'
+    docs = sorted(source.glob('*.md')) if source.is_dir() else sorted(directory.glob('*.md'))
     optional=directory/'optional-diversion-postprocess/README.md'
     if optional.is_file():docs.append(optional)
-    sources={p.relative_to(directory).as_posix():p.relative_to(directory).with_suffix('.html').as_posix().replace('/','-') for p in docs}
+    sources={p.name:p.stem+'.html' for p in docs}
+    if optional.is_file():
+        sources['optional-diversion-postprocess/README.md']='optional-diversion-postprocess-README.html'
     navigation='<nav>'+''.join('<a href="'+name+'.html">'+label+'</a>' for name,label in NAV)+'</nav>'
     for doc in docs:
         text=doc.read_text(encoding='utf-8');title=next((line.lstrip('# ') for line in text.splitlines() if line.startswith('# ')),doc.stem)
         page='<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+html.escape(title)+'</title><style>'+STYLE+'</style><body>'+navigation+'<main>'+render(text,sources)+'<footer>Offline watershed documentation · <a href="../'+doc.relative_to(directory).as_posix()+'">Markdown source</a> · Use browser Print to save as PDF.</footer></main></body></html>'
-        (output/sources[doc.relative_to(directory).as_posix()]).write_text(page,encoding='utf-8')
+        (output/(sources['optional-diversion-postprocess/README.md'] if doc==optional else sources[doc.name])).write_text(page,encoding='utf-8')
+    (output/'index.html').write_text('<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Willamette workflow guide</title><style>'+STYLE+'</style><body>'+navigation+'<main><h1>Willamette workflow guide</h1><p>Start with the pipeline map to trace each launcher, input, processing step and saved result. All guides are included in this project.</p><ul><li><a href="PIPELINE.html">Pipeline and folder map</a></li><li><a href="WORKFLOW_SOP.html">Operate standalone ResSim or RTS</a></li><li><a href="WORKFLOW_PACKAGE.html">Install, update and switch modes</a></li><li><a href="RTS_IMPORT_VALIDATION.html">Validate a fresh RTS import</a></li><li><a href="MODEL_CHECK.html">Model Check</a></li><li><a href="DAMAGES_PREVENTED.html">Damages Prevented</a></li></ul><h2>All guides</h2><ul>'+''.join('<li><a href="'+(sources['optional-diversion-postprocess/README.md'] if doc==optional else sources[doc.name])+'">'+html.escape(doc.stem.replace('_',' ').title())+'</a></li>' for doc in docs)+'</ul><p>Guides work offline. Downloads require their data services; model compute requires the installed HEC application and Python environment.</p></main></body></html>',encoding='utf-8')
     return output
+
+
+if __name__ == '__main__':
+    import argparse
+    parser = argparse.ArgumentParser(description='Refresh local offline workflow guides.')
+    parser.add_argument('--kit', type=Path, default=Path(__file__).resolve().parent)
+    args = parser.parse_args()
+    print(build(args.kit))

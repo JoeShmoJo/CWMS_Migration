@@ -7,8 +7,8 @@ The new runner supplies an explicit context without editing CONFIG.py.
 
 ## Install into the imported watershed for testing
 
-Fetch and check out the `forecast-extraction-context` branch in the repository.
-Run `Install-ForecastExtraction.ps1` from migration-review. It backs up existing
+Use the embedded installer in the imported watershed; the recommended complete mode transition is described in [package instructions](WORKFLOW_PACKAGE.md).
+The legacy `Install-ForecastExtraction.ps1` is inside `scripts/workflow-kit`. It backs up existing
 files outside the watershed, then copies only the six changed/new Python files
 and the RTS launcher. It does not alter CONFIG.py, alt_config, or model files.
 The installer prints the backup location. An explicit -WatershedRoot supports

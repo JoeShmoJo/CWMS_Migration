@@ -1,3 +1,5 @@
+Open START-HERE.html for offline operating instructions, the pipeline/file map, and installation/RTS transition guidance.
+
 This folder contains scripts that are used in CAVI, ResSim modeling, and for post-processing.
 Folder descriptions:
 alt_config: Contains config files that are used by the ResSim model to instruct scripted rules/state variables what to do.

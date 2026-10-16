@@ -1,15 +1,14 @@
 # Start here: Willamette ResSim / RTS project handoff
 
 Documentation date: 16 October 2026. Keep this file with the watershed.
-The repository is not needed to operate the installed workflow or use the embedded
-mode installer. The scripts, model, data and Python environment are still needed.
+
 
 Double-click **WORKFLOW_README.html** at the watershed root for the offline browser
 version of these guides. Use the navigation bar to move between standalone and RTS
 instructions. Browser Print can save a PDF. Markdown sources remain available.
 
 For a new coding session or re-upload, read [PROJECT_RESUME.md](PROJECT_RESUME.md)
-first. Packaging also places that continuation brief at the watershed root.
+first. The complete handoff is included in the offline documentation.
 
 ## Next task
 
@@ -67,13 +66,12 @@ Known examples, not hardcoded operating targets:
 | RTS imported watershed | `C:\CWMS\watershed\ResSimMaster` |
 | Example forecasts | `C:\CWMS\forecast\Ensemble_Test\ResSimMaster`, `C:\CWMS\forecast\15Oct2026\ResSimMaster` |
 | Historical RFC archive, incomplete | `C:\Projects\RFC_ARCHIVE\output` |
-| Former working repository | `C:\Projects\A_Recent_Projects\CWMS_Migration` |
 
 Do not reuse those simulation/date choices blindly. Confirm the open model and
 active forecast. Names `Ensemble_Test` and `Ensebmle_Test` both appeared in earlier
 work; use the actual filesystem path, not a corrected spelling guessed from notes.
 
-## Reopen months later, without Git
+## Upon Restart
 
 1. Back up the complete existing watershed and any study forecasts/results you
    intend to retain. Preserve this embedded kit and original-source folders.
@@ -92,19 +90,6 @@ work; use the actual filesystem path, not a corrected spelling guessed from note
 7. Record local test findings and changes in `PROJECT_LOCAL_NOTES.md`. Keep an
    example successful log and the exact configuration used with study results.
 
-## Before deleting the repository
-
-Run the final package command supplied with this handoff and verify these exist
-in the actual standalone watershed: root `WORKFLOW_README.md`, `PROJECT_RESUME.md`,
-`scripts/workflow-kit/PROJECT_START_HERE.md`, SOP, both detailed references,
-`installation-inventory.json`, `manifest.json`, installer and runtime payload.
-Open the documents from that location. Test the standalone launcher there.
-A Git pull alone does not put documentation or scripts into the watershed.
-
-Retain the complete model and required forecasts/data separately; the kit is
-scripts/documentation, not a complete model or reproducibility archive. Removing
-an unneeded checkout is different from deleting the only copy of study inputs,
-results, saved configuration libraries or the Python environment.
 
 ## POR and model checks
 

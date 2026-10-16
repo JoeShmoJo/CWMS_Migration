@@ -91,7 +91,7 @@ def install(watershed, mode="standalone"):
             if target not in writes:writes[target]=saved.read_bytes()
     if mode=='standalone':
         # Patch the actual installed scripts rather than replacing their local
-        # mappings/date controls with a repository snapshot. Guards are checked
+        # mappings/date controls with a project snapshot. Guards are checked
         # before backup/write, like the native rule adapters above.
         import re
         for filename in ('RFC_Downloader_Module.py','OSI_Ensemble_Year.py','MainstemAugmentation.py'):

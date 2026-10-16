@@ -51,7 +51,7 @@ from result archives.
   historical performance diagnostics.
 - [Augmentation backend](RTS_AUGMENTATION.md): calculator/background CLI material.
 
-Installer scripts print backup locations. A repository pull does not update
+Installer scripts print backup locations. Updating kit files does not update
 installed watershed scripts. See the reference for installation boundaries and
 shared versus per-forecast files. This workflow does not require the experimental
 application JAR patch.

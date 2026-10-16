@@ -8,7 +8,7 @@ version of these guides. Use the navigation bar to move between standalone and R
 instructions. Browser Print can save a PDF. Markdown sources remain available.
 
 For a new coding session or re-upload, read [PROJECT_RESUME.md](PROJECT_RESUME.md)
-first. Packaging also places that continuation brief at the watershed root.
+first. The complete handoff is included in the offline documentation.
 
 ## Next task
 

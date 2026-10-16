@@ -14,7 +14,7 @@ Apply validates settings, snapshots linked CSV contents, stages generated tables
 Finish compute and close RTS. Pull and run this **single PowerShell line**:
 
 ```powershell
-Set-Location "C:\Projects\A_REPOSITORIES\CWMS_Migration"; git pull --ff-only; if ($LASTEXITCODE -ne 0) { throw "Git pull failed" }; & .\migration-review\Install-BaselineConfiguration.ps1 -WatershedRoot "C:\CWMS\watershed\ResSimMaster"
+$ws = Read-Host "Watershed root"; & "$env:LOCALAPPDATA\miniconda3\envs\hydro39\python.exe" (Join-Path $ws "scripts\workflow-kit\Install-StandaloneConfiguration.py") --watershed $ws --mode rts
 ```
 
 Restart RTS once after installing. Open your forecast and workflow menu, then Baseline Configuration. Save an unchanged configuration first. Close the forecast, Apply, close the editor with its Close Editor button, reopen the forecast and compute an unaugmented baseline. Start with the unchanged settings so the expected outputs are familiar. After compute, use the existing workflow action to accept completed results.
@@ -35,7 +35,7 @@ Validation: Python workflow suite, HTTP editor checks, and Jython 2.7.3 initiali
 
 ## Slow-compute diagnostic
 
-After canceling normally and closing RTS, run `ExternalPython/diagnose_baseline_execution.py --watershed <imported watershed> --forecast-root <forecast model folder> --mode original` from the repository. This backs up the current eleven adapters and active pointer, restores the preserved pre-editor rule implementations, and disables baseline configuration overrides. It leaves DSS and augmentation inputs unchanged. Restart RTS and compute the same forecast; do not extract, Apply, or accept these diagnostic results as baseline. Close RTS before restoring with the same command and `--mode configured`. The switch affects all forecasts using this imported watershed while active.
+After canceling normally and closing RTS, run `ExternalPython/diagnose_baseline_execution.py --watershed <imported watershed> --forecast-root <forecast model folder> --mode original` from the project. This backs up the current eleven adapters and active pointer, restores the preserved pre-editor rule implementations, and disables baseline configuration overrides. It leaves DSS and augmentation inputs unchanged. Restart RTS and compute the same forecast; do not extract, Apply, or accept these diagnostic results as baseline. Close RTS before restoring with the same command and `--mode configured`. The switch affects all forecasts using this imported watershed while active.
 
 The first timing comparison restores both the original execution path and the original baseline settings. A faster run implicates that combination; it does not by itself distinguish adapter overhead from settings differences. Restore configured mode before continuing baseline workflow. The diagnostic does not recover the pre-test simulation outputs; recompute the desired configuration before accepting future results.
 

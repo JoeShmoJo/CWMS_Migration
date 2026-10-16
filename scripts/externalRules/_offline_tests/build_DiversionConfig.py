@@ -45,11 +45,11 @@ PREFIX_TO_NAME = {
 DAYS_IN_MONTH = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-REPO = os.path.abspath(os.path.join(HERE, "..", "..", "..", ".."))
+PROJECT_ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 
-SOURCE_CSV = os.path.join(REPO, "data", "daily_diversions_returns_ALT.csv")
-NAMES_CSV = os.path.join(REPO, "data", "ReSimDiversionReturn_Names.csv")
-OUTPUT_CSV = os.path.join(REPO, "data", "scripts", "externalRules",
+SOURCE_CSV = os.path.join(PROJECT_ROOT, "daily_diversions_returns_ALT.csv")
+NAMES_CSV = os.path.join(PROJECT_ROOT, "ReSimDiversionReturn_Names.csv")
+OUTPUT_CSV = os.path.join(PROJECT_ROOT, "scripts", "externalRules",
                           "DiversionConfig_ALT.csv")
 
 

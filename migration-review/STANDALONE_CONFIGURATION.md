@@ -23,7 +23,7 @@ For a portable kit and RTS import steps, see [package instructions](WORKFLOW_PAC
 PowerShell one line (paste the standalone test watershed root when prompted):
 
 ```powershell
-Set-Location "C:\Projects\A_Recent_Projects\CWMS_Migration"; git pull --ff-only; if ($LASTEXITCODE -ne 0) { throw "Git pull failed" }; $ws = Read-Host "Existing standalone test watershed root"; & "$env:LOCALAPPDATA\miniconda3\envs\hydro39\python.exe" ".\migration-review\Install-StandaloneConfiguration.py" --watershed $ws
+$ws = Read-Host "Watershed root"; & "$env:LOCALAPPDATA\miniconda3\envs\hydro39\python.exe" (Join-Path $ws "scripts\workflow-kit\Install-StandaloneConfiguration.py") --watershed $ws --mode standalone
 ```
 
 This requires the existing eleven external rule modules, Alternative_Setup, and

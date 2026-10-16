@@ -17,13 +17,13 @@ import sys, os, types, datetime
 _HERE = os.path.dirname(os.path.abspath(__file__))
 RULES_DIR = os.path.dirname(_HERE)
 SCRIPTS_DIR = os.path.dirname(RULES_DIR)
-REPO = os.path.dirname(os.path.dirname(SCRIPTS_DIR))
+PROJECT_ROOT = os.path.dirname(SCRIPTS_DIR)
 sys.path.insert(0, SCRIPTS_DIR)
 sys.path.insert(0, RULES_DIR)
 
 SHIPPED_CONFIG = os.path.join(RULES_DIR, "DiversionConfig_ALT.csv")
-SOURCE_CSV = os.path.join(REPO, "data", "daily_diversions_returns_ALT.csv")
-NAMES_CSV = os.path.join(REPO, "data", "ReSimDiversionReturn_Names.csv")
+SOURCE_CSV = os.path.join(PROJECT_ROOT, "daily_diversions_returns_ALT.csv")
+NAMES_CSV = os.path.join(PROJECT_ROOT, "ReSimDiversionReturn_Names.csv")
 FIXTURE = os.path.join(_HERE, "_fixture_diversion_tmp.csv")
 
 

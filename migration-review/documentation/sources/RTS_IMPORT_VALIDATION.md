@@ -12,7 +12,7 @@ by the operator. Recent fixes include explicit POR/ensemble targeting, uppercase
 DSS record matching, installed archive dependencies and saved plot references.
 Automated checks exercise the Python/package logic; they do not certify a fresh
 native RTS import. The latest package must be installed in the source watershed
-before importing it. A Git pull alone does not update the watershed.
+before importing it. Updating kit files alone does not update installed watershed scripts.
 
 An open issue remains: some archived `FLOW-MINLIM` reads yielded no finite values.
 DSSVue shows these records in the catalog, but their actual tabulated values have
@@ -106,7 +106,4 @@ are interchangeable.
 | New baseline/new scheme with earlier archives preserved | Not yet tested |
 | Native FLOW-MINLIM values versus archive-reader result | Unresolved; inspect actual values |
 
-Do not delete the repository or source study data as part of this validation.
-Once the installed portable kit and documentation have been verified locally,
-repository retention can be decided independently; the kit does not bundle HEC,
-Python, credentials or all study inputs/results.
+Preserve source study data, installed scripts and configuration while validating. The kit does not bundle HEC, Python, credentials or all study inputs/results.

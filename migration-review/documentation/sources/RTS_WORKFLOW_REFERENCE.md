@@ -3,7 +3,7 @@
 Current implementation, 16 October 2026. Start with the
 [operator SOP](RTS_OPERATOR_SOP.md). This reference describes the current four-button
 menu and compact-run backend, rather than the earlier experimental menu layouts.
-It documents the repository implementation; an older installed script set may
+It documents the project implementation; an older installed script set may
 behave differently. The [data I/O audit](RTS_DATA_IO.md) describes the archive change.
 
 ## Locations and terminology
@@ -12,7 +12,6 @@ Examples below use these roots; substitute the paths shown by your selected fore
 
 | Symbol | Example | Purpose |
 | --- | --- | --- |
-| `REPO` | `C:\Projects\A_Recent_Projects\CWMS_Migration` | Maintained code and documentation |
 | `WS` | `C:\CWMS\watershed\ResSimMaster` | Imported RTS watershed and shared installed scripts |
 | `EP` | `WS\scripts\ExternalPython` | Installed external Python backend and maintained data inputs |
 | `F` | `C:\CWMS\forecast\Ensemble_Test\ResSimMaster` | One forecast's model directory; parent of its live DSS |
@@ -36,13 +35,12 @@ A reusable augmentation configuration is a reservoir table plus calculation
 settings. A scheme is that augmentation configuration resolved into releases for
 one particular baseline, window and ensemble. An archived result is the completed
 simulation after loading a scheme. Saving a configuration does not compute or
-accept results. “Commit” here means activating prepared releases, not committing
-files to Git.
+accept results. “Commit” here means activating prepared releases.
 
 ## Programs and responsibility
 
-Repository sources are under `REPO\migration-review`; the runtime uses installed
-copies under `WS`, not files from the repository checkout automatically.
+Installer payloads are under `WS\scripts\workflow-kit`; the runtime uses installed
+copies under `WS\scripts`. Run the mode installer to activate changes.
 
 | Entry point or module | Where it runs/lives | Responsibility |
 | --- | --- | --- |
@@ -374,10 +372,9 @@ explained in [package/import instructions](WORKFLOW_PACKAGE.md). It installs the
 required workflow helpers and converts recognized standalone adapters in the
 imported copy. Script backups are printed under that watershed's
 `standalone-configuration-backups`; preserve the inventory for rollback.
-Older separate repository PowerShell installers remain historical maintenance
+Older separate project PowerShell installers remain historical maintenance
 entry points; they are not the recommended conversion procedure for this package.
-A Git pull alone does not update installed watershed scripts. No repository is
-needed for the embedded installer. Application JAR modification is not required;
+Use the embedded installer to update installed watershed scripts. Application JAR modification is not required;
 use the original HEC application. No experimental compiler patch is installed by
 the package or this SOP.
 

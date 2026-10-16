@@ -23,7 +23,7 @@ Fixed: waterdata.get_continuous() has no skip_geometry argument (it never
 returns geometry to begin with, unlike get_daily()) - removed it from the
 'iv' branch of NWIS_dl, which was raising a TypeError.
 Tried changing CWMS_Download's office_id from 'NWDP' to office.upper() to
-match Modules/cwms_io.py in the Cowlitz_FF repo - didn't fix it. Reverted:
+match Modules/cwms_io.py in the Cowlitz_FF project - didn't fix it. Reverted:
 office_id='NWDP' back to match CAS_Unreg_FF/src/#DataDownload.py (the
 Cowlitz initial data download script) exactly, and brought over that
 script's SSL cert handling too. That script builds its own combined CA
@@ -50,7 +50,7 @@ full requested period so gaps at either end are counted, and the summary stats
 gained 'Hours Expected', 'Hours Missing' and 'Pct Complete'. All hourly data
 is also written to out/Hourly_<startDate>_<endDate>.csv (long format:
 time_utc, Source, Download_Key, ResSimPath, value), which DP_QAQC.py reads.
-Reads a USGS Water Data API key from config/usgs_api_key.txt (git-ignored)
+Reads a USGS Water Data API key from config/usgs_api_key.txt (private and excluded from sharing)
 and sets API_USGS_PAT, which dataretrieval sends with every request. Without
 a key the API's anonymous rate limit is easy to hit on a full year of
 instantaneous data for this many gages. Request a key at
@@ -144,7 +144,7 @@ print(f"[INFO] Using CA bundle: {bundle_path}")
 
 # --- USGS API Key ---
 # dataretrieval sends API_USGS_PAT as the X-Api-Key header on Water Data API
-# requests. The key lives in a text file that is git-ignored - never commit it.
+# requests. The key lives in a text file that is private and excluded from sharing - never share its contents.
 UsgsApiKeyPath = os.path.join(ConfigDir, 'usgs_api_key.txt')
 if os.path.exists(UsgsApiKeyPath):
     with open(UsgsApiKeyPath, encoding='utf-8-sig') as f:

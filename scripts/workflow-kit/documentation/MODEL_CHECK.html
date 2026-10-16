@@ -1,0 +1,101 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>model_check</title><style>body{font:17px/1.6 system-ui,sans-serif;color:#213346;margin:0;background:#f3f6fa}nav{background:#173d56;padding:14px;position:sticky;top:0}nav a{color:white;display:inline-block;margin:4px 12px}main{max-width:1100px;margin:auto;padding:28px;background:white}a{color:#0063a5}h1,h2,h3{line-height:1.25;scroll-margin-top:90px}h2{margin-top:2em;border-bottom:1px solid #cbd5df;padding-bottom:8px}pre{overflow:auto;padding:16px;background:#eef2f6;white-space:pre-wrap;overflow-wrap:anywhere}code{font-family:Consolas,monospace;font-size:.9em;background:#eef2f6}table{border-collapse:collapse;width:100%;font-size:.92em}th,td{border:1px solid #cad3dc;padding:9px;text-align:left;vertical-align:top;overflow-wrap:anywhere}th{background:#e5edf3}.table{overflow:auto}footer{margin-top:3em;color:#546579}@media print{nav{display:none}main{max-width:none;padding:0}body{background:white}pre{white-space:pre-wrap}a{color:inherit}}</style><body><nav><a href="index.html">Overview</a><a href="PIPELINE.html">Pipeline / file map</a><a href="PROJECT_START_HERE.html">Start here</a><a href="PROJECT_RESUME.html">Resume project</a><a href="WORKFLOW_SOP.html">Operator SOP</a><a href="STANDALONE_WORKFLOW_REFERENCE.html">Standalone reference</a><a href="RTS_WORKFLOW_REFERENCE.html">RTS reference</a><a href="STANDALONE_SAVED_RESULTS.html">Standalone saved runs</a><a href="STANDALONE_POR_MODEL_CHECK.html">POR / Model Check</a><a href="WORKFLOW_PACKAGE.html">Import / packaging</a><a href="RTS_IMPORT_VALIDATION.html">Next: RTS validation</a><a href="RTS_DATA_IO.html">Data / archives</a><a href="DIVERSION_POSTPROCESS.html">Diversions (optional)</a></nav><main><h1 id="model_check">model_check</h1>
+<p>Checks a ResSim run against the config files its scripted rules read. Runs on desktop Python 3 in the <code>hydro39</code> conda environment (pydsstools, pandas, plotly), not inside ResSim.</p>
+<h2 id="steps">Steps</h2>
+<p>Set the path to the simulation&#x27;s DSS file, the alternative and the steps to run in <code>model_check_config.txt</code>, then:</p>
+<pre><code>conda activate hydro39
+python model_check\run_model_check.py</code></pre>
+<p>Or open <code>run_model_check.py</code> in Jupyter or VS Code and run it. The steps:</p>
+<div class="table"><table><thead><tr><th>Step</th><th>Does</th><th>Run it when</th></tr></thead><tbody>
+<tr><td><code>run_catalog</code></td><td>lists every record in <code>simulation.dss</code></td><td>looking for records to add to the extract</td></tr>
+<tr><td><code>run_extract</code></td><td>pulls the alternative&#x27;s results into CSVs</td><td>after every model run</td></tr>
+<tr><td><code>run_check</code></td><td>compares with the configs; writes the report and plots</td><td>always. With extract off, it checks the newest extract of that simulation and alternative, e.g. after changing a config file</td></tr>
+</tbody></table></div>
+<p>Each script also still runs on its own (<code>DSS_PATH</code> / <code>RUN_DIR</code> at the top).</p>
+<h2 id="control-point-limits">Control point limits</h2>
+<p><code>control_point_limits.csv</code> holds the flood flows at each control point (action or bankfull, flood and major flood) and the regulation goal, from Table 2, &quot;Flood regulation goals at Willamette projects&quot;, with each station matched to its junction in the model. ResSim does not save control point limits in the results, so the control point checks read them from here. Update it when the rating tables or regulation goals change.</p>
+<p><strong>Control points page</strong> (<code>plots/Control points.html</code>):</p>
+<ul>
+<li><strong>Plot.</strong> Every control point in <code>control_point_limits.csv</code>: its flow,</li>
+</ul>
+<p>cumulative local flow, and every distinct limit (regulation goal, action, flood and major flood stage, each its own dash style; limits with the same flow share a line), since the reservoirs regulate to different ones at different times. Salem is shown to start with. Picking a point in the list shows it and hides the others; the Show buttons above the plot turn a whole point on or off, and the legend single lines.</p>
+<ul>
+<li><strong>Salem and Albany minimums.</strong> The BiOp targets from the tables the</li>
+</ul>
+<p>alternative points to (<code>minFlowTargetCSV_Salem</code> and <code>_Albany</code> in alt_config), one dotted line per distinct row of the table, since the water year type that chooses between them is not in the results. When flow augmentation is on, the model&#x27;s own target (<code>Min_Flow_Target_&lt;place&gt;</code>) is also in the results.</p>
+<ul>
+<li><strong>Status bars.</strong> One per control point, grouped by basin, upstream first:</li>
+</ul>
+<p>green in range, red above the maximum (the regulation goal, or the action flow where none is given), blue below the minimum (the lowest BiOp target that day).</p>
+<ul>
+<li><strong>Table.</strong> For the point picked in the list, each day&#x27;s flow, cumulative</li>
+</ul>
+<p>local flow, minimum and each limit, then each upstream reservoir&#x27;s release with the rules in control there, highlighted when a rule is releasing for that point (its name contains the place, or MainstemFlowAug at Salem and Albany). It links to the plot and opens in its own window like the reservoir table.</p>
+<ul>
+<li><strong>Other junctions.</strong> Those with a real (not all-zero) local flow but no row</li>
+</ul>
+<p>in the CSV, such as Oregon City, are listed under &quot;No limits&quot;, with flows and a table but no status bar.</p>
+<p>The <code>basin</code> and <code>reservoirs</code> columns of the CSV set the grouping and the upstream reservoirs; edit them there.</p>
+<p><strong>Headroom</strong> (optional: <code>run_headroom: true</code> in <code>model_check_config.txt</code>). On steps a reservoir is held back by a control point&#x27;s built-in MAX rule (one in control whose name contains the point&#x27;s place name) while above its rule curve, the room left under the point&#x27;s maximum when that release arrives (<code>HEADROOM_LAG_STEPS</code> later), counted when over <code>HEADROOM_MIN_CFS</code>. Writes <code>ControlPointHeadroom_daily.csv</code> (every held-back step: release, rules, flow now and on arrival, room, above rule curve, change in cumulative local flow) and <code>ControlPointHeadroom_summary.csv</code> (days held back and with room per reservoir, and the room&#x27;s volume per control point, counted once since the reservoirs share it). Nothing is added to the report or the plots. Room that tracks a falling cumulative local flow suggests the rule assumes the local flow persists over the travel time; room when two reservoirs are held back together suggests each leaves space for the other.</p>
+<h2 id="files-it-reads">Files it reads</h2>
+<p>These are read but never written by these scripts. Everything else comes from the extract.</p>
+<div class="table"><table><thead><tr><th>File</th><th>Where</th><th>Read by</th><th>For</th></tr></thead><tbody>
+<tr><td><code>model_check_config.txt</code></td><td>this folder</td><td><code>run_model_check.py</code></td><td>DSS path, alternative, steps, dates</td></tr>
+<tr><td><code>simulation.dss</code></td><td>the path in <code>simulation_dss</code></td><td><code>catalog_dss.py</code>, <code>extract_dss.py</code></td><td>the run&#x27;s results</td></tr>
+<tr><td><code>modelReport_&lt;alternative&gt;.json</code></td><td>the watershed&#x27;s <code>rss</code> folder, then the simulation folder</td><td><code>extract_dss.py</code></td><td>the rule stack; optional</td></tr>
+<tr><td><code>control_point_limits.csv</code></td><td>this folder</td><td><code>check_model.py</code></td><td>control point flood flows and regulation goals</td></tr>
+<tr><td><code>alt_config/_default.txt</code>, <code>alt_config/&lt;alternative&gt;.txt</code></td><td><code>scripts/</code></td><td><code>check_model.py</code></td><td>which config files the alternative uses</td></tr>
+<tr><td><code>FIRO_SPACEConfig.csv</code></td><td><code>scripts/externalRules/</code> (key <code>firoSpaceConfigCSV</code>)</td><td><code>check_model.py</code></td><td>FIRO_SPACE targets</td></tr>
+<tr><td><code>MinFlowConfig.csv</code>, <code>WithdrawalConfig.csv</code></td><td><code>scripts/externalRules/</code> (keys <code>minFlowConfigCSV</code>, <code>withdrawalConfigCSV</code>)</td><td><code>check_model.py</code></td><td>minimum flows and withdrawals</td></tr>
+<tr><td><code>DiversionConfig_ALT.csv</code></td><td><code>scripts/externalRules/</code> (key <code>diversionConfigCSV</code>)</td><td><code>check_model.py</code></td><td>diversion amounts</td></tr>
+<tr><td><code>MinFlowSalem_2008BiOp.csv</code>, <code>MinFlowAlbany_2008BiOp.csv</code></td><td><code>scripts/externalSVs/</code> (keys <code>minFlowTargetCSV_Salem</code>, <code>_Albany</code>)</td><td><code>check_model.py</code></td><td>Salem and Albany BiOp minimums</td></tr>
+</tbody></table></div>
+<p>The <code>scripts/</code> files come from the local watershed containing this checker, or an explicitly selected CONFIG_ROOT. Archived paths from another machine are not followed automatically. The alt_config key, when set, overrides the default name shown.</p>
+<h2 id="what-you-get">What you get</h2>
+<p><code>extract_dss.py</code> writes <code>output/&lt;simulation&gt;_&lt;alternative&gt;_&lt;date&gt;/</code>:</p>
+<div class="table"><table><thead><tr><th>File</th><th>Contents</th></tr></thead><tbody>
+<tr><td><code>reservoirs.csv</code></td><td>inflow, outflow, elevation and rule curve per reservoir</td></tr>
+<tr><td><code>limits.csv</code></td><td>min and max limit ResSim applied at each reservoir, plus the mainstem targets</td></tr>
+<tr><td><code>junctions.csv</code></td><td>local, cumulative local and total flow where a local flow is defined</td></tr>
+<tr><td><code>diversions.csv</code></td><td>what each diversion moved, and what DiversionFromCSV asked for</td></tr>
+<tr><td><code>rules.csv</code></td><td>the value every reservoir rule returned each day</td></tr>
+<tr><td><code>modelReport.json</code></td><td>the active operation set: each zone&#x27;s rules in stack order (copied from the simulation folder)</td></tr>
+<tr><td><code>*_series.csv</code></td><td>the DSS pathname and units behind every column</td></tr>
+<tr><td><code>run_info.json</code></td><td>simulation, alternative and watershed, used by <code>check_model.py</code></td></tr>
+</tbody></table></div>
+<p><code>check_model.py</code> adds to the newest of those folders:</p>
+<div class="table"><table><thead><tr><th>File</th><th>Contents</th></tr></thead><tbody>
+<tr><td><code>report.html</code></td><td>every summary table, with links to the plots</td></tr>
+<tr><td><code>&lt;check&gt;_summary.csv</code></td><td>one row per reservoir, diversion or rule</td></tr>
+<tr><td><code>release_decisions/&lt;reservoir&gt;.csv</code></td><td>per day: elevation, inflow, outflow, min and max limit, and the value every rule asked for</td></tr>
+<tr><td><code>plots/Reservoir - &lt;name&gt;.html</code></td><td>one page per reservoir, three panels: elevation (with rule curve and FIRO target); flow (outflow, inflow, limits, every rule&#x27;s value); release decisions (a bar per rule, coloured by its status, breaking only where the status changes). The release decision table sits underneath, one column per rule, cells shaded by status</td></tr>
+</tbody></table></div>
+<p>In the plots, pick an element from the dropdown and click legend entries to hide or show them. On the reservoir plot&#x27;s flow panel only the outflow and the min and max limits start shown; turn on rules from the legend. Hover the outflow to see which rules were <strong>in control</strong> that day (their value equalled the outflow). The decision table under the plot has every rule&#x27;s value every day whatever is shown, each cell shaded by the rule&#x27;s status. Date, Elevation, Inflow and Outflow stay in place while the zone, limits and rules scroll sideways. Click a day on the plot to jump to it in the table; click a row to mark that day on the plot.</p>
+<p><strong>Open table in its own window</strong> puts the table in a window of its own, to fill a second screen. Clicks still link both ways, the window follows the plot when you pick another reservoir, and closing it puts the table back under the plot. The two windows talk through the browser&#x27;s local storage, which works in Chrome and Edge for pages opened from disk; Firefox keeps each local file separate, so there the windows will not link.</p>
+<p><strong>Sub-daily runs</strong> work: dates carry the time of day, and counts and volumes use the run&#x27;s time step (counts are still reported in days). Each reservoir page holds the whole run, so it grows with it: about 5 MB a year of 3-hour results at a reservoir with around 15 rules. Set <code>START_DATE</code> and <code>END_DATE</code> at the top of <code>check_model.py</code> to look at part of a long run.</p>
+<h2 id="how-a-release-decision-is-read">How a release decision is read</h2>
+<p>Each rule&#x27;s value that day is compared with the outflow. None of this needs the rule priority order.</p>
+<div class="table"><table><thead><tr><th>Rule&#x27;s value</th><th>Outflow</th><th>Status</th></tr></thead><tbody>
+<tr><td>equal</td><td></td><td><strong>in control</strong></td></tr>
+<tr><td>above</td><td>at the max limit</td><td><strong>capped</strong> by the rule whose value equals the max limit, or by *outlet capacity* if no rule&#x27;s does</td></tr>
+<tr><td>below</td><td>at the min limit</td><td><strong>held up</strong> by the rule whose value equals the min limit</td></tr>
+<tr><td>above or below</td><td>between the limits</td><td><strong>set by another rule</strong> (scripted and guide rules only)</td></tr>
+</tbody></table></div>
+<p>A built-in min rule below the outflow, or a max rule above it, is satisfied and not shown. The guide releases are ResSim&#x27;s <code>&lt;zone&gt;-ZBOp Rule</code> series: what the guide curve asks for when nothing else acts. At low flows several rules often share a value, so &quot;set by&quot; can name more than one.</p>
+<p>It reads the config files the alternative uses (<code>scripts/alt_config/&lt;alternative&gt;.txt</code> over <code>_default.txt</code>), from the local watershed or explicitly selected CONFIG_ROOT. The report lists the files it used.</p>
+<h2 id="the-checks">The checks</h2>
+<p><strong>FIRO_SPACE.</strong> Two separate questions:</p>
+<ul>
+<li>*Achieving:* is the pool within <code>ELEV_TOL_FT</code> of the target, and how far</li>
+</ul>
+<p>above or below it does it get?</p>
+<ul>
+<li>*Targeting:* did the outflow obey the FIRO rule&#x27;s own value that day?</li>
+</ul>
+<p><code>rule_overridden_days</code> counts days another rule won. Needs <code>rules.csv</code>.</p>
+<p><strong>MinFlow.</strong> Minimum flow plus withdrawal from the config, against the outflow where it is met (Foster for Green Peter). A shortfall is explained when the max limit was below the requirement. <code>rule_attached</code> says whether MinFlowPlusWithdrawal runs at that reservoir in this alternative, and <code>other_rule</code> compares any other min-flow rule to the same numbers.</p>
+<p><strong>Diversions.</strong> Whether DiversionFromCSV wrote the config value to its rule.</p>
+<p><strong>Rule stack.</strong> Each reservoir&#x27;s rules in each zone, top of the stack first, from <code>modelReport_&lt;alternative&gt;.json</code>, which <code>Alternative_Setup</code> writes on every compute (the active operation set, zone by zone). The extract looks for it in the watershed&#x27;s <code>rss</code> folder, then the simulation folder (<code>MODEL_REPORT_DIRS</code> in <code>extract_dss.py</code>), and copies it in as <code>modelReport.json</code>; without it the check runs as before, just with no stack. It also pulls each zone&#x27;s top elevation (<code>&lt;reservoir&gt;-&lt;zone&gt; Elev-ZONE</code>) so the check knows which zone, and so which stack, applied each day. The reservoir page orders rules by the stack of the zone the pool spent longest in, puts a <code>Zone</code> column in the table, shows each rule&#x27;s place in each zone under its name (<code>RC 3 · TOD 5</code>), and greys out a rule on days its zone&#x27;s stack does not include it. <code>in_results</code> flags a rule in the operation set that saved no values. With the model report, the rules shown on the reservoir pages are the stack&#x27;s: a rule deleted from the stack is left out even if an earlier run left its values in the DSS, and a rule in the stack that never returned a value still gets its (empty) row, line and table column.</p>
+<p><strong>Conflicts.</strong> For every rule, how many days it was capped or held up, by what, and the total volume between what it wanted and what was released.</p>
+<p><strong>RuleControl.</strong> For every rule at every reservoir, the days its value equalled the outflow. Several rules can tie on a day (a min and a max both at 50 cfs, say), and each is counted. <code>(no rule equal to outflow)</code> counts days no rule matched. Needs <code>rules.csv</code>.</p>
+<p>Tolerances, rule names and the start date are set at the top of <code>check_model.py</code>.</p>
+<p>DSS record-name selection is case-insensitive. Uppercase DSS 6 catalogs and mixed-case catalogs select the same output groups. Reservoir/parameter labels are normalized for reporting, while original native pathnames remain in <code>*_series.csv</code> and are used unchanged to read values. Rule/configuration matching also ignores capitalization; native DSS records are not renamed or rewritten.</p><footer>Offline watershed documentation · <a href="../documentation/sources/MODEL_CHECK.md">Markdown source</a> · Use browser Print to save as PDF.</footer></main></body></html>

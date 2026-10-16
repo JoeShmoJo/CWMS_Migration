@@ -14,7 +14,7 @@ this file is only what to do.
 - [ ] **Check** `scripts/NWDJyLib/` is the ResSim 4.1 version (it already is if the scripts
       folder came from `ResSim41ExampleScripts`). Nothing in it needs changing.
 - [ ] **Put your USGS key** in `scripts/DamagesPrevented/DP_Download/config/usgs_api_key.txt`
-      (one line, the key only). It is git-ignored.
+      (one line, the key only). Keep this private file out of shared packages.
 - [ ] **Optional - reuse your last download:** copy your existing
       `Hourly_2025-10-01_2026-09-30.csv` into `scripts/DamagesPrevented/DP_Download/out/`.
       Then the next download only fetches what's missing (the two Scoggins records).

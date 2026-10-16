@@ -148,7 +148,7 @@ standalone results with no forecast extraction. A browser message “No module
 named 'extraction_context'” indicates an incomplete script installation, not
 missing simulation records. Repackage/update the watershed and reopen its menu;
 existing native results need not be recomputed. Installed archive selection and
-capture are tested in a fresh isolated Python process without repository imports.
+capture are tested in a fresh isolated Python process without project imports.
 
 ## Plot references, consistent with RTS
 

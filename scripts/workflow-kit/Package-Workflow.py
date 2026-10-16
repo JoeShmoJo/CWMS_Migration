@@ -17,8 +17,8 @@ HERE=Path(__file__).resolve().parent
 def inventory(watershed,destination):
     files=[]
     for directory,folders,names in os.walk(watershed/'scripts'):
-        folders[:]=[name for name in folders if not name.startswith('workflow-kit')
-                     and name not in ('__pycache__','raw_rfc_csv','logs','.git')]
+        folders[:]=[name for name in folders if not name.startswith(('.', 'workflow-kit'))
+                     and name not in ('__pycache__','raw_rfc_csv','logs')]
         for name in sorted(names):
             path=Path(directory)/name
             if path.suffix.lower() in ('.py','.csv','.json','.pkl','.txt'):
@@ -59,13 +59,12 @@ def package(watershed):
                      'Install-ForecastExtraction.ps1','Install-BaselineConfiguration.ps1','Install-RunArchives.ps1',
                      'STANDALONE_WORKFLOW_MENU.py','RTS_WORKFLOW_MENU.py','RTS_FORECAST_EXTRACT.py'):
             shutil.copy2(HERE/name,stage/name)
-        for doc in HERE.glob('*.md'):
-            shutil.copy2(doc,stage/doc.name)
+        shutil.copytree(HERE/'documentation/sources',stage/'documentation/sources')
         renderer_spec=importlib.util.spec_from_file_location('workflow_docs',stage/'render_documentation.py')
         renderer=importlib.util.module_from_spec(renderer_spec);renderer_spec.loader.exec_module(renderer)
         renderer.build(stage)
-        manifest={str(p.relative_to(stage)):hashlib.sha256(p.read_bytes()).hexdigest()
-                  for p in sorted(stage.rglob('*')) if p.is_file()}
+        manifest={p.relative_to(stage).as_posix():hashlib.sha256(p.read_bytes()).hexdigest()
+                  for p in sorted(stage.rglob('*')) if p.is_file() and '__pycache__' not in p.parts and p.suffix != '.pyc'}
         (stage/'manifest.json').write_text(json.dumps(manifest,indent=2))
         spec=importlib.util.spec_from_file_location('workflow_installer',stage/'Install-StandaloneConfiguration.py')
         installer=importlib.util.module_from_spec(spec);spec.loader.exec_module(installer)
@@ -76,13 +75,10 @@ def package(watershed):
             destination.rename(destination.with_name('workflow-kit-previous-'+uuid.uuid4().hex[:8]))
         shutil.copytree(stage,destination)
         inventory(watershed,destination)
-        entry=watershed/'WORKFLOW_README.md'
-        if not entry.exists():
-            entry.write_text('# Willamette workflow documentation\n\nStart with [project handoff](scripts/workflow-kit/PROJECT_START_HERE.md).\n\n[Operator SOP](scripts/workflow-kit/WORKFLOW_SOP.md) · [Standalone reference](scripts/workflow-kit/STANDALONE_WORKFLOW_REFERENCE.md) · [RTS reference](scripts/workflow-kit/RTS_WORKFLOW_REFERENCE.md)\n',encoding='utf-8')
-        (watershed/'WORKFLOW_README.html').write_text('<!doctype html><html lang="en"><meta charset="utf-8"><title>Willamette workflow documentation</title><meta http-equiv="refresh" content="0;url=scripts/workflow-kit/documentation/PROJECT_START_HERE.html"><p><a href="scripts/workflow-kit/documentation/PROJECT_START_HERE.html">Open standalone and RTS documentation</a></p></html>',encoding='utf-8')
-        shutil.copy2(destination/'PROJECT_RESUME.md',watershed/'PROJECT_RESUME.md')
-        notes=watershed/'PROJECT_LOCAL_NOTES.md'
-        if not notes.exists():notes.write_text('# Local project notes\n\nRecord local validation, dates, application versions, target simulations/alternatives, configuration IDs, changes and unresolved issues here. This file is not overwritten by packaging.\n',encoding='utf-8')
+        for entry, target in ((watershed/'WORKFLOW_README.html','scripts/workflow-kit/documentation/index.html'),
+                              (watershed/'scripts/START-HERE.html','workflow-kit/documentation/index.html')):
+            entry.write_text('<!doctype html><html lang="en"><meta charset="utf-8"><title>Willamette workflow guide</title><meta http-equiv="refresh" content="0;url='+target+'"><p><a href="'+target+'">Open workflow documentation and pipeline map</a></p></html>',encoding='utf-8')
+        # Operator notes are user-owned. Never overwrite or remove existing notes.
         for relative,digest in manifest.items():
             if hashlib.sha256((destination/relative).read_bytes()).hexdigest()!=digest:
                 raise ValueError('Packaged checksum mismatch: '+relative)

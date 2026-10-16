@@ -96,9 +96,7 @@ the extract.
 | `DiversionConfig_ALT.csv` | `scripts/externalRules/` (key `diversionConfigCSV`) | `check_model.py` | diversion amounts |
 | `MinFlowSalem_2008BiOp.csv`, `MinFlowAlbany_2008BiOp.csv` | `scripts/externalSVs/` (keys `minFlowTargetCSV_Salem`, `_Albany`) | `check_model.py` | Salem and Albany BiOp minimums |
 
-The `scripts/` files come from the watershed if it is on this machine,
-otherwise from this repository's `data/` folder, and the alt_config key, when
-set, overrides the default name shown.
+The `scripts/` files come from the local watershed containing this checker, or an explicitly selected CONFIG_ROOT. Archived paths from another machine are not followed automatically. The alt_config key, when set, overrides the default name shown.
 
 ## What you get
 
@@ -165,8 +163,7 @@ the guide curve asks for when nothing else acts. At low flows several rules
 often share a value, so "set by" can name more than one.
 
 It reads the config files the alternative uses (`scripts/alt_config/<alternative>.txt`
-over `_default.txt`), from the watershed if it is on this machine, otherwise
-from this repository's `data/` folder. The report lists the files it used.
+over `_default.txt`), from the local watershed or explicitly selected CONFIG_ROOT. The report lists the files it used.
 
 ## The checks
 

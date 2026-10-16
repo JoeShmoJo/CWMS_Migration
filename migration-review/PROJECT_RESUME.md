@@ -1,14 +1,12 @@
 # PROJECT RESUME — read this first after re-uploading the watershed
 
-Last handoff: **16 October 2026**. This document is for a future maintainer or
-coding assistant without the prior conversation. The original CWMS_Migration
-repository may have been deleted. Do not assume its checkout still exists.
+Last handoff: **16 October 2026**.
 
 ## Immediate next task
 
 **Import a fresh copy of this complete standalone watershed into CWMS/HEC-RTS,
 activate RTS script mode in the imported copy, and validate the complete workflow.**
-Use `scripts/workflow-kit/RTS_IMPORT_VALIDATION.md` for the staged checklist.
+Use `scripts/workflow-kit/documentation/RTS_IMPORT_VALIDATION.html` for the staged checklist.
 This latest native import has **not** been verified. Earlier RTS operation and
 Python/package tests do not establish that a new import works.
 
@@ -23,11 +21,6 @@ The known source watershed was:
 C:\Projects\FIRO\watershed\NWP_Willamette_Master_2026_10_05_DamagesPrevented
 ```
 
-The former repository was `C:\Projects\A_Recent_Projects\CWMS_Migration`, branch
-`forecast-extraction-context`, hosted at `JoeShmoJo/CWMS_Migration`. Earlier notes
-may say A_REPOSITORIES; that folder was renamed. These are historical locations,
-not portable constants. Discover actual paths in a new environment.
-
 The source contained simulation folders with similar names, including the typo
 `Ensebmle_Test`. Another example was `Flood_96_3hour` / `Temp3Hour`, a single POR
 simulation. Select the real simulation folder and alternative explicitly; do not
@@ -39,11 +32,11 @@ CON_SEASON0. Read the actual F-parts instead of interchanging these conventions.
 
 At the watershed root:
 
-- `PROJECT_RESUME.md`: this continuation brief, refreshed by packaging.
+- `WORKFLOW_README.html`: entry to the complete offline documentation, including the continuation brief.
 - `WORKFLOW_README.html`: double-click for the offline documentation site.
 - `PROJECT_LOCAL_NOTES.md`: operator's actual test findings; preserved by packaging.
 
-Inside `scripts/workflow-kit`:
+HTML guides are inside `scripts/workflow-kit/documentation`; the following editable source names are grouped under its `sources/` folder:
 
 - `PROJECT_START_HERE.md`: project map and operating limits.
 - `WORKFLOW_SOP.md`: simple standalone and RTS SOP.
@@ -99,8 +92,7 @@ Do not replace saved history with live DSS records when plotting.
 
 Operational Python files are in `scripts/ExternalPython`. The kit has maintained
 copies under `scripts/workflow-kit/ExternalPython`; install/repackage deliberately
-so these do not drift. In a reconstructed full repository, maintained copies were
-under `migration-review/ExternalPython` and the original checker under `model_check`.
+so these do not drift. Normal operation uses the installed copies, not the kit payload.
 
 | Area | Main files / locations |
 | --- | --- |
@@ -145,17 +137,6 @@ lack newly added references. Empty optional references do not by themselves mean
 pool elevation/outflow results failed. Keep detailed failures even when summarizing
 warnings. No claim is made that every native output is fresh after a failed run.
 
-## Recent fixes worth preserving
-
-Historical commit IDs from the old branch, if Git history is retained:
-
-- 7e0e171: direct POR Model Check targeting and POR augmentation adapter.
-- e762400: isolated Model Check worker; legacy sys.exit/native crashes return errors.
-- 1981bf3: uppercase DSS extraction/report matching.
-- d776db0: install extraction_context.py; isolated installed-archive regression.
-- e4c6606: archive/plot native rule curves and minimum/augmentation references.
-- 77432ce: grouped reference warnings and per-member CSV read report.
-- 94cc28b: fresh-import handoff and explicit unresolved-data status.
 
 ## Rules for resuming safely and efficiently
 
@@ -169,16 +150,16 @@ Historical commit IDs from the old branch, if Git history is retained:
    compiler isolation was retired after review of HEC terms. The workflow uses
    original supported HEC applications and user scripts; Java experiments are not
    prerequisites. Do not infer thread safety from a successful serial run.
-4. Test installed modules in a fresh process, without repository imports masking
+4. Test installed modules in a fresh process, without project imports masking
    missing dependencies. An earlier archive failure was exactly that omission.
-5. The old repository tests were in tests/. They may not be present if only the
-   watershed/kit is re-uploaded; do not claim to have run them. When available,
-   run relevant Python unittest tests; native Windows/DSS validation is separate.
+5. Validate delivered scripts and mode transitions on a disposable project copy.
+   Native Windows/DSS validation is separate from Python checks; record which
+   checks actually ran and preserve their results.
 6. Python jobs use hydro39 at
    `%LOCALAPPDATA%\miniconda3\envs\hydro39\python.exe`; the GUI-side scripts are
    Jython. The kit does not provide Python packages, native DSS bindings, HEC,
    CWMS credentials/certificates or network access. Inspect existing prerequisites.
-7. Keep PowerShell commands on one line for the operator. A repository edit/pull
+7. Keep PowerShell commands on one line for the operator. Editing kit files
    alone never installs into the watershed. Repackage and reopen the menu to test
    delivered behavior; use the embedded mode installer for RTS transitions.
 8. Native output presence or 100% progress does not prove successful fresh compute.

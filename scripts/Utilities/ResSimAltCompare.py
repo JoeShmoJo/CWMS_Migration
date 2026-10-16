@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-See GIT repository here with ReadMe for more information:
-https://nwd-wmshare.nwd.usace.army.mil/git/ResOps/ResSimAltCompare
+Compare alternatives using the selected local watershed and simulation inputs.
 
 """
 

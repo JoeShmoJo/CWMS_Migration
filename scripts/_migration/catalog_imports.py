@@ -26,7 +26,7 @@ SCRIPTS = os.path.dirname(HERE)
 
 # _migration is excluded because this file lists the ResSim entry point names it
 # searches for, which makes it match itself.
-SKIP_DIRS = ("__pycache__", ".git", "_migration")
+SKIP_DIRS = ("__pycache__", "_migration")
 
 # Imports that only ever exist in CPython. Any file using one of these is not a
 # ResSim script, whatever directory it sits in.
@@ -97,7 +97,7 @@ def moduleToFile():
     """{dotted module name: path relative to scripts/} for local modules."""
     mapping = {}
     for dirPath, dirNames, fileNames in os.walk(SCRIPTS):
-        dirNames[:] = [d for d in dirNames if d not in SKIP_DIRS]
+        dirNames[:] = [d for d in dirNames if d not in SKIP_DIRS and not d.startswith(".")]
         for fileName in fileNames:
             if not fileName.endswith(".py"):
                 continue
@@ -114,7 +114,7 @@ def findEntryPoints():
     """Files that ResSim itself calls into."""
     entries = set()
     for dirPath, dirNames, fileNames in os.walk(SCRIPTS):
-        dirNames[:] = [d for d in dirNames if d not in SKIP_DIRS]
+        dirNames[:] = [d for d in dirNames if d not in SKIP_DIRS and not d.startswith(".")]
         for fileName in fileNames:
             # The PasteIntoResSim .txt files ARE rules; they just live as text.
             if not (fileName.endswith(".py") or fileName.endswith(".txt")):
@@ -208,7 +208,7 @@ def readImports(path):
 def main():
     importsByFile = {}
     for dirPath, dirNames, fileNames in os.walk(SCRIPTS):
-        dirNames[:] = [d for d in dirNames if d not in SKIP_DIRS]
+        dirNames[:] = [d for d in dirNames if d not in SKIP_DIRS and not d.startswith(".")]
         for fileName in sorted(fileNames):
             if fileName.endswith(".py"):
                 full = os.path.join(dirPath, fileName)

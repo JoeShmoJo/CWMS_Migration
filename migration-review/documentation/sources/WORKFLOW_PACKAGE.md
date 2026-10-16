@@ -17,8 +17,7 @@ installer. Keep the standalone watershed and imported RTS copy separate.
 Double-click `WORKFLOW_README.html` at the watershed root. The linked HTML guides
 under `scripts/workflow-kit/documentation` work offline with navigation, formatted
 tables and code, and browser printing/PDF export. No server, Markdown viewer or
-additional Python package is needed to read or generate them. Markdown remains
-the editable source; rerunning the embedded packager regenerates HTML.
+additional Python package is needed to read or generate them. Editable Markdown is grouped in `documentation/sources`; users read HTML. Open `scripts/START-HERE.html` or `documentation/index.html`. Rerunning the embedded packager regenerates HTML.
 
 The standalone menu also supports [Single POR / Model Check](STANDALONE_POR_MODEL_CHECK.md).
 The embedded model_check directory contains code/limits only; native results and
@@ -128,3 +127,13 @@ No CONFIG.py, alt_config file, user CSV schedule, native network, simulation DSS
 forecast DSS or application JAR is rewritten by packaging/mode installation.
 RTS mode deliberately installs the maintained MainstemFlowAugSV implementation;
 standalone mode restores the preserved standalone implementation.
+
+## Refresh the portable package
+
+Close applications and preserve local mappings before running this command in the standalone source. Packaging installs standalone mode; do not use it to refresh an active RTS copy. It preserves the previous kit and records a fresh inventory. It does not install HEC or Python.
+
+```powershell
+$ws = Read-Host "Standalone watershed root"; & "$env:LOCALAPPDATA\miniconda3\envs\hydro39\python.exe" (Join-Path $ws "scripts\workflow-kit\Package-Workflow.py") --watershed $ws
+```
+
+For a documentation-only refresh, run `python scripts/workflow-kit/render_documentation.py` from the watershed root. Packaging refreshes `WORKFLOW_README.html` at the watershed root and `START-HERE.html` in scripts. Existing operator Markdown notes are preserved, not overwritten.

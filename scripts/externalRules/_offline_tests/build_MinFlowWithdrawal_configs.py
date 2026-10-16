@@ -34,7 +34,7 @@ import csv
 # STEP_HOLD False -> interpolate linearly between breakpoints.
 STEP_HOLD = True
 
-# Project code -> ResSim reservoir name. Taken from this repo's own definitive
+# Project code -> ResSim reservoir name. Taken from this project's own definitive
 # list, NWDJyLib/FixedData/referenceData/NamingAliases-Reservoirs.csv, columns
 # CBT_Code and ResSim_Name -- not guessed.
 CODE_TO_NAME = {
@@ -81,8 +81,8 @@ DAYS_IN_MONTH = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 DAYS_IN_YEAR = 365
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-REPO = os.path.abspath(os.path.join(HERE, "..", "..", "..", ".."))
-DATA = os.path.join(REPO, "data")
+PROJECT_ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
+DATA = PROJECT_ROOT
 OUT_DIR = os.path.join(DATA, "scripts", "externalRules")
 
 

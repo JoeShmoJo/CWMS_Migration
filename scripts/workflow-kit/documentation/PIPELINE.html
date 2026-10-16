@@ -1,0 +1,88 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Pipeline and file map</title><style>body{font:17px/1.6 system-ui,sans-serif;color:#213346;margin:0;background:#f3f6fa}nav{background:#173d56;padding:14px;position:sticky;top:0}nav a{color:white;display:inline-block;margin:4px 12px}main{max-width:1100px;margin:auto;padding:28px;background:white}a{color:#0063a5}h1,h2,h3{line-height:1.25;scroll-margin-top:90px}h2{margin-top:2em;border-bottom:1px solid #cbd5df;padding-bottom:8px}pre{overflow:auto;padding:16px;background:#eef2f6;white-space:pre-wrap;overflow-wrap:anywhere}code{font-family:Consolas,monospace;font-size:.9em;background:#eef2f6}table{border-collapse:collapse;width:100%;font-size:.92em}th,td{border:1px solid #cad3dc;padding:9px;text-align:left;vertical-align:top;overflow-wrap:anywhere}th{background:#e5edf3}.table{overflow:auto}footer{margin-top:3em;color:#546579}@media print{nav{display:none}main{max-width:none;padding:0}body{background:white}pre{white-space:pre-wrap}a{color:inherit}}</style><body><nav><a href="index.html">Overview</a><a href="PIPELINE.html">Pipeline / file map</a><a href="PROJECT_START_HERE.html">Start here</a><a href="PROJECT_RESUME.html">Resume project</a><a href="WORKFLOW_SOP.html">Operator SOP</a><a href="STANDALONE_WORKFLOW_REFERENCE.html">Standalone reference</a><a href="RTS_WORKFLOW_REFERENCE.html">RTS reference</a><a href="STANDALONE_SAVED_RESULTS.html">Standalone saved runs</a><a href="STANDALONE_POR_MODEL_CHECK.html">POR / Model Check</a><a href="WORKFLOW_PACKAGE.html">Import / packaging</a><a href="RTS_IMPORT_VALIDATION.html">Next: RTS validation</a><a href="RTS_DATA_IO.html">Data / archives</a><a href="DIVERSION_POSTPROCESS.html">Diversions (optional)</a></nav><main><h1 id="pipeline-and-file-map">Pipeline and file map</h1>
+<p>Open <code>scripts/START-HERE.html</code> after copying the complete project. All guide pages and assets are local. This guide traces the delivered implementation; native rule bindings, input coverage and a fresh RTS import still require local validation.</p>
+<h2 id="four-places-with-different-responsibilities">Four places with different responsibilities</h2>
+<div class="table"><table><thead><tr><th>Place</th><th>Purpose</th><th>Used when</th></tr></thead><tbody>
+<tr><td>Watershed <code>scripts/</code></td><td>Installed launchers, runtime rules, libraries and configuration</td><td>Normal model operation</td></tr>
+<tr><td><code>scripts/workflow-kit/</code></td><td>Installer payloads, mode switcher and optional tools</td><td>Installation, maintenance, RTS transition and optional postprocessing</td></tr>
+<tr><td><code>scripts/workflow-kit/documentation/</code></td><td>Offline HTML guides; editable Markdown is grouped under <code>sources/</code></td><td>Reading or updating documentation</td></tr>
+<tr><td>Simulation or forecast directory</td><td>Applied settings, native DSS, accepted archives and reports</td><td>One selected run or forecast</td></tr>
+</tbody></table></div>
+<p>The kit is an installation source, not an automatic override of installed code. Editing <code>workflow-kit/ExternalPython</code> does not change <code>scripts/ExternalPython</code> until installation. Conversely, editing an installed file does not update its kit copy. Preserve local mappings before reinstalling. Do not overwrite <code>CONFIG.py</code> with a kit copy: the installer deliberately preserves it.</p>
+<h2 id="standalone-call-chain">Standalone call chain</h2>
+<ol start="1">
+<li>In ResSim&#x27;s Simulation module, run <code>scripts/STANDALONE_WORKFLOW_MENU.py</code>. It gets the watershed from the HEC application. Choose the actual simulation folder, native alternative, and Ensemble or Single POR explicitly.</li>
+<li>The menu uses Java ProcessBuilder to start <code>%LOCALAPPDATA%\miniconda3\envs\hydro39\python.exe</code>. It calls installed code in <code>scripts/ExternalPython</code>; it does not execute the duplicate menu/backend inside the kit.</li>
+<li>Configuration opens <code>standalone_configuration.py</code>, which uses the shared <code>baseline_configuration.py</code> backend and <code>baseline-editor.html</code>. The browser is served locally by Python; it is an operational editor, separate from these static guides.</li>
+<li>Save creates a reusable JSON library version under <code>scripts/baseline-configuration-library</code>. Apply writes a snapshot for the selected simulation/alternative and updates its active pointer. Saving alone does not activate settings or compute.</li>
+<li>During native compute, adapted <code>externalRules/*.py</code>, <code>externalSVs/Alternative_Setup.py</code> and <code>standalone_baseline_runtime.py</code> resolve the matching snapshot. Native ResSim performs compute and writes <code>rss/&lt;simulation&gt;/simulation.dss</code>.</li>
+<li>Menu jobs call <code>standalone_jobs.py</code>. It validates the active settings, then runs the selected existing downloader/OSI/augmentation job with a private temporary CONFIG compatibility module. The shared <code>ExternalPython/CONFIG.py</code> remains available for legacy manual jobs.</li>
+<li>Saved-result actions call <code>standalone_results.py</code>. Model Check is dispatched through <code>standalone_model_check.py</code> into installed <code>scripts/model_check</code> code. These actions inspect or archive results; they do not start native compute.</li>
+</ol>
+<h3 id="standalone-inputs-and-outputs">Standalone inputs and outputs</h3>
+<div class="table"><table><thead><tr><th>Artifact</th><th>Producer</th><th>Consumer / location</th></tr></thead><tbody>
+<tr><td>Simulation, alternative, run type</td><td>Menu/operator</td><td>Passed to configuration, jobs and result tools</td></tr>
+<tr><td><code>_default.txt</code>, alternative settings and CSV schedules</td><td>Existing model/operator</td><td><code>scripts/alt_config</code>, <code>externalRules</code>, <code>externalSVs</code>; initial configuration defaults</td></tr>
+<tr><td>Named baseline JSON</td><td>Editor Save</td><td><code>scripts/baseline-configuration-library/&lt;id&gt;.json</code>; reusable settings</td></tr>
+<tr><td>Applied snapshot</td><td>Editor Apply</td><td><code>rss/&lt;simulation&gt;/baseline-configurations/sets/&lt;id&gt;/</code>; settings, resolved tables, source snapshots and manifest</td></tr>
+<tr><td>Active pointer</td><td>Editor Apply</td><td><code>rss/&lt;simulation&gt;/standalone-baseline-config-active.json</code>; selects applied snapshot</td></tr>
+<tr><td>Initialization receipts</td><td>Baseline runtime during compute</td><td>Applied snapshot&#x27;s <code>initialization-receipts/</code>; evidence of loaded settings</td></tr>
+<tr><td>Live native result</td><td>ResSim compute</td><td><code>rss/&lt;simulation&gt;/simulation.dss</code>; may change on another compute</td></tr>
+<tr><td>Accepted saved result</td><td>Saved-result capture</td><td><code>rss/&lt;simulation&gt;/standalone-results/run-&lt;id&gt;/</code>; capture metadata, archive metadata and compact arrays</td></tr>
+<tr><td>Saved-result plots</td><td>Result plotting</td><td><code>rss/&lt;simulation&gt;/output_plots/archived-&lt;id&gt;/</code>; HTML, CSV and selection metadata</td></tr>
+<tr><td>Menu execution logs</td><td>Launcher</td><td>Watershed <code>standalone-workflow-logs/</code>; start with the path printed by the menu</td></tr>
+<tr><td>Model Check report</td><td>Installed checker</td><td>Unique report directory reported by the tool; <code>report.html</code> and diagnostic tables</td></tr>
+</tbody></table></div>
+<p>Read <a href="STANDALONE_WORKFLOW_REFERENCE.html">standalone technical reference</a> and <a href="STANDALONE_SAVED_RESULTS.html">saved results</a> for configuration precedence, exact file contracts and archive selection. Single POR has no OSI ensemble member. Native augmentation settings and mappings must match the selected compute sequence.</p>
+<h2 id="original-rules-are-active-dependencies">Original rules are active dependencies</h2>
+<p>Keep <code>scripts/_standalone_baseline_originals/externalRules</code>. The standalone runtime loads these implementations. In RTS mode, corresponding preserved sources live under <code>_rts_baseline_originals</code>. These folders are not disposable historical backups.</p>
+<p>Also retain <code>_workflow_originals</code> when present: it preserves standalone downloader helpers and the standalone augmentation state variable for restoration when switching back. Installer rollback directories and <code>workflow-kit-previous-*</code> are different artifacts. Their cleanup requires checking whether rollback is still needed.</p>
+<h2 id="moving-to-rts">Moving to RTS</h2>
+<ol start="1">
+<li>Preserve the functioning standalone project. Import the complete watershed through the normal HEC-RTS procedure into a separate writable copy; the scripts folder alone is not a watershed.</li>
+<li>Close HEC applications and finish all computes. In the imported copy, run the embedded installer with <code>--watershed &lt;imported-root&gt; --mode rts</code>. It validates recognized rule structures, backs up affected files, installs RTS launchers/helpers, preserves standalone originals and writes <code>scripts/workflow-mode.json</code>.</li>
+<li>Reopen RTS, validate program/model linking and select a real forecast/run. Start installed <code>scripts/RTS_WORKFLOW_MENU.py</code>. The RTS launcher derives its forecast context; do not operate that forecast with the standalone menu.</li>
+<li>Initial extraction supplies forecast dates, timezone, mappings and the native DSS target to the extraction backend. CWMS/NOAA requests require the actual data services and existing authentication/certificates.</li>
+<li>Save and Apply baseline settings for this forecast. Compute the unaugmented case manually in HEC, then accept the completed baseline.</li>
+<li>Configure and process augmentation against that accepted baseline. Review/load prepared releases, compute manually, and accept the augmented result. Plot the accepted pair.</li>
+<li>Reopen and check that configuration, accepted archives and plots persist. Use the staged <a href="RTS_IMPORT_VALIDATION.html">RTS validation checklist</a>; successful file installation does not prove native compute or import succeeded.</li>
+</ol>
+<p>One-line PowerShell, using the destination watershed root:</p>
+<pre><code>$ws = Read-Host &quot;Imported RTS watershed root&quot;; &amp; &quot;$env:LOCALAPPDATA\miniconda3\envs\hydro39\python.exe&quot; (Join-Path $ws &quot;scripts\workflow-kit\Install-StandaloneConfiguration.py&quot;) --watershed $ws --mode rts</code></pre>
+<p>Switch back only after closing applications, using <code>--mode standalone</code> in that copy. This restores recognized standalone scripts; it does not convert forecast results into standalone results, alter native operation sets or validate native mappings.</p>
+<h3 id="rts-call-and-storage-map">RTS call and storage map</h3>
+<p>Let W be the imported watershed root, EP be <code>W/scripts/ExternalPython</code>, and F be the selected forecast model directory containing its native DSS.</p>
+<div class="table"><table><thead><tr><th>Step</th><th>Installed implementation</th><th>Writes / reads</th></tr></thead><tbody>
+<tr><td>Select forecast and action</td><td><code>scripts/RTS_WORKFLOW_MENU.py</code>, <code>EP/rts_workflow.py</code>, <code>EP/workflow_simple.py</code></td><td>Derives forecast/run context; dispatches requested action</td></tr>
+<tr><td>Extract</td><td><code>EP/run_extraction.py</code>, <code>EP/extraction_context.py</code>, installed downloaders</td><td>Forecast DSS and extraction diagnostics; service data are external inputs</td></tr>
+<tr><td>Configure</td><td><code>EP/baseline_configuration.py</code>, <code>EP/baseline_versions.py</code></td><td>Reusable library under W; forecast snapshots under <code>F/baseline-configurations/sets/&lt;id&gt;</code></td></tr>
+<tr><td>Apply / initialize</td><td>Baseline editor; <code>scripts/rts_baseline_runtime.py</code> and adapted rules</td><td><code>F/rts-baseline-config-active.json</code>, generated tables and initialization receipts</td></tr>
+<tr><td>Accept baseline</td><td>Archive/backend helpers</td><td><code>F/augmentation-archives/baseline</code> or versioned baseline directory; compact data and provenance</td></tr>
+<tr><td>Process augmentation</td><td><code>EP/prepare_rts_augmentation.py</code> and calculation helpers</td><td>Scheme directory under <code>F/augmentation-archives</code>; resolved releases tied to one baseline</td></tr>
+<tr><td>Activate releases</td><td><code>EP/load_rts_augmentation.py</code></td><td>Prepared release input consumed through installed augmentation integration and native mappings</td></tr>
+<tr><td>Compute</td><td>HEC-RTS / native ResSim</td><td>Live forecast DSS; Python preparation does not perform native compute</td></tr>
+<tr><td>Accept augmented result</td><td><code>EP/run_archive.py</code>, <code>EP/run_data_cache.py</code> and workflow backend</td><td>Scheme-scoped <code>results-&lt;token&gt;</code> archive; accepted configuration provenance</td></tr>
+<tr><td>Plot</td><td><code>EP/plot_rts_runs.py</code>, <code>EP/plot_rts_augmentation.py</code>, <code>EP/plot_rts_forecast.py</code></td><td>Saved HTML/CSV output selected through the workflow; use printed destination</td></tr>
+</tbody></table></div>
+<p>Use <a href="RTS_WORKFLOW_REFERENCE.html">RTS technical reference</a> for exact pointer, scheme, accepted-result and plot filenames. A named setting, applied configuration, accepted baseline, calculated scheme and accepted result are distinct objects. Preserve their IDs and pairing; never substitute the latest live DSS for an archived comparison.</p>
+<h2 id="other-folders">Other folders</h2>
+<div class="table"><table><thead><tr><th>Folder</th><th>Responsibility</th></tr></thead><tbody>
+<tr><td><code>ExternalModules</code>, <code>NWDJyLib</code></td><td>Java/Jython support libraries</td></tr>
+<tr><td><code>externalRules</code>, <code>externalSVs</code></td><td>Native scripted rules and state variables; preserve model bindings</td></tr>
+<tr><td><code>alt_config</code>, <code>baseline-configuration-library</code></td><td>Legacy model settings and reusable named editor configurations</td></tr>
+<tr><td><code>DamagesPrevented</code></td><td>Separate download, cleanup and damages calculation pipeline; see <a href="DAMAGES_PREVENTED.html">guide</a> and <a href="DAMAGES_PREVENTED_SETUP.html">setup</a></td></tr>
+<tr><td><code>model_check</code></td><td>Installed DSS extraction and diagnostic reporting; see <a href="MODEL_CHECK.html">Model Check</a></td></tr>
+<tr><td><code>_migration</code></td><td>Static import audit and installation compatibility helpers; see <a href="IMPORT_AUDIT.html">import audit</a></td></tr>
+<tr><td><code>Utilities</code>, <code>RealtimeData</code>, <code>esp_download</code>, <code>Plots_Jython</code></td><td>Model-specific utilities, downloads and plotting</td></tr>
+<tr><td><code>Willamette</code>, <code>RuleList</code></td><td>Exported model script/rule information; not the installed workflow backend</td></tr>
+<tr><td><code>SalemAlbanyAugScript</code></td><td>Legacy augmentation/headless examples; do not replace the current menu pipeline with these implicitly</td></tr>
+<tr><td><code>workflow-kit/optional-diversion-postprocess</code></td><td>Optional experimental postprocessor invoked directly from the kit; not native operating feedback</td></tr>
+</tbody></table></div>
+<h2 id="trace-a-problem">Trace a problem</h2>
+<ol start="1">
+<li>Confirm watershed root, standalone/RTS mode, simulation or forecast, alternative and member. Check <code>workflow-mode.json</code>; it records installation mode, not automatic GUI detection.</li>
+<li>Follow the actual launcher path and its printed job/log path. Installed code and kit payloads can differ intentionally.</li>
+<li>Inspect the active pointer, its resolved configuration and hashes, then the runtime initialization receipts. Save is not Apply; Apply is not compute.</li>
+<li>Inspect the live DSS only for the current native compute. For comparisons, follow accepted archive IDs, capture metadata and the selected plot/report directory.</li>
+<li>Preserve logs and unresolved data-read evidence. A process exit, populated DSS catalog or 100% native progress alone is insufficient proof of correct values.</li>
+</ol>
+<p>The guides are self-contained and offline. HEC, Python packages, credentials, service access, native watershed files and trusted study inputs remain required. No HEC application modification is part of this workflow.</p><footer>Offline watershed documentation · <a href="../documentation/sources/PIPELINE.md">Markdown source</a> · Use browser Print to save as PDF.</footer></main></body></html>

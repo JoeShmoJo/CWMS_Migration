@@ -75,7 +75,7 @@ existing archives, or the PostProcess_CSV cleanup script.
 PowerShell one line:
 
 ```powershell
-Set-Location "C:\Projects\A_REPOSITORIES\CWMS_Migration"; git pull --ff-only; if ($LASTEXITCODE -ne 0) { throw "Git pull failed" }; & ".\migration-review\Install-RunArchives.ps1" -WatershedRoot "C:\CWMS\watershed\ResSimMaster"
+$ws = Read-Host "Watershed root"; & "$env:LOCALAPPDATA\miniconda3\envs\hydro39\python.exe" (Join-Path $ws "scripts\workflow-kit\Install-StandaloneConfiguration.py") --watershed $ws --mode rts
 ```
 
 Reopen the workflow menu and accept a completed unaugmented run, then prepare/load

@@ -56,7 +56,7 @@ the first baseline. Explicit Apply makes the selected configuration clearer.
 5. Wait for **Releases processed and loaded** and check the next-compute label.
 
 This is the scheme “commit”: prepared releases are saved and activated against
-one baseline. It is not a Git commit and does not run the simulation.
+one baseline. It is a saved configuration snapshot and does not run the simulation.
 
 ## 4. Compute, archive and plot the pair
 

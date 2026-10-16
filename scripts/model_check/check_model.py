@@ -49,7 +49,7 @@ Conflicts    Rules that wanted a different release, and the rule or outlet capac
 
 The config files are the ones the run's alternative points at in
 scripts/alt_config/ (<alternative>.txt over _default.txt), read from the
-watershed if it is on this machine, otherwise from this repository.
+explicitly selected watershed, or the local watershed containing this checker.
 """
 
 import glob
@@ -69,9 +69,8 @@ from plotly.subplots import make_subplots
 # An output folder written by extract_dss.py. Blank means the newest one.
 RUN_DIR = r""
 
-# The folder holding scripts/ (a watershed, or this repo's data folder). Blank
-# means the watershed recorded in run_info.json if it exists on this machine,
-# otherwise this repository's data folder.
+# Explicit watershed root containing scripts/. Blank uses only the local
+# watershed containing this checker; archived machine paths are not followed.
 CONFIG_ROOT = r""
 
 # First date to check. Blank means the first day with diversion results, which
@@ -140,17 +139,13 @@ def findRunDir():
 def findConfigRoot(runInfo):
     if CONFIG_ROOT:
         return CONFIG_ROOT
-    watershed = runInfo.get("watershed_dir", "")
-    if watershed and os.path.isdir(os.path.join(watershed, "scripts")):
-        return watershed
-    # model_check sits in the repo root (configs under data/scripts) or was
-    # copied into a watershed's scripts folder (configs under scripts)
-    folder = _here()
-    for _ in range(4):
+    # Installed checker is scripts/model_check; bundled checker is scripts/workflow-kit/model_check.
+    folder = os.path.dirname(_here())
+    if os.path.basename(folder) == 'workflow-kit':
         folder = os.path.dirname(folder)
-        for root in (folder, os.path.join(folder, "data")):
-            if os.path.isdir(os.path.join(root, "scripts", "alt_config")):
-                return root
+    root = os.path.dirname(folder)
+    if os.path.basename(folder) == 'scripts' and os.path.isdir(os.path.join(folder, 'alt_config')):
+        return root
     sys.exit("Could not find scripts/alt_config above %s. Set CONFIG_ROOT to "
              "the folder that contains scripts." % _here())
 

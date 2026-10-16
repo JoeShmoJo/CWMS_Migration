@@ -1,0 +1,107 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Damages Prevented: setup checklist for the new Willamette model (ResSim 4.1)</title><style>body{font:17px/1.6 system-ui,sans-serif;color:#213346;margin:0;background:#f3f6fa}nav{background:#173d56;padding:14px;position:sticky;top:0}nav a{color:white;display:inline-block;margin:4px 12px}main{max-width:1100px;margin:auto;padding:28px;background:white}a{color:#0063a5}h1,h2,h3{line-height:1.25;scroll-margin-top:90px}h2{margin-top:2em;border-bottom:1px solid #cbd5df;padding-bottom:8px}pre{overflow:auto;padding:16px;background:#eef2f6;white-space:pre-wrap;overflow-wrap:anywhere}code{font-family:Consolas,monospace;font-size:.9em;background:#eef2f6}table{border-collapse:collapse;width:100%;font-size:.92em}th,td{border:1px solid #cad3dc;padding:9px;text-align:left;vertical-align:top;overflow-wrap:anywhere}th{background:#e5edf3}.table{overflow:auto}footer{margin-top:3em;color:#546579}@media print{nav{display:none}main{max-width:none;padding:0}body{background:white}pre{white-space:pre-wrap}a{color:inherit}}</style><body><nav><a href="index.html">Overview</a><a href="PIPELINE.html">Pipeline / file map</a><a href="PROJECT_START_HERE.html">Start here</a><a href="PROJECT_RESUME.html">Resume project</a><a href="WORKFLOW_SOP.html">Operator SOP</a><a href="STANDALONE_WORKFLOW_REFERENCE.html">Standalone reference</a><a href="RTS_WORKFLOW_REFERENCE.html">RTS reference</a><a href="STANDALONE_SAVED_RESULTS.html">Standalone saved runs</a><a href="STANDALONE_POR_MODEL_CHECK.html">POR / Model Check</a><a href="WORKFLOW_PACKAGE.html">Import / packaging</a><a href="RTS_IMPORT_VALIDATION.html">Next: RTS validation</a><a href="RTS_DATA_IO.html">Data / archives</a><a href="DIVERSION_POSTPROCESS.html">Diversions (optional)</a></nav><main><h1 id="damages-prevented-setup-checklist-for-the-new-willamette-model-ressim-41">Damages Prevented: setup checklist for the new Willamette model (ResSim 4.1)</h1>
+<p>Work top to bottom. Paths are relative to the watershed folder unless they start with <code>DP_REPO/</code>. <code>README.md</code> in this folder explains what each step does; this file is only what to do.</p>
+<p>---</p>
+<h2 id="a-put-the-files-in-place">A. Put the files in place</h2>
+<ul>
+<li>[ ] <strong>Back up</strong> the watershed&#x27;s current <code>scripts/DP_Menu.py</code> (it opens the old AFDR menu).</li>
+<li>[ ] <strong>Copy</strong> <code>DP_REPO/data/ResSim41ExampleScripts/DamagesPrevented/</code> to <code>scripts/DamagesPrevented/</code>.</li>
+<li>[ ] <strong>Copy</strong> <code>DP_REPO/data/ResSim41ExampleScripts/DP_Menu.py</code> to <code>scripts/DP_Menu.py</code> (replaces the old one).</li>
+<li>[ ] <strong>Check</strong> <code>scripts/NWDJyLib/</code> is the ResSim 4.1 version (it already is if the scripts folder came from <code>ResSim41ExampleScripts</code>). Nothing in it needs changing.</li>
+<li>[ ] <strong>Put your USGS key</strong> in <code>scripts/DamagesPrevented/DP_Download/config/usgs_api_key.txt</code> (one line, the key only). Keep this private file out of shared packages.</li>
+<li>[ ] <strong>Optional - reuse your last download:</strong> copy your existing <code>Hourly_2025-10-01_2026-09-30.csv</code> into <code>scripts/DamagesPrevented/DP_Download/out/</code>. Then the next download only fetches what&#x27;s missing (the two Scoggins records).</li>
+<li>[ ] <strong>Zero-flow record:</strong> copy <code>shared/DamagesPrevented/Zero Flow record.dss</code> to <code>scripts/DamagesPrevented/DPdata/Zero_Flow_record.dss</code> (underscores; the repointed tables use that name).</li>
+</ul>
+<h2 id="b-download-the-observed-data-desktop-python-not-ressim">B. Download the observed data (desktop Python, not ResSim)</h2>
+<ul>
+<li>[ ] Close <code>obsData.dss</code> in ResSim and DSSVue (the download deletes and rewrites it).</li>
+<li>[ ] Run <code>scripts/DamagesPrevented/DP_Download/DP_Download.py</code>. Set <code>startDate</code> / <code>endDate</code> at the top first if the period changes.</li>
+<li>[ ] Confirm <code>scripts/DamagesPrevented/DP_Download/out/obsData.dss</code> opens in DSSVue 7 (it is written as DSS 7). If it doesn&#x27;t, send the error.</li>
+<li>[ ] Optional: run <code>DP_Download/QAQC/DP_QAQC.py</code> and look at <code>QAQC/out/</code>.</li>
+</ul>
+<h2 id="c-clean-the-data-in-dssvue">C. Clean the data in DSSVue</h2>
+<p>ResSim needs specified releases, lookbacks and inflows without gaps over the simulation window, and gaps in a gage carry straight into the water-balance locals. Missing hours are stored as -902. From the last download&#x27;s <code>out/Combined_Summary_Stats.csv</code>, the worst records:</p>
+<div class="table"><table><thead><tr><th>Record</th><th>Hours missing</th><th>Longest gap (h)</th><th>Used for</th></tr></thead><tbody>
+<tr><td>Willamette R at Newberg 14197900</td><td>225</td><td>200</td><td>Observed, water balance</td></tr>
+<tr><td>Pudding R at Aurora 14202000</td><td>178</td><td>165</td><td>Known flow, Willamette Falls local</td></tr>
+<tr><td>Fern Ridge inflow <code>//FRN/FLOW-IN</code></td><td>169</td><td>40</td><td>Known flow (reservoir inflow)</td></tr>
+<tr><td>S Yamhill R at McMinnville 14194150</td><td>145</td><td>8</td><td>Known flow</td></tr>
+<tr><td>Coast Fork nr Goshen 14157500</td><td>130</td><td>125</td><td>Observed, water balance</td></tr>
+<tr><td>Long Tom R nr Alvadore 14169000</td><td>130</td><td>0.4</td><td><strong>Fern Ridge specified release</strong></td></tr>
+<tr><td>Willamette R at Salem 14191000</td><td>94</td><td>95</td><td>Observed, water balance</td></tr>
+<tr><td>CWMS inflows (COT, GPR, LOP, DET, DOR, BLU, ...)</td><td>~40 each</td><td>~40</td><td>Known flow (reservoir inflows)</td></tr>
+</tbody></table></div>
+<ul>
+<li>[ ] Fill or estimate the gaps in DSSVue, at least for everything used as a specified release, lookback or known flow.</li>
+<li>[ ] The ~40-hour CWMS gaps are most likely the end of the water year (downloaded on 30 Sep). Either end the simulation before the data ends, or re-download later with <code>ReuseDownloaded = False</code> in <code>DP_Download.py</code> (reused records are not refreshed).</li>
+<li>[ ] Times in <code>obsData.dss</code> are UTC clock times. All inputs share that, so the method is consistent, but peak times in the results are UTC.</li>
+</ul>
+<h2 id="d-update-the-model">D. Update the model</h2>
+<h3 id="d1-simulation">D1. Simulation</h3>
+<ul>
+<li>[ ] One simulation holding both alternatives (<code>Obs_NWP_H</code>, <code>Unreg_NWP_H</code>), same network, both on a 1-hour time step.</li>
+<li>[ ] Lookback start and end inside the downloaded period (and before any gap at the end).</li>
+<li>[ ] Unregulated alternative: every reservoir passes inflow.</li>
+<li>[ ] <code>scripts/alt_config/&lt;alternative name&gt;.txt</code> for both alternatives sets <code>mainstemFlowAugMethod: NoFlowAug</code>. Otherwise <code>MainstemFlowAugSV</code> looks for the &quot;Water Year Type&quot; series. The file name must match the alternative name exactly.</li>
+<li>[ ] Both alternatives&#x27; Timeseries tabs have a <strong>Water Year Type</strong> row, mapped like the working alternatives. The <code>WaterYearTypeVariable</code> state variable reads it in every alternative, whatever the flow-aug setting. The row only appears when the operation set the alternative uses (Operations tab) contains the dummy rule (at Big Cliff) that brings the series in; without it the compute fails with &quot;Looking for &#x27;Water Year Type&#x27; external time series, but it doesn&#x27;t exist in this alternative&quot;.</li>
+<li>[ ] Diversions inactive in both alternatives (no diverted flow). Damages Prevented ignores them (<code>INCLUDE_DIVERSIONS = False</code> in <code>DPSettings.py</code>), so an active diversion would make the ResSim computes differ from the water-balance locals and the mini-simulations.</li>
+</ul>
+<h3 id="d2-repoint-dss-files-alternative-editors">D2. Repoint DSS files (alternative editors)</h3>
+<p>Change only the <strong>DSS file</strong> column; leave the A-F parts as they are. Save each alternative.</p>
+<p>Ready-made tables: <code>DP_REPO/data/NewResSimPaths/*_DP.csv</code> (Obs Observed tab, Obs Timeseries tab, Unreg Timeseries tab). Open in Excel, copy all rows, paste over the table. For a new export, run <code>DP_Download/RepointAlternativeTables.py &lt;export.csv&gt;</code>. The rows listed below are what those tables change.</p>
+<p><strong>Observed alternative, Observed Data tab - 39 rows</strong> <code>shared/DamagesPrevented/obsData.dss</code> -&gt; <code>scripts/DamagesPrevented/DP_Download/out/obsData.dss</code></p>
+<p>Willamette_at Albany, Willamette_at Newberg, Willamette_at Salem, So Santiam_at Waterloo, No Santiam_at Mehama, Santiam_at Jefferson, Long Tom_at Monroe, Willamette_at Harrisburg, McKenzie_at Vida, Willamette_at Eugene, CF WIllamette_nr Goshen, MF Willamette_at Jasper, Big Cliff_OUT, Detroit_OUT, Foster_OUT, Green Peter_OUT, Fern Ridge_OUT, Blue River_OUT, Cougar_OUT, Cottage Grove_OUT, Dorena_OUT, Fall Creek_OUT, Dexter_OUT, Lookout Point_OUT, Hills Creek_OUT, Foster_IN, Lookout Point_IN, and the 12 <code>-Pool</code> elevations (Big Cliff, Detroit, Green Peter, Fern Ridge, Blue River, Cougar, Cottage Grove, Dorena, Fall Creek, Dexter, Lookout Point, Hills Creek).</p>
+<p><strong>Observed alternative, Timeseries tab - 53 rows</strong> <code>shared/DamagesPrevented/obsData.dss</code> -&gt; <code>scripts/DamagesPrevented/DP_Download/out/obsData.dss</code></p>
+<ul>
+<li>Reservoir inflows: Detroit Inflow, Green Peter Inflow, Fern Ridge Inflow, Blue River Inflow,</li>
+</ul>
+<p>Cougar Inflow, Cottage Grove Inflow, Dorena Inflow, Fall Creek Inflow, Hills Creek Inflow</p>
+<ul>
+<li>Gaged tributaries: CANO_Molalla River at Canby, SUVO_Suver (Luckiamute), AURO_Pudding River</li>
+</ul>
+<p>nr Aurora, MCMO_McMinnville (S Yamhill), WSLO_West Linn (Tualatin)</p>
+<ul>
+<li>For each of the 13 reservoirs: <code>-Pool</code> Lookback Elevation, the outlet Lookback Release,</li>
+</ul>
+<p>and <code>(XXX) Specified Release</code> (39 rows)</p>
+<p><strong>Observed alternative, Timeseries tab - 15 rows</strong> -&gt; <code>scripts/DamagesPrevented/DPdata/DPcalc.dss</code></p>
+<ul>
+<li>From <code>Locals-Transformed.dss</code>: OCUO_Oregon City_HMSsub_WillametteRv_S30 (<code>WILLAMETTE FALLS</code>)</li>
+<li>From <code>Locals-FinalWaterBalance.dss</code>: ALBO_ Albany, NBGO_Newberg, SLMO_Salem,</li>
+</ul>
+<p>WTLO_Waterloo, MEHO_Mehama, JFFO Santiam_at Jefferson loc, MNRO_Monroe, HARO_Harrisburg, VIDO_Vida, EUGO_Willamette at Eugene, GOSO_Goshen, JASO_Jasper, Foster Local Inflow_HMSsub_SSantiamRv_S20, Lookout Point Local Inflow_HMSsub_MFWillametteRV_S60</p>
+<p><strong>Unregulated alternative, Timeseries tab</strong></p>
+<ul>
+<li>[ ] The same 14 inflow / gaged-tributary rows -&gt; <code>.../DP_Download/out/obsData.dss</code></li>
+<li>[ ] The same 15 calculated rows -&gt; <code>.../DPdata/DPcalc.dss</code></li>
+<li>[ ] (The Unregulated alternative has no specified releases, lookbacks or Observed tab rows.)</li>
+</ul>
+<p><code>DPcalc.dss</code> doesn&#x27;t have to exist yet; step 1 creates it.</p>
+<h3 id="d3-check-the-network-matches-what-the-scripts-assume">D3. Check the network matches what the scripts assume</h3>
+<ul>
+<li>[ ] Each of the 14 water-balance locals is attached to the junction that has the matching observed flow (e.g. ALBO at Willamette_at Albany, Foster Local Inflow at Foster_IN). A water-balance local on a junction <strong>without</strong> observed flow makes step 2 stop.</li>
+<li>[ ] The Willamette Falls local (OCUO) is on a junction <strong>without</strong> observed flow.</li>
+<li>[ ] Reach routing is SSARR, Muskingum, Modified Puls or Null. Steps 2 and 3 check this first and name any reach that isn&#x27;t.</li>
+</ul>
+<h2 id="e-configure-damages-prevented">E. Configure Damages Prevented</h2>
+<ul>
+<li>[ ] <code>scripts/DamagesPrevented/config/ControlPoints.txt</code>: junction names to report at. All 23 are checked against the new network&#x27;s node list (<code>DP_REPO/data/node _list</code>). Two old names were changed: McKenzie R. NR Walterville -&gt; <code>Mkenzie_nr Walterville</code> and MF Willamette_blw NFork nr Oakridge -&gt; <code>MF Willamette NR Oakridge</code>. Willamette+Clackamas is not in the network (it ends at Willamette Falls); it is an added-flow point (next item).</li>
+<li>[ ] <code>config/AddedFlowPoints.csv</code>: Willamette+Clackamas = Willamette_abv Falls at Oregon City + Clackamas gage 14211010 (in <code>obsData.dss</code>; fill its gaps - missing hours count as 0).</li>
+<li>[ ] <code>config/Reservoirs.txt</code>: the 13 projects, spelled as in the network.</li>
+<li>[ ] <code>DPSettings.py</code>: only if you want different file locations. <code>REREG</code> pairs Big Cliff with Detroit and Dexter with Lookout Point.</li>
+</ul>
+<h2 id="f-run">F. Run</h2>
+<ul>
+<li>[ ] Open the Simulation module with the simulation from D1.</li>
+<li>[ ] <strong>Scripts pane entry (once):</strong> ResSim 4.1 keeps its own copy of a Scripts-pane script and runs that copy from <code>AppData/.../CWMS/&lt;watershed&gt;/scripts/Modules/Simulation/</code>, so copying files into <code>scripts/</code> never changes it. Open the &quot;DamagesPrevented&quot; script in the script editor, replace <strong>all</strong> its text with <code>scripts/DamagesPrevented_PasteIntoResSim.txt</code>, save. That launcher runs <code>scripts/DP_Menu.py</code> from the watershed every time, so later updates need no re-paste. It prints <code>Running .../scripts/DP_Menu.py</code>, then <code>Scripts folder: ...</code>.</li>
+<li>[ ] Run it. Pick the Observed and Unregulated alternatives.</li>
+<li>[ ] <strong>1. Transform gage data</strong> -&gt; writes <code>WILLAMETTE FALLS</code> to <code>DPdata/DPcalc.dss</code>.</li>
+<li>[ ] <strong>2. Compute water-balance locals</strong> -&gt; writes the 14 locals to <code>DPdata/DPcalc.dss</code>. Warnings about short records are OK unless the step stops.</li>
+<li>[ ] <strong>Compute</strong> the Observed and Unregulated alternatives in ResSim. Check that the Observed run matches the gages at the control points (if it doesn&#x27;t, the locals or data are off).</li>
+<li>[ ] <strong>3. Run mini-simulations</strong> -&gt; <code>DPdata/MiniSimulations.dss</code> and <code>DPdata/Results/*.csv</code>.</li>
+</ul>
+<h2 id="g-if-something-stops">G. If something stops</h2>
+<ul>
+<li>[ ] Each step logs to <code>scripts/DamagesPrevented/DPdata/logs/&lt;step&gt;.log</code>.</li>
+<li>[ ] Unknown names (control points, reservoirs) are listed - fix the config file and rerun.</li>
+<li>[ ] Anything else: send the log or the error text from the progress window.</li>
+</ul><footer>Offline watershed documentation · <a href="../documentation/sources/DAMAGES_PREVENTED_SETUP.md">Markdown source</a> · Use browser Print to save as PDF.</footer></main></body></html>
