@@ -87,6 +87,43 @@ class StandaloneTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'initialization differs'):installer.install(self.root)
         self.assertEqual(target.read_bytes(),before)
 
+    def test_mode_round_trip_preserves_rules_setup_and_standalone_state_variable(self):
+        rule=self.root/'scripts/_standalone_baseline_originals/externalRules/DraftToRC.py'
+        original=rule.read_bytes()
+        sv=self.root/'scripts/externalSVs/MainstemFlowAugSV.py'
+        original_sv=sv.read_bytes()
+        downloader=self.scripts/'RFC_Downloader_Module.py'
+        original_downloader=downloader.read_bytes()
+        installer.install(self.root,'rts')
+        active=self.root/'scripts/externalRules/DraftToRC.py'
+        self.assertIn(b'from rts_baseline_runtime import',active.read_bytes())
+        self.assertNotIn(b'from standalone_baseline_runtime import',active.read_bytes())
+        self.assertEqual((self.root/'scripts/_rts_baseline_originals/externalRules/DraftToRC.py').read_bytes(),original)
+        installer.install(self.root,'rts')
+        installer.install(self.root,'standalone')
+        self.assertEqual(sv.read_bytes(),original_sv)
+        self.assertEqual(downloader.read_bytes(),original_downloader)
+        self.assertEqual(active.read_bytes().count(b'_rts_original_initRuleScript = initRuleScript'),1)
+        setup=(self.root/'scripts/externalSVs/Alternative_Setup.py').read_text()
+        self.assertNotIn('from rts_baseline_runtime import',setup)
+        self.assertEqual(setup.count('configDict.update(alternative_overrides(network))'),1)
+        self.assertEqual((self.scripts/'CONFIG.py').read_text(),'SIM_NAME="Test simulation"\n')
+
+    def test_portable_package_embedded_installer_and_manifest(self):
+        spec=importlib.util.spec_from_file_location('workflow_package',ROOT/'migration-review/Package-Workflow.py')
+        builder=importlib.util.module_from_spec(spec);spec.loader.exec_module(builder)
+        kit=builder.package(self.root)
+        self.assertTrue((kit/'WORKFLOW_PACKAGE.md').is_file())
+        import hashlib
+        for name,digest in json.loads((kit/'manifest.json').read_text()).items():
+            self.assertEqual(hashlib.sha256((kit/name).read_bytes()).hexdigest(),digest)
+        spec=importlib.util.spec_from_file_location('embedded_installer',kit/'Install-StandaloneConfiguration.py')
+        embedded=importlib.util.module_from_spec(spec);spec.loader.exec_module(embedded)
+        embedded.install(self.root,'rts')
+        self.assertTrue((self.root/'scripts/RTS_WORKFLOW_MENU.py').is_file())
+        self.assertTrue((self.scripts/'run_extraction.py').is_file())
+        embedded.install(self.root,'standalone')
+
     def test_import_alias_and_reject_cycle_and_simulation_escape(self):
         folder=self.root/'scripts/alt_config'
         (folder/'Alias.txt').write_text('@alias HCR1531\n')

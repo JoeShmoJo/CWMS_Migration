@@ -32,36 +32,64 @@ def runtime_source():
     return code.encode('utf-8')
 
 
-def install(watershed):
+def install(watershed, mode="standalone"):
+    if mode not in ("standalone", "rts"):raise ValueError("Unknown workflow mode")
     watershed=Path(watershed).resolve();scripts=watershed/'scripts'
     if not (scripts/'ExternalPython/CONFIG.py').is_file():raise ValueError('Expected existing standalone scripts/ExternalPython/CONFIG.py')
-    originals=scripts/'_standalone_baseline_originals/externalRules'
+    originals=scripts/('_'+mode+'_baseline_originals')/'externalRules'
+    runtime=mode+'_baseline_runtime'
     writes={};preserve={}
     for module in editor.MODULE_KEYS:
         target=scripts/'externalRules'/(module+'.py')
         current=target.read_bytes()
-        if b'from rts_baseline_runtime import' in current:raise ValueError('RTS adapter detected: '+str(target))
+        adapter=None
+        for candidate in ('standalone','rts'):
+            if ('from '+candidate+'_baseline_runtime import').encode() in current:
+                adapter=candidate
         saved=originals/target.name
-        adapted=b'from standalone_baseline_runtime import' in current
-        if adapted and not saved.is_file():raise ValueError('Preserved standalone source missing: '+module)
-        source=saved.read_bytes() if adapted else current
+        source_path=scripts/('_'+adapter+'_baseline_originals')/'externalRules'/target.name if adapter else target
+        if not source_path.is_file():raise ValueError('Preserved source missing: '+module)
+        source=source_path.read_bytes()
         if b'def initRuleScript(' not in source or b'def runRuleScript(' not in source:raise ValueError('Unknown rule structure: '+module)
-        footer=(HERE/'baseline-runtime'/(module+'.py')).read_bytes().replace(b'rts_baseline_runtime',b'standalone_baseline_runtime')
+        footer=(HERE/'baseline-runtime'/(module+'.py')).read_bytes().replace(b'rts_baseline_runtime',runtime.encode())
         writes[target]=source+footer
-        if not adapted:preserve[saved]=source
+        if adapter != mode:preserve[saved]=source
     setup=scripts/'externalSVs/Alternative_Setup.py';source=setup.read_text(encoding='utf-8-sig')
-    if 'from rts_baseline_runtime import' in source:raise ValueError('RTS Alternative_Setup adapter detected')
+    for candidate in ('standalone','rts'):
+        source=source.replace('\n        from '+candidate+'_baseline_runtime import alternative_overrides\n        configDict.update(alternative_overrides(network))','')
     needle='        configDict.update(parseConfigListJSON(altConfigList))'
-    if 'from standalone_baseline_runtime import alternative_overrides' not in source:
-        if source.count(needle)!=1:raise ValueError('Alternative_Setup initialization differs; no files changed')
-        source=source.replace(needle,needle+'\n        from standalone_baseline_runtime import alternative_overrides\n        configDict.update(alternative_overrides(network))')
+    if source.count(needle)!=1:raise ValueError('Alternative_Setup initialization differs; no files changed')
+    source=source.replace(needle,needle+'\n        from '+runtime+' import alternative_overrides\n        configDict.update(alternative_overrides(network))')
     writes[setup]=source.encode('utf-8')
-    writes[scripts/'standalone_baseline_runtime.py']=runtime_source()
+    writes[scripts/(runtime+'.py')]=runtime_source() if mode=='standalone' else (HERE/'baseline-runtime/rts_baseline_runtime.py').read_bytes()
     for name in ('baseline_configuration.py','baseline_versions.py','standalone_configuration.py'):
         writes[scripts/'ExternalPython'/name]=(HERE/'ExternalPython'/name).read_bytes()
     for name,sourcefile in [('baseline-editor.html','editor-mockup.html'),('baseline-configuration.example.json','baseline-configuration.example.json')]:
         writes[scripts/'ExternalPython'/name]=(HERE/'baseline-editor-design'/sourcefile).read_bytes()
     writes[scripts/'STANDALONE_WORKFLOW_MENU.py']=(HERE/'STANDALONE_WORKFLOW_MENU.py').read_bytes()
+    mainstem=scripts/'externalSVs/MainstemFlowAugSV.py'
+    preserved_mainstem=scripts/'_workflow_originals/MainstemFlowAugSV.py'
+    if mode=='rts':
+        # Match the maintained RTS extraction installer, without copying CONFIG.py.
+        import re
+        extraction=(HERE/'Install-ForecastExtraction.ps1').read_text()
+        names=re.findall(r"'([^']+)'",extraction.split('$names = @(',1)[1].split(')',1)[0])
+        for name in names:
+            target=scripts/'ExternalPython'/name
+            saved=scripts/'_workflow_originals/ExternalPython'/name
+            if target not in writes and target.exists() and not saved.exists():
+                preserve[saved]=target.read_bytes()
+            writes[target]=(HERE/'ExternalPython'/name).read_bytes()
+        for name in ('RTS_WORKFLOW_MENU.py','RTS_FORECAST_EXTRACT.py'):
+            writes[scripts/name]=(HERE/name).read_bytes()
+        if not preserved_mainstem.exists():preserve[preserved_mainstem]=mainstem.read_bytes()
+        writes[mainstem]=(HERE/'externalSVs/MainstemFlowAugSV.py').read_bytes()
+    else:
+        if preserved_mainstem.exists():writes[mainstem]=preserved_mainstem.read_bytes()
+        for saved in (scripts/'_workflow_originals/ExternalPython').glob('*'):
+            target=scripts/'ExternalPython'/saved.name
+            if target not in writes:writes[target]=saved.read_bytes()
+    writes[scripts/'workflow-mode.json']=(json.dumps({'mode':mode},indent=2)+'\n').encode()
     # Every source/guard above is checked before the first mutation.
     backup=watershed/'standalone-configuration-backups'/(datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')+'-'+uuid.uuid4().hex[:8])
     backup.mkdir(parents=True)
@@ -87,13 +115,14 @@ def install(watershed):
         raise
     for target in writes:
         target.with_name(target.stem+'$py.class').unlink(missing_ok=True)
-    print('Installed standalone configuration menu. Script backup:',backup)
+    print('Installed '+mode+' workflow. Script backup:',backup)
     print('No application JAR, alt_config file, CSV schedule, CONFIG.py, or simulation output changed.')
-    print('Restart ResSim, open the same test watershed, and run scripts/STANDALONE_WORKFLOW_MENU.py.')
+    print('Restart the application and run scripts/'+('STANDALONE_WORKFLOW_MENU.py' if mode=='standalone' else 'RTS_WORKFLOW_MENU.py'))
     return backup
 
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--watershed',required=True,type=Path)
-    args=parser.parse_args();install(args.watershed)
+    parser.add_argument('--mode',choices=('standalone','rts'),default='standalone')
+    args=parser.parse_args();install(args.watershed,args.mode)

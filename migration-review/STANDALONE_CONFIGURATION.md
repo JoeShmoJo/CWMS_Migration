@@ -15,8 +15,9 @@ Use the original ResSim application and start native validation with serial comp
 
 Finish computes and close standalone ResSim. No new watershed copy is needed.
 The installer backs up only files it changes and retains the old alt_config files,
-CSV schedules, CONFIG.py and simulation outputs unchanged. It rejects recognized
-RTS adapters and unknown Alternative_Setup initialization structures.
+CSV schedules, CONFIG.py and simulation outputs unchanged. It unwraps recognized standalone/RTS adapters using their preserved sources and
+rejects missing originals or unknown Alternative_Setup initialization structures.
+For a portable kit and RTS import steps, see [package instructions](WORKFLOW_PACKAGE.md).
 
 PowerShell one line (paste the standalone test watershed root when prompted):
 
