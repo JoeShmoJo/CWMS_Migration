@@ -17,6 +17,14 @@ the [combined operator SOP](WORKFLOW_SOP.md), and the
 a root WORKFLOW_README.md, preserves PROJECT_LOCAL_NOTES.md, and records actual
 local script paths/checksums and Python versions in installation-inventory.json.
 
+## Read in a browser
+
+Double-click `WORKFLOW_README.html` at the watershed root. The linked HTML guides
+under `scripts/workflow-kit/documentation` work offline with navigation, formatted
+tables and code, and browser printing/PDF export. No server, Markdown viewer or
+additional Python package is needed to read or generate them. Markdown remains
+the editable source; rerunning the embedded packager regenerates HTML.
+
 ## Standalone SOP
 
 1. Finish compute and close ResSim before installing/updating scripts. Package the

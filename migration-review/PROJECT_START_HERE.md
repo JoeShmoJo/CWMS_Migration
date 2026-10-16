@@ -4,6 +4,10 @@ Documentation date: 16 October 2026. Keep this file with the watershed.
 The repository is not needed to operate the installed workflow or use the embedded
 mode installer. The scripts, model, data and Python environment are still needed.
 
+Double-click **WORKFLOW_README.html** at the watershed root for the offline browser
+version of these guides. Use the navigation bar to move between standalone and RTS
+instructions. Browser Print can save a PDF. Markdown sources remain available.
+
 ## Read in this order
 
 1. [Operator SOP: standalone and RTS](WORKFLOW_SOP.md).

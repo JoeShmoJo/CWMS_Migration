@@ -119,6 +119,13 @@ class StandaloneTests(unittest.TestCase):
         for name in ('WORKFLOW_PACKAGE.md','PROJECT_START_HERE.md','WORKFLOW_SOP.md','STANDALONE_WORKFLOW_REFERENCE.md','RTS_WORKFLOW_REFERENCE.md','Package-Workflow.py'):
             self.assertTrue((kit/name).is_file(),name)
         self.assertTrue((self.root/'WORKFLOW_README.md').is_file())
+        self.assertTrue((self.root/'WORKFLOW_README.html').is_file())
+        html=(kit/'documentation/WORKFLOW_SOP.html').read_text()
+        self.assertIn('href="RTS_WORKFLOW_REFERENCE.html"',html)
+        self.assertIn('<table>',html)
+        self.assertIn('<pre><code>',html)
+        self.assertNotIn('<script',html)
+        self.assertTrue((kit/'documentation/STANDALONE_WORKFLOW_REFERENCE.html').is_file())
         inventory=json.loads((kit/'installation-inventory.json').read_text())
         self.assertEqual(inventory['watershed'],str(self.root))
         self.assertIn('Test_simulation',[item['folder'] for item in inventory['simulations']])

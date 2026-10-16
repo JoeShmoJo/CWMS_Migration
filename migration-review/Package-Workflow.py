@@ -50,12 +50,15 @@ def package(watershed):
         stage=Path(temp)/'kit';stage.mkdir()
         for name in ('ExternalPython','baseline-runtime','baseline-editor-design','externalSVs'):
             shutil.copytree(HERE/name,stage/name,ignore=shutil.ignore_patterns('__pycache__','*$py.class','*.pyc','logs'))
-        for name in ('Install-StandaloneConfiguration.py','Package-Workflow.py',
+        for name in ('Install-StandaloneConfiguration.py','Package-Workflow.py','render_documentation.py',
                      'Install-ForecastExtraction.ps1','Install-BaselineConfiguration.ps1','Install-RunArchives.ps1',
                      'STANDALONE_WORKFLOW_MENU.py','RTS_WORKFLOW_MENU.py','RTS_FORECAST_EXTRACT.py'):
             shutil.copy2(HERE/name,stage/name)
         for doc in HERE.glob('*.md'):
             shutil.copy2(doc,stage/doc.name)
+        renderer_spec=importlib.util.spec_from_file_location('workflow_docs',stage/'render_documentation.py')
+        renderer=importlib.util.module_from_spec(renderer_spec);renderer_spec.loader.exec_module(renderer)
+        renderer.build(stage)
         manifest={str(p.relative_to(stage)):hashlib.sha256(p.read_bytes()).hexdigest()
                   for p in sorted(stage.rglob('*')) if p.is_file()}
         (stage/'manifest.json').write_text(json.dumps(manifest,indent=2))
@@ -71,13 +74,14 @@ def package(watershed):
         entry=watershed/'WORKFLOW_README.md'
         if not entry.exists():
             entry.write_text('# Willamette workflow documentation\n\nStart with [project handoff](scripts/workflow-kit/PROJECT_START_HERE.md).\n\n[Operator SOP](scripts/workflow-kit/WORKFLOW_SOP.md) · [Standalone reference](scripts/workflow-kit/STANDALONE_WORKFLOW_REFERENCE.md) · [RTS reference](scripts/workflow-kit/RTS_WORKFLOW_REFERENCE.md)\n',encoding='utf-8')
+        (watershed/'WORKFLOW_README.html').write_text('<!doctype html><html lang="en"><meta charset="utf-8"><title>Willamette workflow documentation</title><meta http-equiv="refresh" content="0;url=scripts/workflow-kit/documentation/PROJECT_START_HERE.html"><p><a href="scripts/workflow-kit/documentation/PROJECT_START_HERE.html">Open standalone and RTS documentation</a></p></html>',encoding='utf-8')
         notes=watershed/'PROJECT_LOCAL_NOTES.md'
         if not notes.exists():notes.write_text('# Local project notes\n\nRecord local validation, dates, application versions, target simulations/alternatives, configuration IDs, changes and unresolved issues here. This file is not overwritten by packaging.\n',encoding='utf-8')
         for relative,digest in manifest.items():
             if hashlib.sha256((destination/relative).read_bytes()).hexdigest()!=digest:
                 raise ValueError('Packaged checksum mismatch: '+relative)
     print('Portable workflow kit:',destination)
-    print('Start with:',watershed/'WORKFLOW_README.md')
+    print('Start with:',watershed/'WORKFLOW_README.html')
     return destination
 
 
