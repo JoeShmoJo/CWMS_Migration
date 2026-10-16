@@ -96,4 +96,18 @@ class StandaloneTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'cycle'):editor.legacy_values(self.root,'Cycle')
         with self.assertRaises(ValueError):standalone.context(self.root,'Con_Season','../other')
 
+    def test_explicit_target_overrides_config_and_applies_only_selected_simulation(self):
+        selected=self.root/'rss/Flood_96_3hour'
+        selected.mkdir()
+        target=standalone.context(self.root,'Temp3Hour','Flood_96_3hour')
+        self.assertEqual(Path(target['dss_path']).parent,selected)
+        self.assertEqual(target['model_alternative'],'Temp3Hour')
+        config=standalone.import_legacy(selected,self.scripts,'Con_Season')
+        config['rules']['irrm']['settings']['target_elevation_ft']['Hills Creek']=1520
+        editor.apply_configuration(selected,target,config,self.scripts)
+        loaded=standalone.current(selected,self.scripts,target)
+        self.assertEqual(loaded['rules']['irrm']['settings']['target_elevation_ft']['Hills Creek'],1520)
+        self.assertFalse((self.sim/'standalone-baseline-config-active.json').exists())
+        self.assertEqual((self.scripts/'CONFIG.py').read_text(),'SIM_NAME="Test simulation"\n')
+
 if __name__=='__main__':unittest.main()

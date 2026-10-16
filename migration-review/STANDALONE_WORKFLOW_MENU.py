@@ -5,7 +5,7 @@ from java.io import File
 from java.util import ArrayList
 from java.awt import Desktop, GridLayout, BorderLayout
 from javax.swing import (JFrame, JPanel, JButton, JTextArea, JScrollPane,
-                         JOptionPane, SwingUtilities, WindowConstants, JLabel, JTextField)
+                         JOptionPane, SwingUtilities, WindowConstants, JLabel, JTextField, JComboBox)
 from hec.script import ClientAppWrapper
 
 root = str(ClientAppWrapper.getWatershed().getWkspDir())
@@ -31,10 +31,19 @@ class Menu:
         self.text.setEditable(False)
         self.text.setLineWrap(True)
         self.text.setWrapStyleWord(True)
-        self.text.setText('Baseline settings can be saved/loaded/applied through the shared editor. Use one model alternative; recompute after Apply.\nLoaded watershed: ' + root + '\n\nUses this watershed\'s ExternalPython/CONFIG.py. Set SIM_NAME and alternative/trial settings before running. Finish computes and close DSS views before file-writing steps. Compute manually in ResSim.\n')
+        self.text.setText('Baseline settings can be saved/loaded/applied through the shared editor. Use one model alternative; recompute after Apply.\nLoaded watershed: ' + root + '\n\nSelect the simulation and alternative below for Baseline Configuration. Other jobs still use ExternalPython/CONFIG.py; these selections do not change CONFIG.py. Finish computes and close DSS views before file-writing steps. Compute manually in ResSim.\n')
         buttons = JPanel(GridLayout(0, 2, 5, 5))
-        buttons.add(JLabel('Single model alternative'))
-        self.alternative = JTextField('Con_Season')
+        buttons.add(JLabel('Baseline target simulation (select explicitly)'))
+        self.simulation = JComboBox()
+        self.simulation.addItem('-- Select simulation --')
+        rss = os.path.join(root, 'rss')
+        if os.path.isdir(rss):
+            for name in sorted(os.listdir(rss)):
+                if os.path.isdir(os.path.join(rss, name)):
+                    self.simulation.addItem(name)
+        buttons.add(self.simulation)
+        buttons.add(JLabel('Baseline target alternative (as shown in ResSim)'))
+        self.alternative = JTextField('')
         buttons.add(self.alternative)
         buttons.add(JButton('Baseline Configuration', actionPerformed=lambda e: self.open_baseline()))
         jobs = [
@@ -55,17 +64,22 @@ class Menu:
         SwingUtilities.invokeLater(Call(lambda: self.text.append(value + '\n')))
     def open_baseline(self):
         if self.busy: return
+        simulation = str(self.simulation.getSelectedItem())
+        alternative = str(self.alternative.getText()).strip()
+        if self.simulation.getSelectedIndex() == 0 or not alternative:
+            JOptionPane.showMessageDialog(self.frame, 'Select the simulation and enter the alternative shown in ResSim Simulation Control.')
+            return
         filename = os.path.join(scripts, 'standalone_configuration.py')
         if not os.path.isfile(filename):
             JOptionPane.showMessageDialog(self.frame, 'Install the standalone configuration editor first.')
             return
-        if JOptionPane.showConfirmDialog(self.frame, 'Finish all computes before Apply. Settings target the simulation in CONFIG.py and this alternative:\n' + self.alternative.getText(), 'Standalone configuration', JOptionPane.OK_CANCEL_OPTION) != JOptionPane.OK_OPTION:
+        if JOptionPane.showConfirmDialog(self.frame, 'Finish all computes before Apply. Confirm this matches ResSim Simulation Control:\nSimulation: ' + simulation + '\nAlternative: ' + alternative + '\nDirectory: ' + os.path.join(root, 'rss', simulation), 'Standalone configuration', JOptionPane.OK_CANCEL_OPTION) != JOptionPane.OK_OPTION:
             return
         directory = os.path.join(root, 'standalone-workflow-logs')
         if not os.path.isdir(directory): os.makedirs(directory)
         self.log = os.path.join(directory, 'configuration-' + str(System.currentTimeMillis()) + '.log')
         command = ArrayList()
-        for arg in [python, '-u', filename, '--watershed', root, '--alternative', str(self.alternative.getText()).strip()]: command.add(arg)
+        for arg in [python, '-u', filename, '--watershed', root, '--simulation', simulation, '--alternative', alternative]: command.add(arg)
         builder = ProcessBuilder(command)
         builder.directory(File(scripts))
         builder.redirectErrorStream(True)

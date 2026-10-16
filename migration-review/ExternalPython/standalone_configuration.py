@@ -49,8 +49,8 @@ def context(watershed,alternative,simulation=None):
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--watershed',required=True,type=Path)
-    parser.add_argument('--alternative',default='Con_Season')
-    parser.add_argument('--simulation')
+    parser.add_argument('--alternative',required=True)
+    parser.add_argument('--simulation',required=True,help='Existing simulation folder under watershed/rss; must match ResSim Simulation Control')
     args=parser.parse_args()
     scripts=args.watershed.resolve()/'scripts/ExternalPython'
     editor.serve_editor(scripts,context(args.watershed,args.alternative,args.simulation))

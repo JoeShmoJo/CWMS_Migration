@@ -38,14 +38,16 @@ from hec.script import ClientAppWrapper; import os; execfile(os.path.join(str(Cl
 
 ## Operator steps
 
-1. Keep `CONFIG.py` pointing to the intended simulation and keep its augmentation/
-   plotting alternative settings consistent with the model alternative you will
-   compute. The existing simulation directory must already exist under `rss`.
-2. In the menu, leave **Single model alternative** as Con_Season (or enter the
-   intended existing model alternative). Choose **Baseline Configuration**.
-3. Verify the browser's simulation directory and target alternative. The target
-   simulation comes from CONFIG.SIM_NAME; it is not automatically inferred from
-   the selected GUI simulation. Confirm it matches before Apply or compute.
+1. Open the intended simulation in ResSim and note the simulation folder and
+   model alternative shown in Simulation Control. The directory must exist under `rss`.
+2. In the menu, explicitly select **Baseline target simulation** and enter
+   **Baseline target alternative**. Neither field defaults to CONFIG.py or Con_Season.
+   For example, select `Flood_96_3hour` and enter `Temp3Hour` when those are shown
+   in ResSim. Choose **Baseline Configuration** and confirm both names.
+3. Verify the browser's target simulation, alternative and directory before Apply.
+   The menu passes these explicitly; it does not infer the selected GUI simulation.
+   Extraction, augmentation and plotting jobs still use CONFIG.py, which must be
+   configured separately for those jobs. Baseline target selections do not edit it.
 4. For the initial state, the editor reads watershed `_default.txt` plus the target
    alternative's `.txt` file. Use **Import legacy alternative settings** to import
    a preset such as HCR1511 or HCR1531 without changing the target Con_Season.
@@ -124,10 +126,10 @@ that same target, save/apply, recompute, and inspect the IRRM setting/output.
 Switch back to the original saved set and verify restoration. Test two successive
 applies in the same application session after the initial restart.
 
-Four new Python tests exercise legacy/alias imports, versioned library saves, applying
+Python tests exercise legacy/alias imports, versioned library saves, applying
 and reloading settings, per-simulation/alternative isolation, ordinary non-ensemble
 initialization, repeat installation and refusal of an unknown setup script.
-The shared RTS editor tests and the 124-test Python suite pass. A Jython 2.7.3
+The shared RTS editor tests and the Python suite pass. A Jython 2.7.3
 smoke check also exercises successive applies, non-ensemble receipts, alternative
 isolation and defaults restoration. Cloud tests do not prove native Windows
 ResSim initialization order or model output equivalence; those remain local tests.
