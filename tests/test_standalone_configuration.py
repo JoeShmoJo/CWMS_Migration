@@ -260,6 +260,8 @@ assert source.read_bytes()==b'native results'
             self.assertTrue((kit/name).is_file(),name)
         self.assertTrue((self.root/'WORKFLOW_README.md').is_file())
         self.assertTrue((self.root/'WORKFLOW_README.html').is_file())
+        self.assertEqual((self.root/'PROJECT_RESUME.md').read_bytes(),(kit/'PROJECT_RESUME.md').read_bytes())
+        self.assertTrue((kit/'documentation/PROJECT_RESUME.html').is_file())
         html=(kit/'documentation/WORKFLOW_SOP.html').read_text()
         self.assertIn('href="RTS_WORKFLOW_REFERENCE.html"',html)
         self.assertIn('<table>',html)

@@ -7,7 +7,7 @@ import html
 from pathlib import Path
 import re
 
-NAV=(('PROJECT_START_HERE','Start here'),('WORKFLOW_SOP','Operator SOP'),
+NAV=(('PROJECT_START_HERE','Start here'),('PROJECT_RESUME','Resume project'),('WORKFLOW_SOP','Operator SOP'),
      ('STANDALONE_WORKFLOW_REFERENCE','Standalone reference'),
      ('RTS_WORKFLOW_REFERENCE','RTS reference'),('STANDALONE_SAVED_RESULTS','Standalone saved runs'),('STANDALONE_POR_MODEL_CHECK','POR / Model Check'),('WORKFLOW_PACKAGE','Import / packaging'),('RTS_IMPORT_VALIDATION','Next: RTS validation'),
      ('RTS_DATA_IO','Data / archives'),('DIVERSION_POSTPROCESS','Diversions (optional)'))

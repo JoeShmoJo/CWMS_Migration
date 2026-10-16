@@ -8,6 +8,9 @@ Double-click **WORKFLOW_README.html** at the watershed root for the offline brow
 version of these guides. Use the navigation bar to move between standalone and RTS
 instructions. Browser Print can save a PDF. Markdown sources remain available.
 
+For a new coding session or re-upload, read [PROJECT_RESUME.md](PROJECT_RESUME.md)
+first. Packaging also places that continuation brief at the watershed root.
+
 ## Next task
 
 [Fresh RTS import and validation checklist](RTS_IMPORT_VALIDATION.md) is the next
@@ -92,7 +95,7 @@ work; use the actual filesystem path, not a corrected spelling guessed from note
 ## Before deleting the repository
 
 Run the final package command supplied with this handoff and verify these exist
-in the actual standalone watershed: root `WORKFLOW_README.md`,
+in the actual standalone watershed: root `WORKFLOW_README.md`, `PROJECT_RESUME.md`,
 `scripts/workflow-kit/PROJECT_START_HERE.md`, SOP, both detailed references,
 `installation-inventory.json`, `manifest.json`, installer and runtime payload.
 Open the documents from that location. Test the standalone launcher there.

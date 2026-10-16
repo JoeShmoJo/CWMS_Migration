@@ -80,6 +80,7 @@ def package(watershed):
         if not entry.exists():
             entry.write_text('# Willamette workflow documentation\n\nStart with [project handoff](scripts/workflow-kit/PROJECT_START_HERE.md).\n\n[Operator SOP](scripts/workflow-kit/WORKFLOW_SOP.md) · [Standalone reference](scripts/workflow-kit/STANDALONE_WORKFLOW_REFERENCE.md) · [RTS reference](scripts/workflow-kit/RTS_WORKFLOW_REFERENCE.md)\n',encoding='utf-8')
         (watershed/'WORKFLOW_README.html').write_text('<!doctype html><html lang="en"><meta charset="utf-8"><title>Willamette workflow documentation</title><meta http-equiv="refresh" content="0;url=scripts/workflow-kit/documentation/PROJECT_START_HERE.html"><p><a href="scripts/workflow-kit/documentation/PROJECT_START_HERE.html">Open standalone and RTS documentation</a></p></html>',encoding='utf-8')
+        shutil.copy2(destination/'PROJECT_RESUME.md',watershed/'PROJECT_RESUME.md')
         notes=watershed/'PROJECT_LOCAL_NOTES.md'
         if not notes.exists():notes.write_text('# Local project notes\n\nRecord local validation, dates, application versions, target simulations/alternatives, configuration IDs, changes and unresolved issues here. This file is not overwritten by packaging.\n',encoding='utf-8')
         for relative,digest in manifest.items():
