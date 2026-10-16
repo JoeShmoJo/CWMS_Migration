@@ -5,9 +5,10 @@ to standalone ResSim. Use one model alternative such as **Con_Season**. Import
 old alternative-named settings as presets, then save/load named configuration sets
 instead of cloning alternatives to change scripted-rule settings.
 
-This is the baseline-settings part of the workflow. Existing standalone extraction,
+This provides baseline settings plus named standalone result capture/plotting. Existing standalone extraction,
 augmentation calculation, trial conventions and plotting scripts remain in place.
-It does not port RTS's result-acceptance/compact-archive workflow into standalone,
+Standalone archives reuse compact storage but keep their own identity/pairing metadata;
+this does not port RTS scheme activation,
 change native operation sets or DSS mappings, or modify any application JAR.
 Use the original ResSim application and start native validation with serial compute.
 
@@ -26,7 +27,7 @@ Set-Location "C:\Projects\A_Recent_Projects\CWMS_Migration"; git pull --ff-only;
 ```
 
 This requires the existing eleven external rule modules, Alternative_Setup, and
-ExternalPython/CONFIG.py. It is intended for the current scripted Willamette model,
+ExternalPython directory. It is intended for the current scripted Willamette model,
 not the older 3.5 snapshot missing some of these modules.
 
 Restart ResSim, open that watershed, and open/run
@@ -47,8 +48,8 @@ from hec.script import ClientAppWrapper; import os; execfile(os.path.join(str(Cl
    in ResSim. Choose **Baseline Configuration** and confirm both names.
 3. Verify the browser's target simulation, alternative and directory before Apply.
    The menu passes these explicitly; it does not infer the selected GUI simulation.
-   Extraction, augmentation and plotting job options are
-   managed in **Standalone job settings** inside Baseline Configuration. Menu jobs
+   The OSI extraction setting is managed in **Standalone job settings** inside
+   Baseline Configuration. Plotting uses archived named results. Menu jobs
    use the selected target and applied settings, not CONFIG.py.
 4. For the initial state, the editor reads watershed `_default.txt` plus the target
    alternative's `.txt` file. Use **Import legacy alternative settings** to import
@@ -84,21 +85,15 @@ baseline/augmented trial conventions rather than assuming Apply disables all
 augmentation as it does in RTS. The Apply message explicitly states that the
 existing standalone augmentation/trial settings remain unchanged.
 
-The menu retains Extract inputs, Calculate augmentation, Plot ensemble and
-Plot alternative/trial comparison. **Configuration Overview → Standalone job
-settings** holds plot_trial, comparison_trials, osi_source_member and
-plot_reference_lines. Review these and Apply before launching a job. The job uses
-the same selected simulation/alternative as the editor; changing the menu target
-requires applying to that target before its jobs can run.
-
-CONFIG.py is read as literal initial defaults only when an older configuration
-lacks job settings. The original file is not rewritten or opened. Each job gets
-a private temporary CONFIG compatibility module so existing scripts and their
-reload calls use the applied settings. You do not edit CONFIG.py for menu jobs.
-Existing direct manual launches outside the menu still have their legacy behavior.
-Calculate augmentation remains the existing standalone calculator, not RTS's
-acceptance/scheme process. Its additional hardcoded controls remain outside this
-job-settings panel.
+The menu offers Extract inputs, Calculate augmentation and **Archive / Plot
+Results**. Plot selection uses named archived runs, not CONFIG.py or trial plot
+settings. Follow [saved-result SOP and reference](STANDALONE_SAVED_RESULTS.md).
+Configuration Overview keeps only the OSI source-member setting for extraction.
+Menu jobs use the selected target plus applied settings, with a private temporary
+compatibility module for legacy imports. The shared CONFIG.py is not read or
+rewritten by the normal menu. Its file remains only for old manual launches.
+Standalone augmentation calculation/native activation still use existing model
+conventions; archiving does not change those rules or configure native trials.
 
 ## Files and isolation
 

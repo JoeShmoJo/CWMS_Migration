@@ -29,7 +29,7 @@ class Menu:
         self.text.setEditable(False)
         self.text.setLineWrap(True)
         self.text.setWrapStyleWord(True)
-        self.text.setText('Baseline settings can be saved/loaded/applied through the shared editor. Use one model alternative; recompute after Apply.\nLoaded watershed: ' + root + '\n\nSelect the simulation and alternative below for Baseline Configuration. Extraction, augmentation and plots use the same target and the Standalone job settings saved in Baseline Configuration. Apply settings before running jobs. Finish computes and close DSS views before file-writing steps. Compute manually in ResSim.\n')
+        self.text.setText('Baseline settings can be saved/loaded/applied through the shared editor. Use one model alternative; recompute after Apply.\nLoaded watershed: ' + root + '\n\nSelect the simulation and alternative below for Baseline Configuration. Extraction and augmentation use the same target and the Standalone job settings saved in Baseline Configuration. Apply settings before running jobs. Finish computes and close DSS views before file-writing steps. Compute manually in ResSim.\n')
         buttons = JPanel(GridLayout(0, 2, 5, 5))
         buttons.add(JLabel('Baseline target simulation (select explicitly)'))
         self.simulation = JComboBox()
@@ -45,11 +45,10 @@ class Menu:
         buttons.add(self.alternative)
         buttons.add(JButton('Baseline Configuration', actionPerformed=lambda e: self.open_baseline()))
         jobs = [('Extract inputs (all four steps)', 'extract'),
-                ('Calculate augmentation', 'augmentation'),
-                ('Plot ensemble', 'plot'),
-                ('Plot alternative/trial comparison', 'compare')]
+                ('Calculate augmentation', 'augmentation')]
         for title, job in jobs:
             buttons.add(JButton(title, actionPerformed=lambda e, t=title, j=job: self.start(t, j)))
+        buttons.add(JButton('Archive / Plot Results', actionPerformed=lambda e: self.open_results()))
         self.frame.add(buttons, BorderLayout.NORTH)
         self.frame.add(JScrollPane(self.text), BorderLayout.CENTER)
         self.frame.pack()
@@ -81,6 +80,24 @@ class Menu:
         builder.redirectOutput(File(self.log))
         builder.start()
         self.message('Configuration editor starting. Browser opens after settings load. Log: ' + self.log)
+    def open_results(self):
+        if self.busy: return
+        simulation = str(self.simulation.getSelectedItem())
+        alternative = str(self.alternative.getText()).strip()
+        if self.simulation.getSelectedIndex() == 0 or not alternative:
+            JOptionPane.showMessageDialog(self.frame, 'Select the simulation and alternative first.')
+            return
+        filename = os.path.join(scripts, 'standalone_results.py')
+        if not os.path.isfile(filename): raise RuntimeError('Install the updated standalone workflow first.')
+        command = ArrayList()
+        for arg in [python, '-u', filename, '--watershed', root, '--simulation', simulation,
+                    '--alternative', alternative]: command.add(arg)
+        directory = os.path.join(root, 'standalone-workflow-logs')
+        if not os.path.isdir(directory): os.makedirs(directory)
+        self.log = os.path.join(directory, 'results-' + str(System.currentTimeMillis()) + '.log')
+        builder = ProcessBuilder(command);builder.directory(File(scripts))
+        builder.redirectErrorStream(True);builder.redirectOutput(File(self.log));builder.start()
+        self.message('Saved results browser starting. Log: ' + self.log)
     def start(self, title, job):
         if self.busy:
             JOptionPane.showMessageDialog(self.frame, 'A job is already running.')

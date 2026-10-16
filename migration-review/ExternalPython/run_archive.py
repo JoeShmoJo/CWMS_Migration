@@ -48,7 +48,7 @@ def signature(filename):
     return (stat.st_size, stat.st_mtime_ns, stat.st_ctime_ns)
 
 
-def capture_run(source, destination, run_code):
+def capture_run(source, destination, run_code, standalone=False):
     """One catalog pass and one read per selected physical block; no DSS copy.
 
     Caller stages in a new directory and publishes it only on success. File stat
@@ -59,7 +59,7 @@ def capture_run(source, destination, run_code):
     from baseline_versions import read_fingerprint_series
     from run_data_cache import needed_record, logical_path
     from plot_rts_forecast import target_record
-    if not re.fullmatch(r'[A-Za-z]\d+', run_code):
+    if not re.fullmatch(r'[A-Za-z][A-Za-z0-9_-]*' if standalone else r'[A-Za-z]\d+', run_code):
         raise ValueError('Invalid run code')
     source, destination = Path(source), Path(destination)
     if any(destination.iterdir()):

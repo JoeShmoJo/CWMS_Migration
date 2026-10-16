@@ -1,6 +1,5 @@
 """Standalone entry point for the shared baseline editor; no Java modifications."""
 import argparse
-import ast
 import json
 from pathlib import Path
 
@@ -29,14 +28,8 @@ def import_legacy(root,scripts,alternative):
 
 def context(watershed,alternative,simulation=None):
     watershed=Path(watershed).resolve()
-    config=watershed/'scripts/ExternalPython/CONFIG.py'
-    if simulation is None:
-        tree=ast.parse(config.read_text(encoding='utf-8-sig'))
-        for node in tree.body:
-            if isinstance(node,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='SIM_NAME' for t in node.targets):
-                simulation=ast.literal_eval(node.value)
     if not isinstance(simulation,str) or not simulation or Path(simulation).name!=simulation or simulation in ('.','..') or any(c in simulation for c in ('/','\\',':')):
-        raise ValueError('SIM_NAME must be a simple simulation name')
+        raise ValueError('Select an existing simple simulation folder name')
     if not alternative or any(c in alternative for c in ('/','\\',':')):
         raise ValueError('Use the model alternative name, for example Con_Season')
     simulation_dir=watershed/'rss'/simulation.replace(' ','_')

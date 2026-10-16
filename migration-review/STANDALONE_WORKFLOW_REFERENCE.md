@@ -22,8 +22,8 @@ alternative/run code are different identifiers. In standalone, the browser menu
 requires a simulation folder and alternative name explicitly. It does not detect
 the active GUI selection. The command-line editor requires --simulation and
 --alternative as well. Menu jobs use the same selected target and the applied standalone_workflow
-settings in the baseline snapshot. CONFIG.py supplies initial literal defaults
-only for old configurations without these settings; it is not a menu job target. A simulation with spaces is normalized to underscores by the
+settings in the baseline snapshot. The shared CONFIG.py is not read; the remaining OSI option has an explicit default
+in the browser until reviewed and applied. A simulation with spaces is normalized to underscores by the
 backend. Output DSS is used to locate the active pointer at compute initialization.
 The runtime also checks the native alternative name before applying overrides.
 
@@ -56,8 +56,8 @@ browser editor; close the old editor before opening a different target.
 | Input | Location | Created/maintained by | Used by / effect |
 | --- | --- | --- | --- |
 | Native simulation/alternative/trials | S and native watershed model files | ResSim editor/operator | Compute dates, operation sets, rule bindings and DSS mappings |
-| External job settings | Applied configuration standalone_workflow section | Baseline editor Save/Apply | Plot trial/comparison trials, OSI member and reference lines; job target comes from menu selection |
-| Legacy job defaults | EP/CONFIG.py | Existing model | Literal initial defaults when old configs have no job settings; not opened or rewritten by the menu |
+| External job settings | Applied configuration standalone_workflow section | Baseline editor Save/Apply | OSI source member; job target comes from menu selection |
+| Legacy job defaults | EP/CONFIG.py | Existing model | Legacy manual scripts only; not read/opened/rewritten by the normal menu |
 | Default legacy settings | scripts/alt_config/_default.txt | Existing model/operator | Base scripted settings |
 | Alternative legacy settings | scripts/alt_config/<alternative>.txt | Existing model/operator | Override defaults; @alias can refer to another preset |
 | Rule CSV schedules | Usually scripts/externalRules/*.csv | Existing model/operator | Initial imported settings; actual paths come from alt_config |
@@ -76,16 +76,11 @@ all trials of the selected alternative receive the applied baseline settings.
 Only one selected alternative is bound by the active pointer in a simulation;
 the editor refuses opening that pointer as a different alternative.
 
-Legacy CONFIG.py compatibility fields reviewed: SIM_NAME, ALTERNATIVE_NAME_STEP1, TRIAL,
-TRIAL_SUFFIXES, H_LINE_DICT and ENSEMBLE_YEAR_TO_COPY. Additional dates, member
-ranges, mappings and plot constants may remain in individual legacy scripts.
-The browser consolidates the reviewed job settings, not every constant in legacy
-scripts. Temporary CONFIG modules are deleted after each child job; the source
-CONFIG.py remains unchanged. Saved standalone_workflow is portable with the
-baseline JSON; RTS preserves it but its menus do not consume those job controls.
-Do not assume standalone download windows are the RTS forecast window: legacy
-CWMS scripts use current-date-based logic unless locally adapted. Review them for
-historical simulations. The existing menu does not supply historical RFC archives.
+The current menu uses no shared CONFIG.py file. It supplies simulation,
+alternative and applied osi_source_member through a private temporary legacy
+compatibility module. Other hardcoded date/member controls remain in individual
+scripts. The older standalone plot scripts described below are retained as legacy
+manual tools; the current menu uses [named saved results](STANDALONE_SAVED_RESULTS.md).
 
 ## Inactive reservoir slots
 

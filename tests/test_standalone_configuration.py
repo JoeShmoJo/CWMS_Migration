@@ -29,7 +29,7 @@ class StandaloneTests(unittest.TestCase):
         self.runtime=importlib.util.module_from_spec(runtime_spec);runtime_spec.loader.exec_module(self.runtime)
         sys.modules['standalone_baseline_runtime']=self.runtime
         self.addCleanup(sys.modules.pop,'standalone_baseline_runtime',None)
-        self.context=standalone.context(self.root,'Con_Season')
+        self.context=standalone.context(self.root,'Con_Season','Test_simulation')
         self.sim=Path(self.context['dss_path']).parent
 
     def test_menu_job_uses_applied_browser_settings_even_when_legacy_config_is_broken(self):
@@ -41,14 +41,13 @@ class StandaloneTests(unittest.TestCase):
         # Job source paths are preserved; import and reload must both resolve
         # the private compatibility module, never the old watershed CONFIG.py.
         (self.scripts/'CONFIG.py').write_text('This is deliberately invalid Python!')
-        (self.scripts/'Ensemble_Plots.py').write_text("import CONFIG as cfg\nimport importlib,json\nfrom pathlib import Path\nimportlib.reload(cfg)\nPath(__file__).resolve().parents[2].joinpath('captured.json').write_text(json.dumps({'simulation':cfg.SIM_NAME,'alternative':cfg.ALTERNATIVE_NAME_STEP1,'trial':cfg.TRIAL,'trials':cfg.TRIAL_SUFFIXES,'osi':cfg.ENSEMBLE_YEAR_TO_COPY,'lines':cfg.H_LINE_DICT,'config_source':cfg.__file__}))\n")
+        (self.scripts/'MainstemAugmentation.py').write_text("import CONFIG as cfg\nimport importlib,json\nfrom pathlib import Path\nimportlib.reload(cfg)\nPath(__file__).resolve().parents[2].joinpath('captured.json').write_text(json.dumps({'simulation':cfg.SIM_NAME,'alternative':cfg.ALTERNATIVE_NAME_STEP1,'osi':cfg.ENSEMBLE_YEAR_TO_COPY,'config_source':cfg.__file__}))\n")
         result=subprocess.run([sys.executable,str(self.scripts/'standalone_jobs.py'),'--watershed',str(self.root),
-            '--simulation','Test_simulation','--alternative','Con_Season','--job','plot'],capture_output=True,text=True)
+            '--simulation','Test_simulation','--alternative','Con_Season','--job','augmentation'],capture_output=True,text=True)
         self.assertEqual(result.returncode,0,result.stdout+result.stderr)
         captured=json.loads((self.root/'captured.json').read_text())
         self.assertEqual(captured['simulation'],'Test_simulation')
         self.assertEqual(captured['alternative'],'Con_Season')
-        self.assertEqual(captured['trial'],4);self.assertEqual(captured['trials'],[0,4])
         self.assertEqual(captured['osi'],2008)
         self.assertNotEqual(Path(captured['config_source']),self.scripts/'CONFIG.py')
         self.assertEqual((self.scripts/'CONFIG.py').read_text(),'This is deliberately invalid Python!')
@@ -70,29 +69,36 @@ class StandaloneTests(unittest.TestCase):
                 with urllib.request.urlopen(url) as response:page=response.read().decode()
                 self.assertIn('Standalone job settings',page)
                 self.assertIn('standaloneJobDefaults',page)
-                self.assertIn('Standalone target: Test simulation / Con_Season',page)
+                self.assertTrue('Standalone target: Test_simulation / Con_Season' in page,'Browser target differs')
                 config=standalone.current(self.sim,self.scripts,self.context)
-                config['standalone_workflow']['plot_trial']=3
+                config['standalone_workflow']['osi_source_member']=2005
                 saved=post('/save',config)
                 loaded=post('/load',{'id':saved['id']})
-                self.assertEqual(loaded['standalone_workflow']['plot_trial'],3)
+                self.assertEqual(loaded['standalone_workflow']['osi_source_member'],2005)
                 post('/apply',loaded)
                 active=standalone.current(self.sim,self.scripts,self.context)
-                self.assertEqual(active['standalone_workflow']['plot_trial'],3)
+                self.assertEqual(active['standalone_workflow']['osi_source_member'],2005)
             finally:
                 request=urllib.request.Request(base+'/close',headers={'X-Editor-Token':token},method='POST')
                 urllib.request.urlopen(request).close();thread.join(timeout=10)
             self.assertFalse(thread.is_alive());self.assertEqual(errors,[])
 
+    def test_normal_workflow_installs_and_opens_without_config_py(self):
+        (self.scripts/'CONFIG.py').unlink()
+        installer.install(self.root)
+        config=standalone.current(self.sim,self.scripts,self.context)
+        self.assertEqual(config['standalone_workflow'],{'osi_source_member':2011})
+        self.assertTrue((self.scripts/'standalone_results.py').is_file())
+
     def test_job_settings_validation_and_unapplied_target_rejected(self):
         import standalone_jobs as jobs
         settings=jobs.defaults(self.scripts)
-        settings['comparison_trials']=[True]
-        with self.assertRaisesRegex(ValueError,'Comparison trials'):jobs.validate(settings)
-        with self.assertRaisesRegex(ValueError,'Apply settings'):jobs.execute(self.root,'Test_simulation','Con_Season','plot')
+        settings['osi_source_member']=True
+        with self.assertRaisesRegex(ValueError,'whole number'):jobs.validate(settings)
+        with self.assertRaisesRegex(ValueError,'Apply settings'):jobs.execute(self.root,'Test_simulation','Con_Season','augmentation')
         config=standalone.current(self.sim,self.scripts,self.context)
         editor.apply_configuration(self.sim,self.context,config,self.scripts)
-        with self.assertRaisesRegex(ValueError,'alternative differs'):jobs.execute(self.root,'Test_simulation','Other','plot')
+        with self.assertRaisesRegex(ValueError,'alternative differs'):jobs.execute(self.root,'Test_simulation','Other','augmentation')
 
     def test_legacy_presets_portable_save_apply_and_reload(self):
         config=standalone.import_legacy(self.sim,self.scripts,'HCR1511')

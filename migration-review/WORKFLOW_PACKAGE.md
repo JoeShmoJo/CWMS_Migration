@@ -34,7 +34,8 @@ the editable source; rerunning the embedded packager regenerates HTML.
    run the launcher below. Select the actual simulation folder and alternative.
 3. Open Baseline Configuration, verify the target banner, load/import/edit settings,
    save a named configuration, then Apply. Compute manually in ResSim.
-4. Use the existing standalone augmentation/trial and plotting process. The other
+4. Use existing native standalone augmentation conventions, then archive/plot
+   named results using [saved-run instructions](STANDALONE_SAVED_RESULTS.md). The other
    menu jobs use the selected target and applied **Standalone job settings** in the
    baseline editor. Apply before extraction/augmentation/plotting. Verify additional
    downloader/date constants and native mappings separately. Apply does not turn

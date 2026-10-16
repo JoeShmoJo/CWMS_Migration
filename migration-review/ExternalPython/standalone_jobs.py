@@ -4,67 +4,47 @@ Each child invocation receives a private, temporary CONFIG compatibility module.
 Legacy importlib.reload(CONFIG) resolves that same private module.
 """
 import argparse
-import ast
 import json
-import math
 from pathlib import Path
 import runpy
 import sys
 import tempfile
 
-DEFAULTS={'plot_trial':1,'comparison_trials':[0,1],'osi_source_member':2011,'plot_reference_lines':{}}
-LEGACY={'TRIAL':'plot_trial','TRIAL_SUFFIXES':'comparison_trials',
-        'ENSEMBLE_YEAR_TO_COPY':'osi_source_member','H_LINE_DICT':'plot_reference_lines'}
+DEFAULTS={'osi_source_member':2011}
 JOBS={'extract':['CWMS_Downloader_Module.py','RFC_Downloader_Module.py',
                  'Dummy_0_and_WY_Abundant_Module.py','OSI_Ensemble_Year.py'],
-      'augmentation':['MainstemAugmentation.py'],'plot':['Ensemble_Plots.py'],
-      'compare':['ALT_COMPARISON_PLOTS.py']}
+      'augmentation':['MainstemAugmentation.py']}
 
 
 def validate(settings):
-    if not isinstance(settings,dict) or set(settings)!=set(DEFAULTS):raise ValueError('Invalid standalone workflow settings')
-    for name in ('plot_trial','osi_source_member'):
-        value=settings[name]
-        if isinstance(value,bool) or not isinstance(value,int) or value<0:raise ValueError('Expected nonnegative whole number: '+name)
-    trials=settings['comparison_trials']
-    if not isinstance(trials,list) or not trials or any(isinstance(v,bool) or not isinstance(v,int) or v<0 for v in trials) or len(set(trials))!=len(trials):
-        raise ValueError('Comparison trials must be a nonempty list of distinct nonnegative integers')
-    lines=settings['plot_reference_lines']
-    if not isinstance(lines,dict):raise ValueError('Plot reference lines must be a reservoir-to-label/value map')
-    for reservoir,values in lines.items():
-        if not isinstance(reservoir,str) or not reservoir.strip() or not isinstance(values,dict):raise ValueError('Invalid plot reference lines')
-        for label,value in values.items():
-            if not isinstance(label,str) or not label.strip() or isinstance(value,bool) or not isinstance(value,(int,float)) or not math.isfinite(value):raise ValueError('Plot reference lines require named finite numbers')
+    # Older saved sets may carry retired plot controls. They are ignored, never
+    # consulted by the saved-run archive/plot workflow.
+    allowed={'osi_source_member','plot_trial','comparison_trials','plot_reference_lines'}
+    if not isinstance(settings,dict) or not set(settings)<=allowed or 'osi_source_member' not in settings:
+        raise ValueError('Invalid standalone workflow settings')
+    value=settings['osi_source_member']
+    if isinstance(value,bool) or not isinstance(value,int) or value<0:raise ValueError('Expected nonnegative whole number: osi_source_member')
     return settings
 
 
 def defaults(scripts):
-    import copy
-    settings=copy.deepcopy(DEFAULTS)
-    path=Path(scripts)/'CONFIG.py'
-    if path.is_file():
-        # Read literals only. Never execute an old configuration or copy its target.
-        for node in ast.parse(path.read_text(encoding='utf-8-sig')).body:
-            if not isinstance(node,ast.Assign):continue
-            for target in node.targets:
-                if isinstance(target,ast.Name) and target.id in LEGACY:
-                    settings[LEGACY[target.id]]=ast.literal_eval(node.value)
-    return validate(settings)
+    # No dependency on the watershed CONFIG.py. Review the source member before
+    # extraction; targets always come from the selected simulation/alternative.
+    return dict(DEFAULTS)
 
 
 def include(configuration,scripts):
     import copy
     result=copy.deepcopy(configuration)
-    if 'standalone_workflow' not in result:result['standalone_workflow']=defaults(scripts)
-    validate(result['standalone_workflow'])
+    settings=result.get('standalone_workflow',defaults(scripts));validate(settings)
+    result['standalone_workflow']={'osi_source_member':settings['osi_source_member']}
     return result
 
 
 def compatibility(context,settings):
     validate(settings)
     return {'SIM_NAME':context['run_name'],'ALTERNATIVE_NAME_STEP1':context['model_alternative'],
-            'TRIAL':settings['plot_trial'],'TRIAL_SUFFIXES':settings['comparison_trials'],
-            'ENSEMBLE_YEAR_TO_COPY':settings['osi_source_member'],'H_LINE_DICT':settings['plot_reference_lines']}
+            'ENSEMBLE_YEAR_TO_COPY':settings['osi_source_member']}
 
 
 def run_script(script,scripts,values):

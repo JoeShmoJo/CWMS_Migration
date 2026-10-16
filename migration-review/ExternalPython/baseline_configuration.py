@@ -520,6 +520,8 @@ importPreset.onclick=async()=>{try{const jobSettings=config.standalone_workflow;
                     result=json.loads((configuration_library(scripts)/(identity+'.json')).read_text())
                 if standalone and self.path in ('/load','/legacy'):
                     result.setdefault('standalone_workflow',copy.deepcopy(config['standalone_workflow']))
+                    from standalone_jobs import include
+                    result=include(result,scripts)
                 code=200
             except Exception as exc: result={'error':str(exc)};code=400
             self.send_response(code);self.send_header('Content-Type','application/json');self.end_headers();self.wfile.write(json.dumps(result).encode())

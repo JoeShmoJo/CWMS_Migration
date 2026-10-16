@@ -28,7 +28,7 @@ from hec.script import ClientAppWrapper; import os; execfile(os.path.join(str(Cl
 
 3. Select the intended simulation and alternative, then open **Baseline
    Configuration**. In Configuration Overview, review **Standalone job settings**:
-   plot trial, comparison trials, OSI source member and plot reference lines.
+   OSI source member (plot-trial controls are retired).
    Save/Apply these settings before any menu job, including initial extraction.
    No separate CONFIG.py editing is required. Individual downloader/date/member
    constants and native mappings must still fit the intended study.
@@ -46,12 +46,12 @@ from hec.script import ClientAppWrapper; import os; execfile(os.path.join(str(Cl
 8. Configure the existing standalone augmentation reservoir/target CSVs and trials.
    **Calculate augmentation** reads the selected target’s baseline outputs and writes
    release requirements into that simulation DSS. Verify the log and paths.
-9. Compute the augmented trial manually. Use **Plot ensemble** for the applied plot_trial or
-   **Plot alternative/trial comparison** for the applied comparison_trials. These plot live
-   standalone DSS outputs; they do not select RTS accepted archives.
-10. For a new baseline, open/load/edit/save/apply another set to the same target,
-    recompute baseline, recalculate augmentation and recompute augmented trials.
-    Changing baseline settings does not make old augmentation requirements current.
+9. Before overwriting baseline outputs, use **Archive / Plot Results** to archive
+   a named **New baseline**. Compute augmentation and archive it as a named result
+   paired with that baseline. Select one or two archived runs for plotting.
+10. For another baseline, edit/save/apply settings and repeat compute/archive;
+    retain old baselines and result pairings. See [saved-run instructions](STANDALONE_SAVED_RESULTS.md)
+    for ordering, exact capture selection and input/output locations.
 
 Existing default legacy settings use AutoDetect with omitted augmentation trials
 `0,2,3`; do not assume a locally edited alternative retains those defaults.

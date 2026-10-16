@@ -1,0 +1,101 @@
+# Standalone: changing baselines, archiving results and plotting later
+
+This replaces the normal standalone trial-plot workflow. The menu now has
+**Archive / Plot Results** instead of Plot ensemble / Plot trial comparison.
+Plot-trial settings and reference-line controls are retired from Baseline
+Configuration. You select named saved runs for plotting, independently of live DSS.
+RTS keeps its existing acceptance/scheme workflow; this standalone feature does
+not change its archives or operators' steps.
+
+## Short SOP
+
+1. Select the simulation and native alternative in the standalone menu. Open
+   Baseline Configuration, edit/save/apply operating settings. The only standalone
+   extraction option remaining there is the OSI source member. The selected target
+   supplies the simulation/alternative for jobs. CONFIG.py is not read or edited.
+2. Extract if inputs are needed; verify native mappings, dates/member coverage and
+   the alternative's baseline/augmentation conventions. The menu does not configure
+   native trial augmentation behavior or change existing script date constants.
+3. Compute the unaugmented baseline manually and check native success for every
+   intended member and date. Before recomputing over those outputs, open
+   **Archive / Plot Results** and refresh.
+4. Choose the completed output suffix shown by the catalog, enter a useful name,
+   select **New baseline**, and **Archive completed results**. Confirm only after
+   checking actual compute completion. An output suffix such as CON_SEASON0 is an
+   input selector at capture time, not a persistent plot-trial setting.
+5. Calculate augmentation and compute using the existing model's augmentation
+   setup. In the result browser choose the completed output, give it a name, select
+   **Result paired with baseline**, select the correct archived baseline and archive.
+   This pairing is operator-specified; the tool does not infer scheme activation
+   or certify that the selected native trial was unaugmented/augmented.
+6. Select one or two named archived runs (Ctrl-click for two) and **Plot selected
+   saved runs**. Offline HTML plots and the plotted CSVs are generated from the
+   archives, even if simulation.dss later changes or is removed.
+7. To change baseline: edit/save/apply configuration, compute a fresh unaugmented
+   baseline, archive it under a new name, recalculate/recompute augmentation and
+   archive its results paired with the new baseline. Old data and pairings stay
+   available. Unlike RTS fingerprint reuse, each explicit standalone capture is
+   a separate immutable named result, even if its values match an older capture.
+
+Native trials may still be used by the model to distinguish baseline/augmentation.
+They are not the way you choose plotted results anymore. Archiving an existing
+trial is supported through its exact output suffix; changing a source trial does
+not change already archived data.
+
+## Inputs, outputs and implementation
+
+| Item | Location relative to standalone watershed | Producer / consumer |
+| --- | --- | --- |
+| Capture source | rss/<simulation>/simulation.dss | Native compute → archiver; never overwritten by archiver |
+| Named run archive | rss/<simulation>/standalone-results/run-<id>/ | Explicit operator capture; retain |
+| Primary arrays | Same directory, series.npz | Shared compact archiver → saved-run plotter |
+| Data manifest | Same directory, run-archive.json | Array hashes, logical DSS paths, units/type/timezone/member series |
+| Capture identity/pairing | Same directory, capture.json | Name, kind, baseline ID, suffix, members, UTC time, configuration ID, archive checksum |
+| Applied configuration snapshot | Same directory, configuration-provenance/ when available | Copy of the active baseline set at capture; includes scripts/tables/receipts |
+| Plot output | rss/<simulation>/output_plots/archived-<id>/ | Saved-run plotter; separate from older legacy plot folders |
+| Browser entry/library | Same plot folder, index.html and plotly.min.js | Offline viewing; no CDN required |
+| Individual plots | Same plot folder, plot-<n>.html | Elevations, outflows and selected control-point flows |
+| Plotted source data | Same plot folder, plot-<n>-run-<id>.csv | Exact archived member values used in each plot |
+| Plot selection | Same plot folder, selection.json | Selected capture metadata and baseline pairing flag |
+| Browser/backend | scripts/ExternalPython/standalone_results.py | Local token-protected editor; no live compute initiation |
+| Job runner | scripts/ExternalPython/standalone_jobs.py | Extraction/calculation from selected target and applied OSI setting |
+
+The archiver reuses the RTS compact storage format and selected-series filtering.
+It retains pool elevation/outflow, control-point flows and the shared supported
+augmentation input series. It does not copy the whole DSS. There is no physical
+forecast.dss inside a new archive; that name is an internal logical locator used
+by the shared reader. Primary arrays cannot be regenerated from an unrelated
+later live simulation. Corruption fails verification instead of substituting live
+data. Pending failed captures remain under pending-<id> and are not published.
+
+Config provenance is the active snapshot **at capture time**. It is not independent
+proof that every record was produced using it. Capture before applying the next
+configuration, confirm native logs and check required member/time coverage.
+Source catalog presence and a 100% progress bar do not prove freshness. The tool
+selects all cataloged members for that suffix, including potentially stale members
+from older computes; use a clean test output when establishing reference results.
+
+Historical member bands and individual traces are separate from standalone
+synthetic members 2026–2029. That convention follows the current extraction scripts;
+review it before extending historical ensemble years into those IDs. Two-run
+plots are labelled when pairings differ, since differences may include baseline
+changes. These are overlays, not a full causal attribution or validation report.
+The initial standalone saved-run plotter does not add prepared augmentation
+requirements or rule-curve overlays; archived source arrays remain available.
+
+## CONFIG.py and older settings
+
+The installed CONFIG.py file is retained so older manually launched scripts are
+not destroyed. The normal menu no longer depends on it. Extraction/calculation
+children receive a temporary private compatibility module containing only the
+selected target and OSI source member. No shared CONFIG.py is opened, edited or
+executed by those jobs. Default OSI member is 2011 until changed in Baseline
+Configuration; review it before extraction. Older saved baseline sets can contain
+retired trial plot fields; opening/applying migrates them without rewriting the
+historical file. Old HTML plots and native trial results remain untouched.
+
+Use the installed original HEC application and a supported compute mode. This
+feature does not enable multithreading, modify native rule bindings or replace
+the standalone augmentation calculator with RTS's scheme system. Test a small
+serial case, archive/plot it, change/recompute/archive and verify the first archive
+still plots the original values before a large study.
