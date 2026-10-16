@@ -7,6 +7,11 @@ Configuration. You select named saved runs for plotting, independently of live D
 RTS keeps its existing acceptance/scheme workflow; this standalone feature does
 not change its archives or operators' steps.
 
+Select Ensemble or Single POR in the menu. Single POR archives ordinary F-parts
+and plots single traces without OSI or ensemble bands. The **Model Check** button
+checks one POR output or one selected ensemble member. See the
+[POR and Model Check reference](STANDALONE_POR_MODEL_CHECK.md).
+
 ## Short SOP
 
 1. Select the simulation and native alternative in the standalone menu. Open

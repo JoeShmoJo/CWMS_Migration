@@ -62,7 +62,7 @@ def install(watershed, mode="standalone"):
     source=source.replace(needle,needle+'\n        from '+runtime+' import alternative_overrides\n        configDict.update(alternative_overrides(network))')
     writes[setup]=source.encode('utf-8')
     writes[scripts/(runtime+'.py')]=runtime_source() if mode=='standalone' else (HERE/'baseline-runtime/rts_baseline_runtime.py').read_bytes()
-    for name in ('baseline_configuration.py','baseline_versions.py','standalone_configuration.py','standalone_jobs.py','standalone_results.py','run_archive.py','run_data_cache.py','plot_rts_forecast.py','write_rule_curves.py','augmentation_mapping.py','ensemble_ids.py'):
+    for name in ('baseline_configuration.py','baseline_versions.py','standalone_configuration.py','standalone_jobs.py','standalone_results.py','standalone_model_check.py','run_archive.py','run_data_cache.py','plot_rts_forecast.py','write_rule_curves.py','augmentation_mapping.py','ensemble_ids.py'):
         writes[scripts/'ExternalPython'/name]=(HERE/'ExternalPython'/name).read_bytes()
     for name,sourcefile in [('baseline-editor.html','editor-mockup.html'),('baseline-configuration.example.json','baseline-configuration.example.json')]:
         writes[scripts/'ExternalPython'/name]=(HERE/'baseline-editor-design'/sourcefile).read_bytes()
@@ -114,6 +114,9 @@ def install(watershed, mode="standalone"):
                 if source.count(needle)==1:source=source.replace(needle,replacement)
                 elif 'enesemble_years = computed_standalone_members(' not in source:raise ValueError('Unknown augmentation member selection; no files changed')
             writes[target]=source.encode('utf-8')
+    model_source=HERE/'model_check' if (HERE/'model_check').is_dir() else HERE.parent/'model_check'
+    for name in ('extract_dss.py','check_model.py','catalog_dss.py','run_model_check.py','control_point_limits.csv','README.md'):
+        writes[scripts/'model_check'/name]=(model_source/name).read_bytes()
     writes[scripts/'workflow-mode.json']=(json.dumps({'mode':mode},indent=2)+'\n').encode()
     # Every source/guard above is checked before the first mutation.
     backup=watershed/'standalone-configuration-backups'/(datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')+'-'+uuid.uuid4().hex[:8])

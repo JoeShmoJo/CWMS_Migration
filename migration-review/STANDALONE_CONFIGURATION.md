@@ -85,8 +85,10 @@ baseline/augmented trial conventions rather than assuming Apply disables all
 augmentation as it does in RTS. The Apply message explicitly states that the
 existing standalone augmentation/trial settings remain unchanged.
 
-The menu offers Extract inputs, Calculate augmentation and **Archive / Plot
-Results**. Plot selection uses named archived runs, not CONFIG.py or trial plot
+The menu offers a Simulation type selector, Extract ensemble inputs, Calculate
+ensemble augmentation, **Archive / Plot Results**, and **Model Check**. Single POR
+mode hides OSI controls and disables ensemble-only jobs; see
+[POR / Model Check](STANDALONE_POR_MODEL_CHECK.md). Plot selection uses named archived runs, not CONFIG.py or trial plot
 settings. Follow [saved-result SOP and reference](STANDALONE_SAVED_RESULTS.md).
 Configuration Overview keeps only the OSI source-member setting for extraction.
 Menu jobs use the selected target plus applied settings, with a private temporary

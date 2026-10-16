@@ -97,8 +97,17 @@ class StandaloneTests(unittest.TestCase):
         (self.scripts/'CONFIG.py').unlink()
         installer.install(self.root)
         config=standalone.current(self.sim,self.scripts,self.context)
-        self.assertEqual(config['standalone_workflow'],{'osi_source_member':2011})
+        self.assertEqual(config['standalone_workflow'],{'run_type':'ensemble','osi_source_member':2011})
         self.assertTrue((self.scripts/'standalone_results.py').is_file())
+
+    def test_por_settings_have_no_osi_requirement_and_never_launch_ensemble_extract(self):
+        import standalone_jobs as jobs
+        config=standalone.current(self.sim,self.scripts,self.context)
+        config['standalone_workflow']={'run_type':'por'}
+        jobs.validate(config['standalone_workflow'])
+        editor.apply_configuration(self.sim,self.context,config,self.scripts)
+        with self.assertRaisesRegex(ValueError,'No OSI copy'):
+            jobs.execute(self.root,'Test_simulation','Con_Season','extract','por')
 
     def test_job_settings_validation_and_unapplied_target_rejected(self):
         import standalone_jobs as jobs

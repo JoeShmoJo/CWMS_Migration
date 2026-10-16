@@ -10,7 +10,7 @@ import runpy
 import sys
 import tempfile
 
-DEFAULTS={'osi_source_member':2011}
+DEFAULTS={'run_type':'ensemble','osi_source_member':2011}
 JOBS={'extract':['CWMS_Downloader_Module.py','RFC_Downloader_Module.py',
                  'Dummy_0_and_WY_Abundant_Module.py','OSI_Ensemble_Year.py'],
       'augmentation':['MainstemAugmentation.py']}
@@ -19,10 +19,12 @@ JOBS={'extract':['CWMS_Downloader_Module.py','RFC_Downloader_Module.py',
 def validate(settings):
     # Older saved sets may carry retired plot controls. They are ignored, never
     # consulted by the saved-run archive/plot workflow.
-    allowed={'osi_source_member','plot_trial','comparison_trials','plot_reference_lines'}
-    if not isinstance(settings,dict) or not set(settings)<=allowed or 'osi_source_member' not in settings:
+    allowed={'run_type','osi_source_member','plot_trial','comparison_trials','plot_reference_lines'}
+    if not isinstance(settings,dict) or not set(settings)<=allowed :
         raise ValueError('Invalid standalone workflow settings')
-    value=settings['osi_source_member']
+    if settings.get('run_type','ensemble') not in ('ensemble','por'):raise ValueError('Invalid run type')
+    if settings.get('run_type','ensemble')=='por':return settings
+    value=settings.get('osi_source_member')
     if isinstance(value,bool) or not isinstance(value,int) or value<0:raise ValueError('Expected nonnegative whole number: osi_source_member')
     if value==3003:raise ValueError('OSI source member cannot be destination member 3003')
     return settings
@@ -38,14 +40,14 @@ def include(configuration,scripts):
     import copy
     result=copy.deepcopy(configuration)
     settings=result.get('standalone_workflow',defaults(scripts));validate(settings)
-    result['standalone_workflow']={'osi_source_member':settings['osi_source_member']}
+    result['standalone_workflow']={'run_type':settings.get('run_type','ensemble'),'osi_source_member':settings.get('osi_source_member')}
     return result
 
 
 def compatibility(context,settings):
     validate(settings)
     return {'SIM_NAME':context['run_name'],'ALTERNATIVE_NAME_STEP1':context['model_alternative'],
-            'ENSEMBLE_YEAR_TO_COPY':settings['osi_source_member']}
+            'ENSEMBLE_YEAR_TO_COPY':settings.get('osi_source_member')}
 
 
 def run_script(script,scripts,values):
@@ -63,7 +65,7 @@ def run_script(script,scripts,values):
         if old_config is not None:sys.modules['CONFIG']=old_config
 
 
-def execute(watershed,simulation,alternative,job):
+def execute(watershed,simulation,alternative,job,run_type=None):
     from standalone_configuration import context
     from baseline_configuration import digest_file
     ctx=context(watershed,alternative,simulation);root=Path(ctx['dss_path']).parent
@@ -78,7 +80,11 @@ def execute(watershed,simulation,alternative,job):
     if digest_file(source)!=pointer['resolved_sha256']:raise ValueError('Applied configuration checksum mismatch')
     data=json.loads(source.read_text())
     if 'standalone_workflow' not in data:raise ValueError('Older applied set has no standalone job settings. Open Baseline Configuration, review Standalone job settings, and Apply again')
-    values=compatibility(ctx,data['standalone_workflow'])
+    settings=data['standalone_workflow'];mode=settings.get('run_type','ensemble')
+    if run_type is not None and mode!=run_type:raise ValueError('Run type differs from applied configuration; open Baseline Configuration and Apply for the selected mode')
+    if mode=='por':
+        raise ValueError('RFC ensemble extraction and the existing ensemble augmentation calculator do not support POR jobs. Use existing POR inputs, compute in ResSim, then Archive / Plot Results in Single POR mode. No OSI copy was run.')
+    values=compatibility(ctx,settings)
     paths=[scripts/name for name in JOBS[job]]
     for path in paths:
         if not path.is_file():raise ValueError('Missing job script: '+str(path))
@@ -98,6 +104,7 @@ def execute(watershed,simulation,alternative,job):
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--request',type=Path)
+    parser.add_argument('--run-type',choices=('ensemble','por'))
     parser.add_argument('--watershed',type=Path)
     parser.add_argument('--simulation');parser.add_argument('--alternative');parser.add_argument('--job',choices=tuple(JOBS))
     args=parser.parse_args()
@@ -106,4 +113,4 @@ if __name__=='__main__':
         run_script(script,script.parent,request['values'])
     else:
         if not all((args.watershed,args.simulation,args.alternative,args.job)):parser.error('watershed, simulation, alternative and job are required')
-        execute(args.watershed,args.simulation,args.alternative,args.job)
+        execute(args.watershed,args.simulation,args.alternative,args.job,args.run_type)

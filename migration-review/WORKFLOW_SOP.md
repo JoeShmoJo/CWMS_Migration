@@ -19,7 +19,8 @@ use the [standalone/shared reference](STANDALONE_WORKFLOW_REFERENCE.md) and
 ## A. Standalone ResSim
 
 1. Open the watershed and desired simulation in the Simulation module. Note the
-   simulation directory and alternative shown in Simulation Control.
+   simulation directory and alternative shown in Simulation Control. Select
+   **Simulation type: Ensemble or Single POR** in the workflow menu.
 2. Open the Script Editor in that module and run this single line:
 
 ```python
@@ -29,10 +30,10 @@ from hec.script import ClientAppWrapper; import os; execfile(os.path.join(str(Cl
 3. Select the intended simulation and alternative, then open **Baseline
    Configuration**. In Configuration Overview, review **Standalone job settings**:
    OSI source member (plot-trial controls are retired).
-   Save/Apply these settings before any menu job, including initial extraction.
+   Save/Apply these settings before ensemble extraction/calculation jobs.
    No separate CONFIG.py editing is required. Individual downloader/date/member
    constants and native mappings must still fit the intended study.
-4. If inputs are needed, run **Extract inputs (all four steps)**. Wait for successful
+4. If inputs are needed, run **Extract ensemble inputs**. Wait for successful
    completion and inspect the job log and actual simulation.dss input coverage.
    Do not extract again merely to change baseline operating settings.
 5. **For baseline settings:** Select the explicit simulation folder and enter the
@@ -45,7 +46,7 @@ from hec.script import ClientAppWrapper; import os; execfile(os.path.join(str(Cl
    coverage and initialization receipts. Use **Archive / Plot Results** to save a
    named **New baseline** before calculating augmentation or overwriting outputs.
 8. Configure the existing standalone augmentation reservoir/target CSVs and trials.
-   **Calculate augmentation** reads the selected target’s baseline outputs and writes
+   **Calculate ensemble augmentation** reads the selected target’s baseline outputs and writes
    release requirements into that simulation DSS. Verify the log and paths.
 9. Compute the augmented case, verify completion, and archive it as a named
    result paired with the baseline saved in step 7. Select one or two archived
@@ -57,6 +58,10 @@ from hec.script import ClientAppWrapper; import os; execfile(os.path.join(str(Cl
 Existing default legacy settings use AutoDetect with omitted augmentation trials
 `0,2,3`; do not assume a locally edited alternative retains those defaults.
 Native rules/trial bindings must agree with the intended comparison.
+
+For single POR plotting and checking one POR run or one ensemble member, follow
+[POR and Model Check instructions](STANDALONE_POR_MODEL_CHECK.md). OSI is not
+required in Single POR mode; existing POR inputs/native compute are used.
 
 ## B. RTS / CWMS
 

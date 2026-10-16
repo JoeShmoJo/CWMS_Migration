@@ -48,7 +48,7 @@ def signature(filename):
     return (stat.st_size, stat.st_mtime_ns, stat.st_ctime_ns)
 
 
-def capture_run(source, destination, run_code, standalone=False):
+def capture_run(source, destination, run_code, standalone=False, run_type="ensemble"):
     """One catalog pass and one read per selected physical block; no DSS copy.
 
     Caller stages in a new directory and publishes it only on success. File stat
@@ -61,12 +61,13 @@ def capture_run(source, destination, run_code, standalone=False):
     from plot_rts_forecast import target_record
     if not re.fullmatch(r'[A-Za-z][A-Za-z0-9_-]*' if standalone else r'[A-Za-z]\d+', run_code):
         raise ValueError('Invalid run code')
+    if run_type not in ('ensemble','por') or (run_type=='por' and not standalone):raise ValueError('POR capture requires standalone mode')
     source, destination = Path(source), Path(destination)
     if any(destination.iterdir()):
         raise ValueError('Capture staging directory must be empty')
     before = signature(source)
     selected, arrays, records, contents = {}, {}, {}, {}
-    matcher = re.compile(r'C:\d{6}\|' + re.escape(run_code), re.I)
+    matcher = re.compile((r'C:\d{6}\|' if run_type=='ensemble' else '') + re.escape(run_code), re.I)
     reads = 0
     with HecDss.Open(str(source)) as dss:
         for path in dss.getPathnameList('/*/*/*/*/*/*/'):

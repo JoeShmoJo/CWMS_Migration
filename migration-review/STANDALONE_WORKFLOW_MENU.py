@@ -43,17 +43,29 @@ class Menu:
         buttons.add(JLabel('Baseline target alternative (as shown in ResSim)'))
         self.alternative = JTextField('')
         buttons.add(self.alternative)
+        buttons.add(JLabel('Simulation type'))
+        self.run_type = JComboBox()
+        self.run_type.addItem('Ensemble')
+        self.run_type.addItem('Single POR')
+        buttons.add(self.run_type)
         buttons.add(JButton('Baseline Configuration', actionPerformed=lambda e: self.open_baseline()))
-        jobs = [('Extract inputs (all four steps)', 'extract'),
-                ('Calculate augmentation', 'augmentation')]
+        jobs = [('Extract ensemble inputs', 'extract'),
+                ('Calculate ensemble augmentation', 'augmentation')]
+        self.ensemble_buttons = []
         for title, job in jobs:
-            buttons.add(JButton(title, actionPerformed=lambda e, t=title, j=job: self.start(t, j)))
+            button = JButton(title, actionPerformed=lambda e, t=title, j=job: self.start(t, j))
+            self.ensemble_buttons.append(button);buttons.add(button)
+        self.run_type.addActionListener(self.update_mode)
         buttons.add(JButton('Archive / Plot Results', actionPerformed=lambda e: self.open_results()))
+        buttons.add(JButton('Model Check', actionPerformed=lambda e: self.open_results()))
         self.frame.add(buttons, BorderLayout.NORTH)
         self.frame.add(JScrollPane(self.text), BorderLayout.CENTER)
         self.frame.pack()
         self.frame.setLocationRelativeTo(None)
         self.frame.setVisible(True)
+    def update_mode(self, event):
+        for button in self.ensemble_buttons:
+            button.setEnabled(self.run_type.getSelectedIndex() == 0)
     def message(self, value):
         SwingUtilities.invokeLater(Call(lambda: self.text.append(value + '\n')))
     def open_baseline(self):
@@ -73,7 +85,7 @@ class Menu:
         if not os.path.isdir(directory): os.makedirs(directory)
         self.log = os.path.join(directory, 'configuration-' + str(System.currentTimeMillis()) + '.log')
         command = ArrayList()
-        for arg in [python, '-u', filename, '--watershed', root, '--simulation', simulation, '--alternative', alternative]: command.add(arg)
+        for arg in [python, '-u', filename, '--watershed', root, '--simulation', simulation, '--alternative', alternative, '--run-type', 'por' if self.run_type.getSelectedIndex() == 1 else 'ensemble']: command.add(arg)
         builder = ProcessBuilder(command)
         builder.directory(File(scripts))
         builder.redirectErrorStream(True)
@@ -91,7 +103,7 @@ class Menu:
         if not os.path.isfile(filename): raise RuntimeError('Install the updated standalone workflow first.')
         command = ArrayList()
         for arg in [python, '-u', filename, '--watershed', root, '--simulation', simulation,
-                    '--alternative', alternative]: command.add(arg)
+                    '--alternative', alternative, '--run-type', 'por' if self.run_type.getSelectedIndex() == 1 else 'ensemble']: command.add(arg)
         directory = os.path.join(root, 'standalone-workflow-logs')
         if not os.path.isdir(directory): os.makedirs(directory)
         self.log = os.path.join(directory, 'results-' + str(System.currentTimeMillis()) + '.log')
@@ -111,9 +123,13 @@ class Menu:
             title + '\nSimulation: ' + simulation + '\nAlternative: ' + alternative + '\nUses applied Baseline Configuration job settings. Confirm no compute is running.',
             'Run standalone scripts', JOptionPane.OK_CANCEL_OPTION) != JOptionPane.OK_OPTION:
             return
+        run_type = 'por' if self.run_type.getSelectedIndex() == 1 else 'ensemble'
+        if run_type == 'por':
+            JOptionPane.showMessageDialog(self.frame, 'Use existing POR inputs and compute in ResSim. Ensemble extraction/augmentation jobs are unavailable in Single POR mode; no OSI copy is needed.')
+            return
         self.busy = True
-        Thread(Call(lambda: self.run(title, job, simulation, alternative)), 'Standalone workflow job').start()
-    def run(self, title, job, simulation, alternative):
+        Thread(Call(lambda: self.run(title, job, simulation, alternative, run_type)), 'Standalone workflow job').start()
+    def run(self, title, job, simulation, alternative, run_type):
         try:
             filename = os.path.join(scripts, 'standalone_jobs.py')
             if not os.path.isfile(filename): raise RuntimeError('Install the updated standalone workflow first.')
@@ -123,7 +139,7 @@ class Menu:
             self.message(title + '\nLog: ' + self.log)
             command = ArrayList()
             for arg in [python, '-u', filename, '--watershed', root, '--simulation', simulation,
-                        '--alternative', alternative, '--job', job]: command.add(arg)
+                        '--alternative', alternative, '--run-type', run_type, '--job', job]: command.add(arg)
             builder = ProcessBuilder(command)
             builder.directory(File(scripts))
             builder.redirectErrorStream(True)

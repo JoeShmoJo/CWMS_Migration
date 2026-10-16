@@ -13,8 +13,10 @@ def current(root,scripts,context):
         if pointer.get('model_alternative') != context['model_alternative']:
             raise ValueError('This simulation has settings applied to another alternative; select that alternative or use another simulation')
     from standalone_jobs import include
-    return include(editor.current_configuration(root,scripts,context['model_alternative'],
+    result=include(editor.current_configuration(root,scripts,context['model_alternative'],
         'standalone-baseline-config-active.json','_standalone_baseline_originals'),scripts)
+    if context.get('run_type'):result['standalone_workflow']['run_type']=context['run_type']
+    return result
 
 
 def import_legacy(root,scripts,alternative):
@@ -26,7 +28,8 @@ def import_legacy(root,scripts,alternative):
             'standalone-baseline-config-active.json','_standalone_baseline_originals')
 
 
-def context(watershed,alternative,simulation=None):
+def context(watershed,alternative,simulation=None,run_type=None):
+    if run_type is not None and run_type not in ('ensemble','por'):raise ValueError('Invalid run type')
     watershed=Path(watershed).resolve()
     if not isinstance(simulation,str) or not simulation or Path(simulation).name!=simulation or simulation in ('.','..') or any(c in simulation for c in ('/','\\',':')):
         raise ValueError('Select an existing simple simulation folder name')
@@ -35,7 +38,7 @@ def context(watershed,alternative,simulation=None):
     simulation_dir=watershed/'rss'/simulation.replace(' ','_')
     if not simulation_dir.is_dir():
         raise ValueError('Standalone simulation directory missing: '+str(simulation_dir))
-    return {'mode':'standalone','watershed':str(watershed),'model_alternative':alternative,
+    return {'run_type':run_type,'mode':'standalone','watershed':str(watershed),'model_alternative':alternative,
             'run_name':simulation,'forecast_name':'Standalone ResSim',
             'dss_path':str(simulation_dir/'simulation.dss')}
 
@@ -45,6 +48,7 @@ if __name__=='__main__':
     parser.add_argument('--watershed',required=True,type=Path)
     parser.add_argument('--alternative',required=True)
     parser.add_argument('--simulation',required=True,help='Existing simulation folder under watershed/rss; must match ResSim Simulation Control')
+    parser.add_argument('--run-type',choices=('ensemble','por'))
     args=parser.parse_args()
     scripts=args.watershed.resolve()/'scripts/ExternalPython'
-    editor.serve_editor(scripts,context(args.watershed,args.alternative,args.simulation))
+    editor.serve_editor(scripts,context(args.watershed,args.alternative,args.simulation,args.run_type))

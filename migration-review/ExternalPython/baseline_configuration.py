@@ -337,6 +337,7 @@ def apply_configuration(root, context, config, scripts):
     if standalone:
         from standalone_jobs import include
         config=include(config,scripts)
+        if context.get('run_type'):config['standalone_workflow']['run_type']=context['run_type']
     originals='_standalone_baseline_originals' if standalone else '_rts_baseline_originals'
     config=with_null_reservoirs(config)
     resolved,linked=resolve(config,scripts,watershed)
@@ -478,7 +479,7 @@ loadSet.onclick=async()=>{if(!savedSets.value)return;if(!confirm('Replace the se
         page=page.replace('RTS baseline editor', 'Standalone baseline editor')
         workflow_bridge="""<script>
 const standaloneJobDefaults=DEFAULTS;
-const baseRender=render;render=function(){if(!config.standalone_workflow)config.standalone_workflow=JSON.parse(JSON.stringify(standaloneJobDefaults));baseRender()};render();
+const baseRender=render;render=function(){if(!config.standalone_workflow)config.standalone_workflow=JSON.parse(JSON.stringify(standaloneJobDefaults));config.standalone_workflow.run_type=standaloneJobDefaults.run_type||'ensemble';baseRender()};render();
 </script>""".replace('DEFAULTS',json.dumps(config['standalone_workflow']).replace('</','<\\/'))
         page=page.replace('</html>',workflow_bridge+'</html>')
         page=page.replace('Finish all computes and close the forecast in RTS before applying. Apply this set, disable augmentation, and require a new unaugmented compute?', 'Finish all computes before applying. Apply these settings to the displayed standalone simulation and alternative? Recompute affected trials afterward.')

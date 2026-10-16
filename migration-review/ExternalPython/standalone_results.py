@@ -22,7 +22,7 @@ def catalog(root):
     return sorted(runs,key=lambda row:row['created_utc'],reverse=True)
 
 
-def outputs(root):
+def outputs(root,run_type="ensemble"):
     from pydsstools.heclib.dss import HecDss
     from run_data_cache import needed_record
     codes=set()
@@ -30,13 +30,14 @@ def outputs(root):
         for path in dss.getPathnameList('/*/*/*/*/*/*/'):
             parts=str(path).split('/')
             if len(parts)!=8 or not needed_record(parts):continue
-            match=re.fullmatch(r'C:\d{6}\|([A-Za-z][A-Za-z0-9_-]*)',parts[6])
+            match=re.fullmatch((r'C:\d{6}\|' if run_type=='ensemble' else '')+r'([A-Za-z][A-Za-z0-9_-]*)',parts[6])
             if match:codes.add(match[1])
     return sorted(codes)
 
 
-def capture(root,alternative,label,code,kind,baseline_id=None,confirmed=False):
+def capture(root,alternative,label,code,kind,baseline_id=None,confirmed=False,run_type="ensemble"):
     root=Path(root)
+    if run_type not in ('ensemble','por'):raise ValueError('Invalid run type')
     if not confirmed:raise ValueError('Confirm successful compute before capturing results')
     if kind not in ('baseline','result') or not isinstance(label,str) or not label.strip():raise ValueError('Choose baseline/result and a name')
     saved={row['id']:row for row in catalog(root)}
@@ -48,20 +49,21 @@ def capture(root,alternative,label,code,kind,baseline_id=None,confirmed=False):
     # for comparison. This admits native padding/hyphen naming plus trial digits.
     prefix=alternative.replace(' ','-').ljust(10,'-')
     if not re.fullmatch(re.escape(prefix)+r'\d+',code,re.I):raise ValueError('Output suffix does not match the selected alternative')
-    if code not in outputs(root):raise ValueError('Selected output is absent from this simulation')
+    if kind=='result' and saved[baseline_id].get('run_type','ensemble')!=run_type:raise ValueError('Baseline run type differs')
+    if code not in outputs(root,run_type):raise ValueError('Selected output is absent from this simulation')
     archive=root/'standalone-results';archive.mkdir(exist_ok=True)
     pending=archive/('pending-'+uuid.uuid4().hex);pending.mkdir()
     source=root/'simulation.dss';before=signature(source)
     try:
-        capture_run(source,pending,code,standalone=True)
+        capture_run(source,pending,code,standalone=True,run_type=run_type)
         info=metadata(pending/'forecast.dss')
         records=info['records']
-        members=sorted({int(re.search(r'C:(\d+)\|',item['pathname'])[1]) for item in records.values()})
-        for member in members:
+        members=sorted({int(re.search(r'C:(\d+)\|',item['pathname'])[1]) for item in records.values()}) if run_type=='ensemble' else []
+        for member in members if run_type=='ensemble' else [None]:
             pools={}
             for item in records.values():
                 parts=item['pathname'].split('/')
-                if re.search(r'C:(\d+)\|',item['pathname'])[1]==str(member).zfill(6) and parts[2].upper().endswith('-POOL'):
+                if (member is None or re.search(r'C:(\d+)\|',item['pathname'])[1]==str(member).zfill(6)) and parts[2].upper().endswith('-POOL'):
                     pools.setdefault(parts[2].upper(),set()).add(parts[3].upper())
             if not pools or any('FLOW-OUT' not in params or not {'ELEV','ELEVATION'}&params for params in pools.values()):
                 raise ValueError('Member lacks paired pool elevation/outflow: '+str(member))
@@ -77,7 +79,7 @@ def capture(root,alternative,label,code,kind,baseline_id=None,confirmed=False):
         identity='run-'+uuid.uuid4().hex
         data={'format':'standalone-saved-result','label':label.strip(),'kind':kind,
               'baseline_id':identity if kind=='baseline' else baseline_id,'run_code':code.upper(),
-              'alternative':alternative,'simulation':root.name,'members':members,
+              'alternative':alternative,'simulation':root.name,'members':members,'run_type':run_type,
               'synthetic_members':[m for m in members if m in (3000,3001,3002,3003)],
               'created_utc':datetime.now(timezone.utc).isoformat(),
               'archive_sha256':digest_file(pending/'run-archive.json'),
@@ -106,7 +108,16 @@ def plot(root,identities):
         directory=root/'standalone-results'/row['id']
         if digest_file(directory/'run-archive.json')!=row['archive_sha256']:raise ValueError('Archive manifest changed')
         with open_archive(directory/'forecast.dss',row['run_code'],row['archive_sha256']) as handle:
-            groups=output_groups(handle.getPathnameList('/*/*/*/*/*/*/'),row['run_code'],set(row['members']))
+            paths=handle.getPathnameList('/*/*/*/*/*/*/')
+            if row.get('run_type','ensemble')=='por':
+                from plot_rts_forecast import target_record
+                groups={}
+                for path in paths:
+                    parts=path.split('/')
+                    if target_record(parts) and parts[6].upper()==row['run_code'].upper():
+                        groups.setdefault((parts[1],parts[2],parts[3],parts[5]),{})['POR']=path
+            else:
+                groups=output_groups(paths,row['run_code'],set(row['members']))
             for key,members in groups.items():
                 data={};unit=None
                 for member,path in members.items():
@@ -125,6 +136,10 @@ def plot(root,identities):
         for row in selected:
             frame=frames.get((row['id'],key))
             if frame is None:continue
+            if row.get('run_type','ensemble')=='por':
+                figure.add_trace(go.Scatter(x=frame.index,y=frame['POR'],name=row['label']+' / POR',connectgaps=False))
+                frame.to_csv(destination/('plot-'+str(number)+'-'+row['id']+'.csv'),index_label='timestamp')
+                continue
             # Keep standalone synthetic members out of historical bands.
             synthetic_ids=set(row.get('synthetic_members',[2026,2027,2028,2029]))
             synthetic=frame[[m for m in frame if m in synthetic_ids]]
@@ -145,18 +160,19 @@ def plot(root,identities):
     return destination/'index.html'
 
 
-PAGE='''<!doctype html><meta charset="utf-8"><title>Standalone saved results</title><style>body{font:16px system-ui;max-width:1000px;margin:30px auto}input,select,button{font:inherit;padding:8px;margin:6px}label{display:block}pre{white-space:pre-wrap}</style><h1>Standalone saved results</h1><p id="target"></p><p>Capture only after checking successful native compute. Saved archives are independent of future changes to simulation.dss.</p><button onclick="refresh()">Refresh completed outputs and saved runs</button><label>Completed output <select id="output"></select></label><label>Name <input id="name" placeholder="Descriptive result name"></label><label>Type <select id="kind"><option value="baseline">New baseline</option><option value="result">Result paired with baseline</option></select></label><label>Baseline for result <select id="baseline"></select></label><button onclick="capture()">Archive completed results</button><hr><h2>Plot archived results</h2><p>Select one or two runs (Ctrl-click for two).</p><select multiple size="10" id="runs" style="width:95%"></select><br><button onclick="plot()">Plot selected saved runs</button><button onclick="closeEditor()">Close</button><pre id="status"></pre><script>
-const TOKEN=__TOKEN__,TARGET=__TARGET__;document.getElementById('target').textContent=TARGET;
+PAGE='''<!doctype html><meta charset="utf-8"><title>Standalone saved results</title><style>body{font:16px system-ui;max-width:1000px;margin:30px auto}input,select,button{font:inherit;padding:8px;margin:6px}label{display:block}pre{white-space:pre-wrap}</style><h1>Standalone saved results</h1><p id="target"></p><p>Capture only after checking successful native compute. Saved archives are independent of future changes to simulation.dss.</p><button onclick="refresh()">Refresh completed outputs and saved runs</button><label>Completed output <select id="output"></select></label><label>Name <input id="name" placeholder="Descriptive result name"></label><label>Type <select id="kind"><option value="baseline">New baseline</option><option value="result">Result paired with baseline</option></select></label><label>Baseline for result <select id="baseline"></select></label><button onclick="capture()">Archive completed results</button><hr><h2>Model check</h2><p>Checks the selected completed output above. In ensemble mode, enter exactly one member ID.</p><label id="member-row">Ensemble member <input id="member" type="number" min="0" step="1"></label><button onclick="modelCheck()">Run Model Check</button><hr><h2>Plot archived results</h2><p>Select one or two runs (Ctrl-click for two).</p><select multiple size="10" id="runs" style="width:95%"></select><br><button onclick="plot()">Plot selected saved runs</button><button onclick="closeEditor()">Close</button><pre id="status"></pre><script>
+const TOKEN=__TOKEN__,TARGET=__TARGET__,RUN_TYPE=__RUN_TYPE__;if(RUN_TYPE==='por')document.getElementById('member-row').hidden=true;document.getElementById('target').textContent=TARGET;
 const el=id=>document.getElementById(id);async function call(path,data){el('status').textContent='Working…';const response=await fetch(path,{method:'POST',headers:{'X-Editor-Token':TOKEN},body:JSON.stringify(data)});const result=await response.json();if(!response.ok)throw Error(result.error);return result}
 async function refresh(){try{const data=await call('/list',{});el('output').replaceChildren();for(const code of data.outputs)el('output').add(new Option(code,code));el('runs').replaceChildren();el('baseline').replaceChildren();for(const row of data.runs){let label=row.label+' ['+row.kind+'] '+row.created_utc;el('runs').add(new Option(label,row.id));if(row.kind==='baseline')el('baseline').add(new Option(label,row.id))}el('status').textContent='Ready'}catch(e){el('status').textContent=e.message}}
 async function capture(){if(!confirm('Has the selected native compute finished successfully for every intended member and date? Archive these results?'))return;try{await call('/capture',{label:el('name').value,code:el('output').value,kind:el('kind').value,baseline_id:el('baseline').value,confirmed:true});await refresh()}catch(e){el('status').textContent=e.message}}
 async function plot(){try{const result=await call('/plot',{ids:[...el('runs').selectedOptions].map(o=>o.value)});el('status').textContent='Plots: '+result.path}catch(e){el('status').textContent=e.message}}
+async function modelCheck(){if(!confirm('Confirm compute is finished and the selected output/member and current configuration are the ones to check.'))return;try{let value=el('member').value;if(RUN_TYPE==='ensemble'&&!value.trim())throw Error('Enter one ensemble member ID');let result=await call('/model_check',{code:el('output').value,member:RUN_TYPE==='ensemble'?Number(value):null});el('status').textContent='Model check: '+result.path}catch(e){el('status').textContent=e.message}}
 async function closeEditor(){await call('/close',{});document.body.textContent='Closed'}refresh();</script>'''
 
 
-def serve(root,alternative):
+def serve(root,alternative,run_type="ensemble"):
     root=Path(root);token=secrets.token_urlsafe(32)
-    page=PAGE.replace('__TOKEN__',json.dumps(token)).replace('__TARGET__',json.dumps(str(root)+' / '+alternative).replace('</','<\\/'))
+    page=PAGE.replace('__RUN_TYPE__',json.dumps(run_type)).replace('__TOKEN__',json.dumps(token)).replace('__TARGET__',json.dumps(str(root)+' / '+alternative+' / '+('Single POR' if run_type=='por' else 'Ensemble')).replace('</','<\\/'))
     task_lock=threading.Lock()
     class Handler(BaseHTTPRequestHandler):
         def log_message(self,*args):pass
@@ -169,11 +185,17 @@ def serve(root,alternative):
                 length=int(self.headers.get('Content-Length','0'))
                 if not 0<length<1024*1024:raise ValueError('Invalid request size')
                 data=json.loads(self.rfile.read(length))
-                if self.path=='/list':result={'outputs':outputs(root) if (root/'simulation.dss').is_file() else [],'runs':catalog(root)}
+                if self.path=='/list':result={'outputs':outputs(root,run_type) if (root/'simulation.dss').is_file() else [],'runs':[row for row in catalog(root) if row.get('run_type','ensemble')==run_type]}
                 elif self.path=='/capture':
                     if not task_lock.acquire(False):raise ValueError('Another archive task is running')
-                    try:result=capture(root,alternative,**data)
+                    try:result=capture(root,alternative,run_type=run_type,**data)
                     finally:task_lock.release()
+                elif self.path=='/model_check':
+                    from standalone_model_check import run
+                    if not task_lock.acquire(False):raise ValueError('Another result task is running')
+                    try:path=run(root,alternative,data['code'],run_type,data.get('member'))
+                    finally:task_lock.release()
+                    webbrowser.open(path.resolve().as_uri());result={'path':str(path)}
                 elif self.path=='/plot':
                     path=plot(root,data['ids']);webbrowser.open(path.resolve().as_uri());result={'path':str(path)}
                 elif self.path=='/close':
@@ -190,5 +212,6 @@ def serve(root,alternative):
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--watershed',required=True,type=Path);parser.add_argument('--simulation',required=True);parser.add_argument('--alternative',required=True)
+    parser.add_argument('--run-type',choices=('ensemble','por'),default='ensemble')
     args=parser.parse_args();from standalone_configuration import context
-    ctx=context(args.watershed,args.alternative,args.simulation);serve(Path(ctx['dss_path']).parent,args.alternative)
+    ctx=context(args.watershed,args.alternative,args.simulation);serve(Path(ctx['dss_path']).parent,args.alternative,args.run_type)

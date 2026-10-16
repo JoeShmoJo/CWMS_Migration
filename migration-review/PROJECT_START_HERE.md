@@ -96,6 +96,13 @@ scripts/documentation, not a complete model or reproducibility archive. Removing
 an unneeded checkout is different from deleting the only copy of study inputs,
 results, saved configuration libraries or the Python environment.
 
+## POR and model checks
+
+[Single POR / Model Check](STANDALONE_POR_MODEL_CHECK.md) documents the mode toggle,
+OSI-free single-run plotting and launching the existing model checker for one
+POR output or one exact ensemble member. Native mode/input settings are not
+changed by the toggle.
+
 ## Optional follow-up experiment
 
 [Conditional diversion postprocessing](DIVERSION_POSTPROCESS.md) reads completed

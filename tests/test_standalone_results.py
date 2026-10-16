@@ -58,6 +58,23 @@ class StandaloneResultTests(unittest.TestCase):
         self.source.unlink()
         self.assertTrue(results.plot(self.root,[captured['id']]).is_file())
 
+    def test_single_por_capture_and_plot_without_ensemble_prefix_or_live_dss(self):
+        self.paths=[path.replace('C:002000|','') for path in self.paths]
+        self.assertEqual(results.outputs(self.root,'ensemble'),[])
+        self.assertEqual(results.outputs(self.root,'por'),['CON_SEASON0'])
+        baseline=results.capture(self.root,'Con_Season','POR baseline','CON_SEASON0','baseline',confirmed=True,run_type='por')
+        self.assertEqual(baseline['run_type'],'por');self.assertEqual(baseline['members'],[])
+        self.value=150.
+        result=results.capture(self.root,'Con_Season','POR result','CON_SEASON0','result',baseline['id'],True,run_type='por')
+        self.source.unlink()
+        path=results.plot(self.root,[baseline['id'],result['id']])
+        self.assertTrue(path.is_file())
+        frame=pd.read_csv(next(path.parent.glob('*.csv')))
+        self.assertIn('POR',frame.columns)
+        figure=next(path.parent.glob('plot-*.html')).read_text()
+        self.assertNotIn('5–95%',figure)
+        self.assertIn('POR',figure)
+
     def test_capture_guards_confirmation_alternative_and_failed_archive(self):
         with self.assertRaisesRegex(ValueError,'Confirm'):results.capture(self.root,'Con_Season','x','CON_SEASON0','baseline')
         with self.assertRaisesRegex(ValueError,'alternative'):results.capture(self.root,'Other','x','CON_SEASON0','baseline',confirmed=True)

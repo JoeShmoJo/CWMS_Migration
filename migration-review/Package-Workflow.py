@@ -50,6 +50,11 @@ def package(watershed):
         stage=Path(temp)/'kit';stage.mkdir()
         for name in ('ExternalPython','baseline-runtime','baseline-editor-design','externalSVs','optional-diversion-postprocess'):
             shutil.copytree(HERE/name,stage/name,ignore=shutil.ignore_patterns('__pycache__','*$py.class','*.pyc','logs'))
+        model_source=HERE/'model_check' if (HERE/'model_check').is_dir() else HERE.parent/'model_check'
+        if not model_source.is_dir():raise ValueError('Model check source folder missing')
+        (stage/'model_check').mkdir()
+        for name in ('extract_dss.py','check_model.py','catalog_dss.py','run_model_check.py','control_point_limits.csv','README.md'):
+            shutil.copy2(model_source/name,stage/'model_check'/name)
         for name in ('Install-StandaloneConfiguration.py','Package-Workflow.py','render_documentation.py',
                      'Install-ForecastExtraction.ps1','Install-BaselineConfiguration.ps1','Install-RunArchives.ps1',
                      'STANDALONE_WORKFLOW_MENU.py','RTS_WORKFLOW_MENU.py','RTS_FORECAST_EXTRACT.py'):

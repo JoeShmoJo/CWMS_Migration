@@ -25,6 +25,10 @@ tables and code, and browser printing/PDF export. No server, Markdown viewer or
 additional Python package is needed to read or generate them. Markdown remains
 the editable source; rerunning the embedded packager regenerates HTML.
 
+The standalone menu also supports [Single POR / Model Check](STANDALONE_POR_MODEL_CHECK.md).
+The embedded model_check directory contains code/limits only; native results and
+old report output folders are not copied into the kit.
+
 ## Standalone SOP
 
 1. Finish compute and close ResSim before installing/updating scripts. Package the
