@@ -62,7 +62,7 @@ def install(watershed, mode="standalone"):
     source=source.replace(needle,needle+'\n        from '+runtime+' import alternative_overrides\n        configDict.update(alternative_overrides(network))')
     writes[setup]=source.encode('utf-8')
     writes[scripts/(runtime+'.py')]=runtime_source() if mode=='standalone' else (HERE/'baseline-runtime/rts_baseline_runtime.py').read_bytes()
-    for name in ('baseline_configuration.py','baseline_versions.py','standalone_configuration.py','standalone_jobs.py','standalone_results.py','standalone_model_check.py','run_archive.py','run_data_cache.py','plot_rts_forecast.py','write_rule_curves.py','augmentation_mapping.py','ensemble_ids.py'):
+    for name in ('baseline_configuration.py','baseline_versions.py','standalone_configuration.py','standalone_jobs.py','standalone_results.py','standalone_model_check.py','standalone_por_augmentation.py','run_archive.py','run_data_cache.py','plot_rts_forecast.py','write_rule_curves.py','augmentation_mapping.py','ensemble_ids.py'):
         writes[scripts/'ExternalPython'/name]=(HERE/'ExternalPython'/name).read_bytes()
     for name,sourcefile in [('baseline-editor.html','editor-mockup.html'),('baseline-configuration.example.json','baseline-configuration.example.json')]:
         writes[scripts/'ExternalPython'/name]=(HERE/'baseline-editor-design'/sourcefile).read_bytes()
@@ -110,9 +110,15 @@ def install(watershed, mode="standalone"):
                 source=re.sub(r'^TARGET_ENSEMBLE_YEAR = 2029$', 'TARGET_ENSEMBLE_YEAR = 3003',source,flags=re.M)
             else:
                 needle='enesemble_years = list(range(1981, 2029))'
-                replacement='from ensemble_ids import computed_standalone_members\nenesemble_years = computed_standalone_members(DSS_FILE_IN, ALTERNATIVE_NAME_STEP1)'
+                replacement='from ensemble_ids import computed_standalone_members\nenesemble_years = [] if getattr(cfg, "RUN_TYPE", "ensemble") == "por" else computed_standalone_members(DSS_FILE_IN, ALTERNATIVE_NAME_STEP1)'
                 if source.count(needle)==1:source=source.replace(needle,replacement)
-                elif 'enesemble_years = computed_standalone_members(' not in source:raise ValueError('Unknown augmentation member selection; no files changed')
+                elif 'enesemble_years = computed_standalone_members(' in source:
+                    source=source.replace('enesemble_years = computed_standalone_members(DSS_FILE_IN, ALTERNATIVE_NAME_STEP1)',replacement.split('\n')[-1])
+                elif replacement not in source:raise ValueError('Unknown augmentation member selection; no files changed')
+                if 'from standalone_por_augmentation import' not in source:
+                    anchor='fparts = [f"C:00{year}|{FORMATTED_ALT_NAME}" for year in enesemble_years]'
+                    if source.count(anchor)!=1:raise ValueError('Unknown augmentation F-part selection; no files changed')
+                    source=source.replace(anchor,anchor+'\nif getattr(cfg, "RUN_TYPE", "ensemble") == "por":\n    from standalone_por_augmentation import por_fparts, read_daily_por\n    fparts = por_fparts(DSS_FILE_IN, ALTERNATIVE_NAME_STEP1)\n    readallpaths_dpart = read_daily_por')
             writes[target]=source.encode('utf-8')
     model_source=HERE/'model_check' if (HERE/'model_check').is_dir() else HERE.parent/'model_check'
     for name in ('extract_dss.py','check_model.py','catalog_dss.py','run_model_check.py','control_point_limits.csv','README.md'):

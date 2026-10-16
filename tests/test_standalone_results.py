@@ -33,6 +33,13 @@ class StandaloneResultTests(unittest.TestCase):
         self.fake=SimpleNamespace(HecDss=SimpleNamespace(Open=DSS))
         patcher=patch.dict(sys.modules,{'pydsstools.heclib.dss':self.fake});patcher.start();self.addCleanup(patcher.stop)
 
+    def test_uploaded_three_hour_por_catalog_is_recognized(self):
+        import csv
+        filename=Path(__file__).resolve().parents[1]/'model_check/output/Flood_96_3hour_catalog.csv'
+        with filename.open() as stream:self.paths=[row['example_path'] for row in csv.DictReader(stream)]
+        self.assertIn('Temp3Hour-0',results.outputs(self.root,'por'))
+        self.assertEqual(results.outputs(self.root,'ensemble'),[])
+
     def test_named_baseline_and_result_survive_live_changes_and_plot_without_dss(self):
         baseline=results.capture(self.root,'Con_Season','Original baseline','CON_SEASON0','baseline',confirmed=True)
         self.value=120.

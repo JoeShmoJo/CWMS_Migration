@@ -46,7 +46,7 @@ from hec.script import ClientAppWrapper; import os; execfile(os.path.join(str(Cl
    coverage and initialization receipts. Use **Archive / Plot Results** to save a
    named **New baseline** before calculating augmentation or overwriting outputs.
 8. Configure the existing standalone augmentation reservoir/target CSVs and trials.
-   **Calculate ensemble augmentation** reads the selected target’s baseline outputs and writes
+   **Calculate augmentation** reads the selected target’s baseline outputs and writes
    release requirements into that simulation DSS. Verify the log and paths.
 9. Compute the augmented case, verify completion, and archive it as a named
    result paired with the baseline saved in step 7. Select one or two archived

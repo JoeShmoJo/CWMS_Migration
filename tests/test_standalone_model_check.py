@@ -50,6 +50,22 @@ class ModelCheckLaunchTests(unittest.TestCase):
                 self.assertEqual(context['member'],member)
                 self.assertEqual(source.read_bytes(),b'original')
 
+    def test_real_por_catalog_automatic_target(self):
+        import csv
+        catalog=Path(__file__).resolve().parents[1]/'model_check/output/Flood_96_3hour_catalog.csv'
+        with catalog.open() as stream:paths=[row['example_path'] for row in csv.DictReader(stream)]
+        self.assertEqual(checks.select_output(paths,'Temp3Hour','por'),'Temp3Hour-0')
+        with self.assertRaisesRegex(ValueError,'No unique output'):
+            checks.select_output(paths,'OtherAlt','por')
+
+    def test_dedicated_por_page_has_no_member_or_archive_choices(self):
+        from standalone_results import CHECK_PAGE
+        page=CHECK_PAGE.replace('__MEMBER__','')
+        self.assertNotIn('id="member"',page)
+        self.assertNotIn('id="output"',page)
+        self.assertNotIn('id="kind"',page)
+        self.assertIn('Report name (optional)',page)
+
     def test_ensemble_requires_single_member_before_reading_data(self):
         with self.assertRaisesRegex(ValueError,'single ensemble member'):
             checks.run(Path('/unused/rss/Simulation'),'Con_Season','CON_SEASON0','ensemble')

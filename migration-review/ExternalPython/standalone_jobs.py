@@ -47,7 +47,7 @@ def include(configuration,scripts):
 def compatibility(context,settings):
     validate(settings)
     return {'SIM_NAME':context['run_name'],'ALTERNATIVE_NAME_STEP1':context['model_alternative'],
-            'ENSEMBLE_YEAR_TO_COPY':settings.get('osi_source_member')}
+            'ENSEMBLE_YEAR_TO_COPY':settings.get('osi_source_member'),'RUN_TYPE':settings.get('run_type','ensemble')}
 
 
 def run_script(script,scripts,values):
@@ -82,8 +82,8 @@ def execute(watershed,simulation,alternative,job,run_type=None):
     if 'standalone_workflow' not in data:raise ValueError('Older applied set has no standalone job settings. Open Baseline Configuration, review Standalone job settings, and Apply again')
     settings=data['standalone_workflow'];mode=settings.get('run_type','ensemble')
     if run_type is not None and mode!=run_type:raise ValueError('Run type differs from applied configuration; open Baseline Configuration and Apply for the selected mode')
-    if mode=='por':
-        raise ValueError('RFC ensemble extraction and the existing ensemble augmentation calculator do not support POR jobs. Use existing POR inputs, compute in ResSim, then Archive / Plot Results in Single POR mode. No OSI copy was run.')
+    if mode=='por' and job=='extract':
+        raise ValueError('RFC ensemble extraction is unavailable in POR mode. Use existing POR inputs. No OSI copy was run.')
     values=compatibility(ctx,settings)
     paths=[scripts/name for name in JOBS[job]]
     for path in paths:

@@ -27,7 +27,9 @@ def outputs(root,run_type="ensemble"):
     from run_data_cache import needed_record
     codes=set()
     with HecDss.Open(str(Path(root)/'simulation.dss')) as dss:
-        for path in dss.getPathnameList('/*/*/*/*/*/*/'):
+        paths=dss.getPathnameList('/*/*/*/*/*/*/')
+        if not paths:paths=dss.getPathnameList('*')
+        for path in paths:
             parts=str(path).split('/')
             if len(parts)!=8 or not needed_record(parts):continue
             match=re.fullmatch((r'C:\d{6}\|' if run_type=='ensemble' else '')+r'([A-Za-z][A-Za-z0-9_-]*)',parts[6])
@@ -160,19 +162,32 @@ def plot(root,identities):
     return destination/'index.html'
 
 
-PAGE='''<!doctype html><meta charset="utf-8"><title>Standalone saved results</title><style>body{font:16px system-ui;max-width:1000px;margin:30px auto}input,select,button{font:inherit;padding:8px;margin:6px}label{display:block}pre{white-space:pre-wrap}</style><h1>Standalone saved results</h1><p id="target"></p><p>Capture only after checking successful native compute. Saved archives are independent of future changes to simulation.dss.</p><button onclick="refresh()">Refresh completed outputs and saved runs</button><label>Completed output <select id="output"></select></label><label>Name <input id="name" placeholder="Descriptive result name"></label><label>Type <select id="kind"><option value="baseline">New baseline</option><option value="result">Result paired with baseline</option></select></label><label>Baseline for result <select id="baseline"></select></label><button onclick="capture()">Archive completed results</button><hr><h2>Model check</h2><p>Checks the selected completed output above. In ensemble mode, enter exactly one member ID.</p><label id="member-row">Ensemble member <input id="member" type="number" min="0" step="1"></label><button onclick="modelCheck()">Run Model Check</button><hr><h2>Plot archived results</h2><p>Select one or two runs (Ctrl-click for two).</p><select multiple size="10" id="runs" style="width:95%"></select><br><button onclick="plot()">Plot selected saved runs</button><button onclick="closeEditor()">Close</button><pre id="status"></pre><script>
-const TOKEN=__TOKEN__,TARGET=__TARGET__,RUN_TYPE=__RUN_TYPE__;if(RUN_TYPE==='por')document.getElementById('member-row').hidden=true;document.getElementById('target').textContent=TARGET;
+PAGE='''<!doctype html><meta charset="utf-8"><title>Standalone saved results</title><style>body{font:16px system-ui;max-width:1000px;margin:30px auto}input,select,button{font:inherit;padding:8px;margin:6px}label{display:block}pre{white-space:pre-wrap}</style><h1>Standalone saved results</h1><p id="target"></p><p>Capture only after checking successful native compute. Saved archives are independent of future changes to simulation.dss.</p><pre id="status" role="status"></pre><button onclick="refresh()">Refresh completed outputs and saved runs</button><label>Completed output <select id="output"></select></label><label>Name <input id="name" placeholder="Descriptive result name"></label><label>Archive purpose <select id="kind"><option value="baseline">New baseline</option><option value="result">Result paired with baseline</option></select></label><label>Baseline for result <select id="baseline"></select></label><button onclick="capture()">Archive completed results</button><hr><h2>Plot archived results</h2><p>Select one or two runs (Ctrl-click for two).</p><select multiple size="10" id="runs" style="width:95%"></select><br><button onclick="plot()">Plot selected saved runs</button><button onclick="closeEditor()">Close</button><script>
+const TOKEN=__TOKEN__,TARGET=__TARGET__,RUN_TYPE=__RUN_TYPE__;document.getElementById('target').textContent=TARGET;
 const el=id=>document.getElementById(id);async function call(path,data){el('status').textContent='Working…';const response=await fetch(path,{method:'POST',headers:{'X-Editor-Token':TOKEN},body:JSON.stringify(data)});const result=await response.json();if(!response.ok)throw Error(result.error);return result}
-async function refresh(){try{const data=await call('/list',{});el('output').replaceChildren();for(const code of data.outputs)el('output').add(new Option(code,code));el('runs').replaceChildren();el('baseline').replaceChildren();for(const row of data.runs){let label=row.label+' ['+row.kind+'] '+row.created_utc;el('runs').add(new Option(label,row.id));if(row.kind==='baseline')el('baseline').add(new Option(label,row.id))}el('status').textContent='Ready'}catch(e){el('status').textContent=e.message}}
+async function refresh(){try{const data=await call('/list',{});el('output').replaceChildren();for(const code of data.outputs)el('output').add(new Option(code,code));el('runs').replaceChildren();el('baseline').replaceChildren();for(const row of data.runs){let label=row.label+' ['+row.kind+'] '+row.created_utc;el('runs').add(new Option(label,row.id));if(row.kind==='baseline')el('baseline').add(new Option(label,row.id))}el('status').textContent=data.outputs.length?'Ready':'No compatible outputs found in simulation.dss for this mode. Verify the selected simulation and native run type.'}catch(e){el('status').textContent=e.message}}
 async function capture(){if(!confirm('Has the selected native compute finished successfully for every intended member and date? Archive these results?'))return;try{await call('/capture',{label:el('name').value,code:el('output').value,kind:el('kind').value,baseline_id:el('baseline').value,confirmed:true});await refresh()}catch(e){el('status').textContent=e.message}}
 async function plot(){try{const result=await call('/plot',{ids:[...el('runs').selectedOptions].map(o=>o.value)});el('status').textContent='Plots: '+result.path}catch(e){el('status').textContent=e.message}}
-async function modelCheck(){if(!confirm('Confirm compute is finished and the selected output/member and current configuration are the ones to check.'))return;try{let value=el('member').value;if(RUN_TYPE==='ensemble'&&!value.trim())throw Error('Enter one ensemble member ID');let result=await call('/model_check',{code:el('output').value,member:RUN_TYPE==='ensemble'?Number(value):null});el('status').textContent='Model check: '+result.path}catch(e){el('status').textContent=e.message}}
 async function closeEditor(){await call('/close',{});document.body.textContent='Closed'}refresh();</script>'''
 
 
-def serve(root,alternative,run_type="ensemble"):
+CHECK_PAGE='''<!doctype html><meta charset="utf-8"><title>Model Check</title>
+<style>body{font:16px system-ui;max-width:850px;margin:30px auto}input,button{font:inherit;padding:8px;margin:8px}label{display:block}pre{white-space:pre-wrap}</style>
+<h1>Model Check</h1><p id="target"></p><p>Uses the simulation and alternative selected in the workflow menu. Finish native compute before checking.</p>
+<label>Report name (optional) <input id="name"></label>__MEMBER__
+<button onclick="check()">Run Model Check</button><button onclick="closeEditor()">Close</button><pre id="status" role="status"></pre>
+<script>const TOKEN=__TOKEN__,TARGET=__TARGET__,RUN_TYPE=__RUN_TYPE__;
+document.getElementById('target').textContent=TARGET;
+async function call(path,data){const response=await fetch(path,{method:'POST',headers:{'X-Editor-Token':TOKEN},body:JSON.stringify(data)});const result=await response.json();if(!response.ok)throw Error(result.error);return result}
+async function check(){let status=document.getElementById('status');try{let data={label:document.getElementById('name').value};if(RUN_TYPE==='ensemble'){let value=document.getElementById('member').value;if(!value.trim())throw Error('Enter one ensemble member ID');data.member=Number(value)}if(!confirm('Confirm the selected simulation/alternative has finished computing and its current settings match these results.'))return;status.textContent='Checking…';let result=await call('/model_check',data);status.textContent='Report: '+result.path}catch(e){status.textContent=e.message}}
+async function closeEditor(){await call('/close',{});document.body.textContent='Closed'}</script>'''
+
+
+def serve(root,alternative,run_type="ensemble",check_only=False):
     root=Path(root);token=secrets.token_urlsafe(32)
-    page=PAGE.replace('__RUN_TYPE__',json.dumps(run_type)).replace('__TOKEN__',json.dumps(token)).replace('__TARGET__',json.dumps(str(root)+' / '+alternative+' / '+('Single POR' if run_type=='por' else 'Ensemble')).replace('</','<\\/'))
+    template=CHECK_PAGE if check_only else PAGE
+    template=template.replace('__MEMBER__','<label>Ensemble member <input id="member" type="number" min="0" step="1"></label>' if run_type=='ensemble' else '')
+    page=template.replace('__RUN_TYPE__',json.dumps(run_type)).replace('__TOKEN__',json.dumps(token)).replace('__TARGET__',json.dumps(str(root)+' / '+alternative+' / '+('Single POR' if run_type=='por' else 'Ensemble')).replace('</','<\\/'))
     task_lock=threading.Lock()
     class Handler(BaseHTTPRequestHandler):
         def log_message(self,*args):pass
@@ -193,7 +208,7 @@ def serve(root,alternative,run_type="ensemble"):
                 elif self.path=='/model_check':
                     from standalone_model_check import run
                     if not task_lock.acquire(False):raise ValueError('Another result task is running')
-                    try:path=run(root,alternative,data['code'],run_type,data.get('member'))
+                    try:path=run(root,alternative,None,run_type,data.get('member'),data.get('label'))
                     finally:task_lock.release()
                     webbrowser.open(path.resolve().as_uri());result={'path':str(path)}
                 elif self.path=='/plot':
@@ -212,6 +227,7 @@ def serve(root,alternative,run_type="ensemble"):
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--watershed',required=True,type=Path);parser.add_argument('--simulation',required=True);parser.add_argument('--alternative',required=True)
+    parser.add_argument('--model-check',action='store_true')
     parser.add_argument('--run-type',choices=('ensemble','por'),default='ensemble')
     args=parser.parse_args();from standalone_configuration import context
-    ctx=context(args.watershed,args.alternative,args.simulation);serve(Path(ctx['dss_path']).parent,args.alternative,args.run_type)
+    ctx=context(args.watershed,args.alternative,args.simulation);serve(Path(ctx['dss_path']).parent,args.alternative,args.run_type,args.model_check)

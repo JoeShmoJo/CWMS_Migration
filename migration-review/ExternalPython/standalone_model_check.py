@@ -13,25 +13,38 @@ def load(name,path):
     module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module);return module
 
 
-def run(root,alternative,code,run_type,member=None):
+def select_output(paths,alternative,run_type,member=None,code=None):
+    """Resolve the selected alternative, never another run or arbitrary member."""
+    suffix=alternative.replace(' ','-').ljust(10,'-')
+    prefix=('C:'+str(member).zfill(6)+'|' if run_type=='ensemble' else '')
+    available={str(path).split('/')[6] for path in paths if len(str(path).split('/'))==8}
+    candidates={value for value in available if value.upper().startswith(prefix.upper())
+                and re.fullmatch(re.escape(suffix)+r'\d+',value[len(prefix):],re.I)}
+    desired=prefix+(code or suffix+'0')
+    matches=[value for value in candidates if value.upper()==desired.upper()]
+    if len(matches)==1:return matches[0]
+    if code is None and len(candidates)==1:return candidates.pop()
+    raise ValueError('No unique output for selected alternative/member: '+desired+
+                     '. Matching F-parts: '+', '.join(sorted(candidates)))
+
+
+def run(root,alternative,code=None,run_type='por',member=None,label=None):
     root=Path(root);watershed=root.parent.parent;source=root/'simulation.dss'
     if run_type not in ('ensemble','por'):raise ValueError('Invalid run type')
     if run_type=='ensemble' and (isinstance(member,bool) or not isinstance(member,int) or member<0):raise ValueError('Select a single ensemble member')
-    suffix=alternative.replace(' ','-').ljust(10,'-')
-    if not re.fullmatch(re.escape(suffix)+r'\d+',code,re.I):raise ValueError('Output does not match native alternative')
-    fpart=('C:'+str(member).zfill(6)+'|' if run_type=='ensemble' else '')+code
     from pydsstools.heclib.dss import HecDss
     before=signature(source)
     with HecDss.Open(str(source)) as dss:
-        available={str(path).split('/')[6] for path in dss.getPathnameList('/*/*/*/*/*/*/') if len(str(path).split('/'))==8}
-    matches=[value for value in available if value.upper()==fpart.upper()]
-    if len(matches)!=1:raise ValueError('Exact completed output/member is absent or ambiguous: '+fpart)
-    fpart=matches[0]
+        paths=dss.getPathnameList('/*/*/*/*/*/*/')
+        if not paths:paths=dss.getPathnameList('*')
+    fpart=select_output(paths,alternative,run_type,member,code)
     folder=watershed/'scripts/model_check'
     if not (folder/'extract_dss.py').is_file():raise ValueError('Install the model-check scripts into this watershed first')
-    destination=root/'model-check-runs'/('check-'+uuid.uuid4().hex);destination.mkdir(parents=True)
+    report_name=str(label or alternative+' model check').strip()
+    slug=re.sub(r'[^A-Za-z0-9_-]+','-',report_name).strip('-')[:64] or 'report'
+    destination=root/'model-check-runs'/('check-'+slug+'-'+uuid.uuid4().hex);destination.mkdir(parents=True)
     status={'status':'incomplete','source':str(source),'source_signature':before,'alternative':alternative,
-            'run_type':run_type,'member':member if run_type=='ensemble' else None,'f_part':fpart,
+            'label':report_name,'run_type':run_type,'member':member if run_type=='ensemble' else None,'f_part':fpart,
             'note':'Checks current configured expectations against selected live results; native compute freshness and operation-report freshness must be verified by operator.'}
     try:
         extractor=load('workflow_check_extract',folder/'extract_dss.py')

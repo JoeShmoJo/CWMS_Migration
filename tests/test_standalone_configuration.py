@@ -109,6 +109,25 @@ class StandaloneTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'No OSI copy'):
             jobs.execute(self.root,'Test_simulation','Con_Season','extract','por')
 
+    def test_por_augmentation_launches_with_private_por_settings(self):
+        from unittest.mock import patch
+        import standalone_jobs as jobs
+        config=standalone.current(self.sim,self.scripts,self.context)
+        config['standalone_workflow']={'run_type':'por'}
+        editor.apply_configuration(self.sim,self.context,config,self.scripts)
+        requests=[]
+        def child(command,**kwargs):
+            requests.append(json.loads(Path(command[-1]).read_text()))
+        with patch('subprocess.run',side_effect=child):
+            jobs.execute(self.root,'Test_simulation','Con_Season','augmentation','por')
+        self.assertEqual(len(requests),1)
+        self.assertEqual(requests[0]['values']['RUN_TYPE'],'por')
+        self.assertTrue(requests[0]['script'].endswith('MainstemAugmentation.py'))
+        installer.install(self.root)  # repeated installation preserves the hook
+        source=(self.scripts/'MainstemAugmentation.py').read_text()
+        self.assertEqual(source.count('from standalone_por_augmentation import'),1)
+        self.assertTrue((self.scripts/'standalone_por_augmentation.py').is_file())
+
     def test_job_settings_validation_and_unapplied_target_rejected(self):
         import standalone_jobs as jobs
         settings=jobs.defaults(self.scripts)

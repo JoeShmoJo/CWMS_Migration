@@ -130,3 +130,10 @@ so computed 3000–3003 members can be processed. This does not certify freshnes
 verify the native compute selection and remove stale records only through your
 normal deliberate test-data preparation. Dates/constants outside member selection
 are preserved from the actual installed scripts.
+
+## Archive purpose versus simulation type
+
+**Archive purpose** labels saved results as a new baseline or a result paired
+with a saved baseline. It does not change POR/ensemble mode or native operations.
+Those archive controls are not required for Model Check, which has a separate
+page bound to the simulation and alternative selected in the main menu.

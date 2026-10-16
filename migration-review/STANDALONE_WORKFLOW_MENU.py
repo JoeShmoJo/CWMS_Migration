@@ -50,14 +50,15 @@ class Menu:
         buttons.add(self.run_type)
         buttons.add(JButton('Baseline Configuration', actionPerformed=lambda e: self.open_baseline()))
         jobs = [('Extract ensemble inputs', 'extract'),
-                ('Calculate ensemble augmentation', 'augmentation')]
+                ('Calculate augmentation', 'augmentation')]
         self.ensemble_buttons = []
         for title, job in jobs:
             button = JButton(title, actionPerformed=lambda e, t=title, j=job: self.start(t, j))
-            self.ensemble_buttons.append(button);buttons.add(button)
+            if job == 'extract': self.ensemble_buttons.append(button)
+            buttons.add(button)
         self.run_type.addActionListener(self.update_mode)
         buttons.add(JButton('Archive / Plot Results', actionPerformed=lambda e: self.open_results()))
-        buttons.add(JButton('Model Check', actionPerformed=lambda e: self.open_results()))
+        buttons.add(JButton('Model Check', actionPerformed=lambda e: self.open_results(True)))
         self.frame.add(buttons, BorderLayout.NORTH)
         self.frame.add(JScrollPane(self.text), BorderLayout.CENTER)
         self.frame.pack()
@@ -92,7 +93,7 @@ class Menu:
         builder.redirectOutput(File(self.log))
         builder.start()
         self.message('Configuration editor starting. Browser opens after settings load. Log: ' + self.log)
-    def open_results(self):
+    def open_results(self, model_check=False):
         if self.busy: return
         simulation = str(self.simulation.getSelectedItem())
         alternative = str(self.alternative.getText()).strip()
@@ -104,6 +105,7 @@ class Menu:
         command = ArrayList()
         for arg in [python, '-u', filename, '--watershed', root, '--simulation', simulation,
                     '--alternative', alternative, '--run-type', 'por' if self.run_type.getSelectedIndex() == 1 else 'ensemble']: command.add(arg)
+        if model_check: command.add('--model-check')
         directory = os.path.join(root, 'standalone-workflow-logs')
         if not os.path.isdir(directory): os.makedirs(directory)
         self.log = os.path.join(directory, 'results-' + str(System.currentTimeMillis()) + '.log')
@@ -124,8 +126,8 @@ class Menu:
             'Run standalone scripts', JOptionPane.OK_CANCEL_OPTION) != JOptionPane.OK_OPTION:
             return
         run_type = 'por' if self.run_type.getSelectedIndex() == 1 else 'ensemble'
-        if run_type == 'por':
-            JOptionPane.showMessageDialog(self.frame, 'Use existing POR inputs and compute in ResSim. Ensemble extraction/augmentation jobs are unavailable in Single POR mode; no OSI copy is needed.')
+        if run_type == 'por' and job == 'extract':
+            JOptionPane.showMessageDialog(self.frame, 'Use existing POR inputs and compute in ResSim. Ensemble extraction is unavailable in Single POR mode; no OSI copy is needed.')
             return
         self.busy = True
         Thread(Call(lambda: self.run(title, job, simulation, alternative, run_type)), 'Standalone workflow job').start()
